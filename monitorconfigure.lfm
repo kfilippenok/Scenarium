@@ -1,0 +1,43 @@
+object fMonitorConfigure: TfMonitorConfigure
+  Left = 705
+  Height = 240
+  Top = 324
+  Width = 425
+  BorderStyle = bsDialog
+  Caption = 'Настройка вывода изображения'
+  ClientHeight = 240
+  ClientWidth = 425
+  OnCreate = FormCreate
+  Position = poMainFormCenter
+  LCLVersion = '2.2.6.0'
+  object panMonitors: TPanel
+    Left = 0
+    Height = 190
+    Top = 50
+    Width = 425
+    Align = alClient
+    TabOrder = 0
+  end
+  object panUpdateMonitorsList: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 425
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = 'panUpdateMonitorsList'
+    ClientHeight = 50
+    ClientWidth = 425
+    TabOrder = 1
+    object sbtnUpdateMonitorsList: TSpeedButton
+      Left = 0
+      Height = 50
+      Top = 0
+      Width = 425
+      Align = alClient
+      Caption = 'Обновить'
+      Color = clHotLight
+      OnClick = UpdateMonitorsList
+    end
+  end
+end

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="12"/>
+    <PathDelim Value="\"/>
+    <General>
+      <SessionStorage Value="InProjectDir"/>
+      <Title Value="Scenarium"/>
+      <Scaled Value="True"/>
+      <ResourceType Value="res"/>
+      <UseXPManifest Value="True"/>
+      <XPManifest>
+        <DpiAware Value="True"/>
+      </XPManifest>
+      <Icon Value="0"/>
+      <Resources Count="22">
+        <Resource_0 FileName="icons\add.png" Type="BITMAP" ResourceName="ADD"/>
+        <Resource_1 FileName="icons\clear.png" Type="BITMAP" ResourceName="CLEAR"/>
+        <Resource_2 FileName="icons\info.png" Type="BITMAP" ResourceName="INFO"/>
+        <Resource_3 FileName="icons\monitor_active.png" Type="BITMAP" ResourceName="MONITOR_ACTIVE"/>
+        <Resource_4 FileName="icons\monitor_inactive.png" Type="BITMAP" ResourceName="MONITOR_INACTIVE"/>
+        <Resource_5 FileName="icons\pause.png" Type="BITMAP" ResourceName="PAUSE"/>
+        <Resource_6 FileName="icons\pause_active.png" Type="BITMAP" ResourceName="PAUSE_ACTIVE"/>
+        <Resource_7 FileName="icons\play.png" Type="BITMAP" ResourceName="PLAY"/>
+        <Resource_8 FileName="icons\play_active.png" Type="BITMAP" ResourceName="PLAY_ACTIVE"/>
+        <Resource_9 FileName="icons\scenario.png" Type="BITMAP" ResourceName="SCENARIO"/>
+        <Resource_10 FileName="icons\settings.png" Type="BITMAP" ResourceName="SETTINGS"/>
+        <Resource_11 FileName="icons\share_screen_off.png" Type="BITMAP" ResourceName="SHARE_SCREEN_OFF"/>
+        <Resource_12 FileName="icons\share_screen_on.png" Type="BITMAP" ResourceName="SHARE_SCREEN_ON"/>
+        <Resource_13 FileName="icons\share_screen_settings.png" Type="BITMAP" ResourceName="SHARE_SCREEN_SETTINGS"/>
+        <Resource_14 FileName="icons\speaker_0.png" Type="BITMAP" ResourceName="SPEAKER_0"/>
+        <Resource_15 FileName="icons\speaker_1.png" Type="BITMAP" ResourceName="SPEAKER_1"/>
+        <Resource_16 FileName="icons\speaker_2.png" Type="BITMAP" ResourceName="SPEAKER_2"/>
+        <Resource_17 FileName="icons\speaker_off.png" Type="BITMAP" ResourceName="SPEAKER_OFF"/>
+        <Resource_18 FileName="icons\speaker_on.png" Type="BITMAP" ResourceName="SPEAKER_ON"/>
+        <Resource_19 FileName="icons\stop.png" Type="BITMAP" ResourceName="STOP"/>
+        <Resource_20 FileName="icons\stop_active.png" Type="BITMAP" ResourceName="STOP_ACTIVE"/>
+        <Resource_21 FileName="icons\subtract.png" Type="BITMAP" ResourceName="SUBTRACT"/>
+      </Resources>
+    </General>
+    <BuildModes>
+      <Item Name="Default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+    <RunParams>
+      <FormatVersion Value="2"/>
+    </RunParams>
+    <RequiredPackages>
+      <Item>
+        <PackageName Value="BGLControls"/>
+      </Item>
+      <Item>
+        <PackageName Value="LCL"/>
+      </Item>
+    </RequiredPackages>
+    <Units>
+      <Unit>
+        <Filename Value="Scenarium.lpr"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="main.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fMain"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Main"/>
+      </Unit>
+      <Unit>
+        <Filename Value="aboutproject.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fAboutProject"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="AboutProject"/>
+      </Unit>
+      <Unit>
+        <Filename Value="playbackvideo.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fPlaybackVideo"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="PlaybackVideo"/>
+      </Unit>
+      <Unit>
+        <Filename Value="playlist.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Playlist"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVBasePlayer.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVClient.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVConst.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVNode.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVRender.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVRenderGL.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVStreamCB.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="LibMPVDelphi\MPVTrack.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="settings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fSettings"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Settings"/>
+      </Unit>
+      <Unit>
+        <Filename Value="playbackaudio.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fPlaybackAudio"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="PlaybackAudio"/>
+      </Unit>
+      <Unit>
+        <Filename Value="monitorconfigure.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fMonitorConfigure"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="MonitorConfigure"/>
+      </Unit>
+      <Unit>
+        <Filename Value="pocket.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Pocket"/>
+      </Unit>
+    </Units>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="11"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="Scenarium"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="LibMPVDelphi"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+        <UseHeaptrc Value="True"/>
+      </Debugging>
+      <Options>
+        <PassLinkerOptions Value="True"/>
+        <LinkerOptions Value="libmpv-2.dll"/>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions>
+      <Item>
+        <Name Value="EAbort"/>
+      </Item>
+      <Item>
+        <Name Value="ECodetoolError"/>
+      </Item>
+      <Item>
+        <Name Value="EFOpenError"/>
+      </Item>
+    </Exceptions>
+  </Debugging>
+</CONFIG>

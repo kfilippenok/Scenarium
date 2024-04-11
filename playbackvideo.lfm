@@ -1,0 +1,23 @@
+object fPlaybackVideo: TfPlaybackVideo
+  Left = 773
+  Height = 279
+  Top = 166
+  Width = 336
+  BorderStyle = bsNone
+  Caption = 'Воспроизведение видео'
+  ClientHeight = 279
+  ClientWidth = 336
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  ParentFont = True
+  LCLVersion = '2.2.6.0'
+  WindowState = wsFullScreen
+  object panMPVHandle: TPanel
+    Left = 0
+    Height = 279
+    Top = 0
+    Width = 336
+    Align = alClient
+    TabOrder = 0
+  end
+end
