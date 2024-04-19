@@ -230,6 +230,14 @@ end;
 procedure TfMain.BondButtonClick(Sender: TObject);
 begin
   ShowMessage(
+    IntToStr(
+      glBonds.GetInvokingWhereProvoking(
+        StrToInt(
+          (Sender as TBitBtn).Name[Length((Sender as TBitBtn).Name)]
+        )
+      )
+    )
+    + ' ' +
     clboxVideoPlaylist.Items.Strings[
       glBonds.GetInvokingWhereProvoking(
         StrToInt(
@@ -641,6 +649,8 @@ end;
 procedure TfMain.miAudioDeleteBondClick(Sender: TObject);
 var bbtnFindedVideoBond: TBitBtn;
 begin
+  { #todo 1 -okfilippenok -cBonds : Исправить удаление связи }
+
   glBonds.DeleteWhereProvoking(clboxAudioPlaylist.ItemIndex);
 
   if fMain.FindComponent('bbtnBondVideo' + IntToStr(clboxAudioPlaylist.ItemIndex)) <> NIL then
@@ -820,6 +830,10 @@ begin
     // Отрисовываем текст с заданными параметрами
     Canvas.TextOut(ARect.Left + 23, (ARect.Top + ARect.Height div 4), savedItem);
 
+    { Номер элемента }
+    Canvas.TextOut(ARect.Left + 5, (ARect.Top + ARect.Height div 4), IntToStr(Index));
+    { Номер элемента }
+
     { Связи }
     if glBonds.IndexOfProvoking(Index) <> -1 then
     begin
@@ -828,6 +842,7 @@ begin
           bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(Index)) as TBitBtn);
           bbtnFindedVideoBond.Left := ARect.Right - 54;
           bbtnFindedVideoBond.Top := ARect.Top + 5;
+          bbtnFindedVideoBond.Repaint;
         end
       else
         begin
@@ -845,10 +860,6 @@ begin
         end;
     end;
     { Связи }
-
-    { Номер элемента }
-    Canvas.TextOut(ARect.Left + 5, (ARect.Top + ARect.Height div 4), IntToStr(Index));
-    { Номер элемента }
 
     { Checkbox }{
     // Проверка состояния CheckBox'а

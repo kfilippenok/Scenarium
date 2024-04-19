@@ -4,6 +4,9 @@ object fMain: TfMain
   Height = 462
   Top = 299
   Width = 1113
+  VertScrollBar.Increment = 2
+  VertScrollBar.Page = 20
+  VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = 'Scenarium'
   ClientHeight = 442
@@ -39,6 +42,7 @@ object fMain: TfMain
     ClientHeight = 410
     ClientWidth = 563
     Color = clForm
+    FullRepaint = False
     ParentBackground = False
     ParentColor = False
     TabOrder = 0
