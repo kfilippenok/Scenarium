@@ -1234,6 +1234,7 @@ object fMain: TfMain
     Top = 328
   end
   object ppmnAudioPlaylist: TPopupMenu
+    OnPopup = ppmnAudioPlaylistPopup
     Left = 64
     Top = 160
     object miAudioDelete: TMenuItem

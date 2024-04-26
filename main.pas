@@ -119,6 +119,7 @@ type
     procedure miAudioDeleteBondClick(Sender: TObject);
     procedure miAudioDeleteClick(Sender: TObject);
     procedure muVideoDeleteClick(Sender: TObject);
+    procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
 
@@ -237,7 +238,7 @@ begin
         )
       )
     )
-    + ' ' +
+    + ' - ' +
     clboxVideoPlaylist.Items.Strings[
       glBonds.GetInvokingWhereProvoking(
         StrToInt(
@@ -318,7 +319,6 @@ procedure TfMain.FormCreate(Sender: TObject);
 begin
   SetElementGlyphs();
 
-  { #todo 1 -okfilippenok -cDoubleBuffered : Выяснить работает ли DoubleBuffered }
   // DoubleBuffered
   fMain.DoubleBuffered := True;
   panAudio.DoubleBuffered:=True;
@@ -385,8 +385,6 @@ begin
     lblCurrentAudioItem.Caption := ExtractFileName(glCurrentAudioItem);
     audioPlayer.OpenFile(glCurrentAudioItem);
 
-    { #todo 1 -okfilippenok -cBonds : Доделать одновременный запуск }
-
     { Связи }
     IndexBond := glBonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex);
     if IndexBond <> -1 then
@@ -428,7 +426,6 @@ begin
 
   miAudioDeleteBond.Visible := True;
 
-  { #todo 1 -okfilippenok -cBonds : Доделать выделение по клику }
   clboxVideoPlaylist.ClearSelection;
   clboxVideoPlaylist.Selected[glBonds.GetInvokingWhereProvoking(clboxAudioPlaylist.ItemIndex)] := True;
 end;
@@ -530,8 +527,6 @@ begin
       bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(clboxAudioPlaylist.ItemIndex)) as TBitBtn);
       bbtnFindedVideoBond.Caption := IntToStr(glBonds.arInvoking[glBonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex)]);
     end;
-
-  miAudioDeleteBond.Visible := True;
 
   clboxAudioPlaylist.Repaint;
 end;
@@ -649,8 +644,6 @@ end;
 procedure TfMain.miAudioDeleteBondClick(Sender: TObject);
 var bbtnFindedVideoBond: TBitBtn;
 begin
-  { #todo 1 -okfilippenok -cBonds : Исправить удаление связи }
-
   glBonds.DeleteWhereProvoking(clboxAudioPlaylist.ItemIndex);
 
   if fMain.FindComponent('bbtnBondVideo' + IntToStr(clboxAudioPlaylist.ItemIndex)) <> NIL then
@@ -671,6 +664,14 @@ end;
 procedure TfMain.muVideoDeleteClick(Sender: TObject);
 begin
   sbtnVideoSubtract.Click;
+end;
+
+procedure TfMain.ppmnAudioPlaylistPopup(Sender: TObject);
+begin
+  if glBonds.InProvoking(clboxAudioPlaylist.ItemIndex) then
+    miAudioDeleteBond.Visible := True
+  else
+    miAudioDeleteBond.Visible := False;
 end;
 
 procedure TfMain.clboxVideoPlaylistDrawItem(Control: TWinControl;
@@ -842,6 +843,7 @@ begin
           bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(Index)) as TBitBtn);
           bbtnFindedVideoBond.Left := ARect.Right - 54;
           bbtnFindedVideoBond.Top := ARect.Top + 5;
+          bbtnFindedVideoBond.Caption := IntToStr(glBonds.GetInvokingWhereProvoking(Index));
           bbtnFindedVideoBond.Repaint;
         end
       else
@@ -886,23 +888,46 @@ end;
 
 procedure TfMain.sbtnVideoSubtractClick(Sender: TObject);
 var
-  i, del_count: word;
+  i, t, tmp_count: Integer;
+  bbtnFindedVideoBond: TBitBtn;
 begin
-  i := 0;
-  del_count := 0;
-  while i < clboxVideoPlaylist.Count do
+  tmp_count := clboxVideoPlaylist.Count-1;
+  i := tmp_count;
+  while i >= 0 do
   begin
     if clboxVideoPlaylist.Selected[i] then
     begin
-      if clboxVideoPlaylist.Items[i] <> glCurrentAudioItem then
+      if clboxVideoPlaylist.Items[i] <> glCurrentVideoItem then
       begin
-        glVideoFileNames.Delete(i - del_count);
-        glVideoFilePaths.Delete(i - del_count);
-        del_count += 1;
+        { Связи }
+        while glBonds.InProvoking(glBonds.GetProvokingWhereInvoking(i)) do
+          begin
+            // Сначала очищаем кнопку
+            if fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.GetProvokingWhereInvoking(i))) <> NIL then
+              begin
+                bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.GetProvokingWhereInvoking(i))) as TBitBtn);
+                FreeAndNil(bbtnFindedVideoBond);
+                // Затем очищаем саму связь
+                glBonds.DeleteWhereProvoking(glBonds.GetProvokingWhereInvoking(i));
+              end;
+          end;
+        { Связи }
+
+        glVideoFileNames.Delete(i);
+        glVideoFilePaths.Delete(i);
+
+        { Связи }
+        // Обновляем индексы по вызываемым
+        for t := i to clboxVideoPlaylist.Count-1 do
+        begin
+          glBonds.UpdateWhereInvoking(t, t-1);
+        end;
+        { Связи }
       end;
     end;
-    i += 1;
+    Dec(i);
   end;
+  clboxAudioPlaylist.Repaint;
   clboxVideoPlaylist.Items := glVideoFileNames;
 end;
 
@@ -956,13 +981,15 @@ end;
 procedure TfMain.LoadScenarioFromJSON(FilePath: String);
 var
   jdScenario: TJSONData = NIL;
-  jaAudioFilePaths, jaVideoFilePaths: TJSONArray;
+  jaAudioFilePaths, jaVideoFilePaths, jaAudioBondsProvoking, jaAudioBondsInvoking: TJSONArray;
   i: Integer;
 begin
   // Читаем из файла
   jdScenario := GetJSON(ReadFileToString(FilePath));
   // Получаем массив JSON со списком файлов
   jaAudioFilePaths := (jdScenario.FindPath('AudioFilePaths') as TJSONArray); (* Аудио *)
+  jaAudioBondsProvoking := (jdScenario.FindPath('AudioBondsProvoking') as TJSONArray); (* Связи *)
+  jaAudioBondsInvoking := (jdScenario.FindPath('AudioBondsInvoking') as TJSONArray);   (* Связи *)
   jaVideoFilePaths := (jdScenario.FindPath('VideoFilePaths') as TJSONArray); (* Видео *)
 
   // Очищяем список файлов (Аудио)
@@ -979,6 +1006,15 @@ begin
       end;
     end;
   clboxAudioPlaylist.Items := glAudioFileNames;
+
+  // Очищяем список (Связи)
+  glBonds.Clear;
+  // Заполняем список (Связи)
+  if jaAudioBondsProvoking.Count > 0 then
+    for i := 0 to jaAudioBondsProvoking.Count-1 do
+    begin
+      glBonds.Add(jaAudioBondsProvoking.Integers[i], jaAudioBondsInvoking.Integers[i]);
+    end;
 
   // Очищяем список файлов (Видео)
   glVideoFilePaths.Clear;
@@ -1074,8 +1110,8 @@ begin
 end;
 
 procedure TfMain.ScenarioSaveAsClick(Sender: TObject);
-var JSONObject: TJSONObject;
-    JSONArrayAudio, JSONArrayVideo: TJSONArray;
+var jObject: TJSONObject;
+    jarAudio, jarVideo, jarAudioBondsProvoking, jarAudioBondsInvoking: TJSONArray;
     i: Word;
     StringList: TStringList;
 begin
@@ -1084,31 +1120,47 @@ begin
   SaveDialog.Filter := 'JSON|*.json|Все файлы|*.*|';
   if SaveDialog.Execute then
   begin
-    JSONObject := TJSONObject.Create;
+    jObject := TJSONObject.Create;
 
-    JSONArrayAudio := TJSONArray.Create;
+    jarAudio := TJSONArray.Create;
     if glAudioFilePaths.Count > 0 then
     for i := 0 to glAudioFilePaths.Count-1 do
     begin
-      JSONArrayAudio.Add(glAudioFilePaths.Strings[i]);
+      jarAudio.Add(glAudioFilePaths.Strings[i]);
     end;
-    JSONObject.Add('AudioFilePaths', JSONArrayAudio);
+    jObject.Add('AudioFilePaths', jarAudio);
 
-    JSONArrayVideo := TJSONArray.Create;
+    jarAudioBondsProvoking := TJSONArray.Create;
+    if glBonds.Count > 0 then
+    for i := 0 to glBonds.Count-1 do
+    begin
+      jarAudioBondsProvoking.Add(glBonds.arProvoking[i]);
+    end;
+    jObject.Add('AudioBondsProvoking', jarAudioBondsProvoking);
+
+    jarAudioBondsInvoking := TJSONArray.Create;
+    if glBonds.Count > 0 then
+    for i := 0 to glBonds.Count-1 do
+    begin
+      jarAudioBondsInvoking.Add(glBonds.arInvoking[i]);
+    end;
+    jObject.Add('AudioBondsInvoking', jarAudioBondsInvoking);
+
+    jarVideo := TJSONArray.Create;
     if glVideoFilePaths.Count > 0 then
     for i := 0 to glVideoFilePaths.Count-1 do
     begin
-      JSONArrayVideo.Add(glVideoFilePaths.Strings[i]);
+      jarVideo.Add(glVideoFilePaths.Strings[i]);
     end;
-    JSONObject.Add('VideoFilePaths', JSONArrayVideo);
+    jObject.Add('VideoFilePaths', jarVideo);
 
     StringList := TStringList.Create;
-    StringList.Add(JSONObject.FormatJSON);
+    StringList.Add(jObject.FormatJSON);
     StringList.SaveToFile(Utf8ToSys(SaveDialog.FileName));
 
     TabControl.Tabs.Strings[TabControl.TabIndex] := SaveDialog.FileName;
 
-    FreeAndNil(JSONObject);
+    FreeAndNil(jObject);
     FreeAndNil(StringList);
   end;
 end;
@@ -1161,22 +1213,45 @@ end;
 
 procedure TfMain.sbtnAudioSubtractClick(Sender: TObject);
 var
-  i, del_count: word;
+  bbtnFindedVideoBond: TBitBtn;
+  i, tmp_count, t: Integer;
 begin
-  i := 0;
-  del_count := 0;
-  while i < clboxAudioPlaylist.Count do
+  tmp_count := clboxAudioPlaylist.Count-1;
+  i := tmp_count;
+  while i >= 0 do
   begin
     if clboxAudioPlaylist.Selected[i] then
     begin
       if clboxAudioPlaylist.Items[i] <> glCurrentAudioItem then
       begin
-        glAudioFileNames.Delete(i - del_count);
-        glAudioFilePaths.Delete(i - del_count);
-        del_count += 1;
+        { Связи }
+        // Сначала очищаем кнопку
+        if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
+          begin
+            bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) as TBitBtn);
+            FreeAndNil(bbtnFindedVideoBond);
+            // Затем очищаем саму связь
+            glBonds.DeleteWhereProvoking(i);
+          end;
+        { Связи }
+        glAudioFileNames.Delete(i);
+        glAudioFilePaths.Delete(i);
+        { Связи }
+        // Обновляем индексы в вызывающих
+        for t := i to clboxAudioPlaylist.Count-1 do
+        begin
+          // Очищаем старые кнопки
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(t)) <> NIL then
+          begin
+            bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(t)) as TBitBtn);
+            FreeAndNil(bbtnFindedVideoBond);
+          end;
+          glBonds.UpdateWhereProvoking(t, t-1);
+        end;
+        { Связи }
       end;
     end;
-    i += 1;
+    Dec(i);
   end;
   clboxAudioPlaylist.Items := glAudioFileNames;
 end;

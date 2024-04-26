@@ -24,8 +24,9 @@ type
       arInvoking: array of Integer;
       procedure Add(Provoking, Invoking: Integer);
       procedure DeleteWhereProvoking(Provoking: Integer);
-      procedure DeleteWhereInvoking(Provoking: Integer);
+      procedure DeleteWhereInvoking(Invoking: Integer);
       function GetInvokingWhereProvoking(Provoking: Integer): Integer;
+      function GetProvokingWhereInvoking(Invoking: Integer): Integer;
       function IndexOfProvoking(Provoking: Integer): Integer;
       function IndexOfInvoking(Invoking: Integer): Integer;
       procedure UpdateWhereProvoking(oldProvoking, newProvoking: Integer);
@@ -128,7 +129,32 @@ begin
           for t := i to (Count-2) do
             begin
               arProvoking[t] := arProvoking[t+1];
+              arInvoking[t] := arInvoking[t+1];
+            end;
+          SetLength(arProvoking, Count-1);
+          SetLength(arInvoking, Count);
+        end;
+    end;
+end;
+
+procedure CBonds.DeleteWhereInvoking(Invoking: Integer);
+var i, t : Integer;
+begin
+  for i := 0 to (Count - 1) do
+    begin
+      if arInvoking[i] = Invoking then
+        begin
+          if Count = 1 then
+            begin
+              SetLength(arProvoking, 0);
+              SetLength(arInvoking, 0);
+              Exit;
+            end;
+
+          for t := i to (Count-2) do
+            begin
               arProvoking[t] := arProvoking[t+1];
+              arInvoking[t] := arInvoking[t+1];
               SetLength(arProvoking, Count-1);
               SetLength(arInvoking, Count);
             end;
@@ -136,15 +162,20 @@ begin
     end;
 end;
 
-procedure CBonds.DeleteWhereInvoking(Provoking: Integer);
-var i : Integer;
-begin
-
-end;
-
 function CBonds.GetInvokingWhereProvoking(Provoking: Integer): Integer;
 begin
+  if IndexOfProvoking(Provoking) = -1 then
+    Exit(-1);
+
   Result := arInvoking[IndexOfProvoking(Provoking)];
+end;
+
+function CBonds.GetProvokingWhereInvoking(Invoking: Integer): Integer;
+begin
+  if IndexOfInvoking(Invoking) = -1 then
+    Exit(-1);
+
+  Result := arProvoking[IndexOfInvoking(Invoking)];
 end;
 
 function CBonds.IndexOfProvoking(Provoking: Integer): Integer;
