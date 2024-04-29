@@ -279,6 +279,7 @@ object fMain: TfMain
         Height = 30
         Top = 26
         Width = 32
+        Anchors = [akTop]
         Flat = True
         Glyph.Data = {
           46030000424D460300000000000036000000280000000E0000000E0000000100
@@ -821,6 +822,7 @@ object fMain: TfMain
         Height = 30
         Top = 24
         Width = 32
+        Anchors = [akTop]
         Flat = True
         Glyph.Data = {
           46030000424D460300000000000036000000280000000E0000000E0000000100
