@@ -35,6 +35,8 @@ type
     muVideoDelete: TMenuItem;
     ppmnAudioPlaylist: TPopupMenu;
     ppmnVideoPlaylist: TPopupMenu;
+    sbtnAudioRepeat: TSpeedButton;
+    sbtnVideoRepeat: TSpeedButton;
     { Вкладки }
     TabControl: TTabControl;
 
@@ -120,6 +122,7 @@ type
     procedure miAudioDeleteClick(Sender: TObject);
     procedure muVideoDeleteClick(Sender: TObject);
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
+    procedure sbtnVideoRepeatClick(Sender: TObject);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
 
@@ -147,6 +150,7 @@ type
     procedure sbtnAudioPlayClick(Sender: TObject);
     procedure MediaPause(Sender: TObject);
     procedure MediaStop(Sender: TObject);
+    procedure sbtnAudioRepeatClick(Sender: TObject);
     procedure TabControlChange(Sender: TObject);
     procedure TabControlChanging(Sender: TObject; var AllowChange: Boolean);
     procedure trbarAudioTimeChange(Sender: TObject);
@@ -194,6 +198,8 @@ var
   glVideoMute: boolean;
   glVideoTrackRewinding: boolean = False;
   glAudioTrackRewinding: boolean = False;
+  glAudioTrackRepeat: boolean = False;
+  glVideoTrackRepeat: boolean = False;
   glCurrentAudioItem: string;
   glCurrentAudioItemIndex: Integer;
   glCurrentVideoItem: string;
@@ -381,7 +387,7 @@ begin
   StateNotify.BorderStyle := bsNone;
   StateNotify.BevelInner := bvNone;
   StateNotify.BevelOuter := bvNone;
-  StateNotify.ShowTime := 3000;
+  StateNotify.ShowTime := 2000;
   StateNotify.BringToFront;
 end;
 
@@ -687,6 +693,16 @@ begin
     miAudioDeleteBond.Visible := True
   else
     miAudioDeleteBond.Visible := False;
+end;
+
+procedure TfMain.sbtnVideoRepeatClick(Sender: TObject);
+begin
+  glVideoTrackRepeat := Not(glVideoTrackRepeat);
+
+  if glVideoTrackRepeat = True then
+    setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_on.png')
+  else
+    setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_off.png');
 end;
 
 procedure TfMain.clboxVideoPlaylistDrawItem(Control: TWinControl;
@@ -1376,9 +1392,12 @@ begin
     setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop_active.png');
 
     // "Проигриваемый элемент" очищается (Аудио)
-    glCurrentAudioItem := '';
-    glCurrentAudioItemIndex := -1;
-    lblCurrentAudioItem.Caption := '';
+    if Not(glAudioTrackRepeat) then
+      begin
+        glCurrentAudioItem := '';
+        glCurrentAudioItemIndex := -1;
+        lblCurrentAudioItem.Caption := '';
+      end;
     // Список элементов переотрисовывается (Аудио)
     clboxAudioPlaylist.Repaint;
     // Выключаем таймер (Аудио)
@@ -1386,6 +1405,9 @@ begin
 
     // Время устанавливается в нулевое положение (Аудио)
     resetTime('AudioPlayer');
+
+    if glAudioTrackRepeat then
+      clboxAudioPlaylistDblClick(Self);
   end
   else if Sender = sbtnVideoStop then
   begin
@@ -1403,9 +1425,12 @@ begin
     setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop_active.png');
 
     // "Проигриваемый элемент" очищается (Видео)
-    glCurrentVideoItem := '';
-    glCurrentVideoItemIndex := -1;
-    lblCurrentVideoItem.Caption := '';
+    if Not(glVideoTrackRepeat) then
+      begin
+        glCurrentVideoItem := '';
+        glCurrentVideoItemIndex := -1;
+        lblCurrentVideoItem.Caption := '';
+      end;
     // Список элементов переотрисовывается (Видео)
     clboxVideoPlaylist.Invalidate;
     // Выключаем таймер (Видео)
@@ -1413,7 +1438,20 @@ begin
 
     // Время устанавливается в нулевое положение (Видео)
     resetTime('VideoPlayer');
+
+    if glVideoTrackRepeat then
+      clboxVideoPlaylistDblClick(Self);
   end;
+end;
+
+procedure TfMain.sbtnAudioRepeatClick(Sender: TObject);
+begin
+  glAudioTrackRepeat := Not(glAudioTrackRepeat);
+
+  if glAudioTrackRepeat = True then
+    setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_on.png')
+  else
+    setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_off.png');
 end;
 
 procedure TfMain.TabControlChange(Sender: TObject);
@@ -1677,6 +1715,7 @@ begin
   setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
   setGlyphSpeedButton(sbtnAudioClear, 'icons' + PathDelim + 'clear.png');
   setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_2.png');
+  setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_off.png');
   // Видео панель
   setGlyphSpeedButton(sbtnVideoAdd, 'icons' + PathDelim + 'add.png');
   setGlyphSpeedButton(sbtnVideoSubtract, 'icons' + PathDelim + 'subtract.png');
@@ -1688,6 +1727,7 @@ begin
   setGlyphSpeedButton(sbtnFullyDisplay, 'icons' + PathDelim + 'share_screen_on.png');
   setGlyphSpeedButton(sbtnMonitorConfigure, 'icons' + PathDelim +
     'share_screen_settings.png');
+  setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_off.png');
 end;
 
 end.

@@ -5,6 +5,7 @@ monitor_active.png - 60x60 px
 monitor_inactive.png - 60x60 px
 pause.png - 14x14 px
 play.png - 14x14 px
+repeat_on, repeat_off - 14x14 px
 scenario.png - 12x12 px
 settings.png - 12x12 px
 share_sreen_off.png - 22x22 px
