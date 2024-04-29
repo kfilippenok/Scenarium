@@ -5,11 +5,32 @@ unit Pocket;
 interface
 
 uses
-  Classes, SysUtils, Buttons, Graphics, Dialogs;
+  Classes, SysUtils, Buttons, Graphics, Dialogs, ExtCtrls, Controls;
 
 type
 
-  { CBonds }
+  TStateNotifyKind = (snNone, snProcess, snFailed, snSuccess, snCancel);
+
+  { TStateNotify }
+
+  { CStateNotify }
+
+  CStateNotify = class(TCustomPanel)
+  private
+    FStateNotifyKind: TStateNotifyKind;
+    FTimer: TTimer;
+    FShowTime: Cardinal;
+    procedure SetStateNotifyKind(Value: TStateNotifyKind);
+    procedure PaintState(Sender: TObject);
+    procedure TimerTicker(Sender: TObject);
+  public
+    constructor Create(TheOwner: TComponent); override;
+  published
+    property State: TStateNotifyKind read FStateNotifyKind write SetStateNotifyKind default snNone;
+    property ShowTime: Cardinal read FShowTime write FShowTime default 1000;
+  end;
+
+  { Связи }
 
   (*
     Provoking - вызывающий элемент
@@ -40,19 +61,9 @@ type
       property Count: Integer read GetCount;
   end;
 
-  { CBondsArray }
 
-  CBondsArray = Class(TObject)
-    private
-      FBondsArray: Array of CBonds;
-    public
-      procedure Add(Bonds: CBonds);
-      procedure Delete(Position: CBonds);
-      procedure Move(ABonds: CBonds; APosition: Integer);
-  end;
-
-procedure setGlyphSpeedButton(SpeedButton: TSpeedButton; Path: String); overload;
-procedure setGlyphSpeedButton(BitBtn: TBitBtn; Path: String); overload;
+  procedure setGlyphSpeedButton(SpeedButton: TSpeedButton; Path: String); overload;
+  procedure setGlyphSpeedButton(BitBtn: TBitBtn; Path: String); overload;
 
 implementation
 
@@ -80,21 +91,98 @@ begin
   end;
 end;
 
-{ CBondsArray }
+{ CStateNotify }
 
-procedure CBondsArray.Add(Bonds: CBonds);
+procedure CStateNotify.SetStateNotifyKind(Value: TStateNotifyKind);
 begin
-
+  FStateNotifyKind := Value;
+  case FStateNotifyKind of
+    snNone:
+      begin
+        Self.Visible := False;
+      end;
+    snProcess: Self.Visible := True;
+    snFailed, snSuccess, snCancel:
+      begin
+        Self.Visible := True;
+        FTimer.Interval := ShowTime;
+        FTimer.Enabled := True;
+      end;
+  end;
+  Self.Repaint;
 end;
 
-procedure CBondsArray.Delete(Position: CBonds);
+procedure CStateNotify.PaintState(Sender: TObject);
+var
+  text_width, text_height, text_x, text_y: Integer;
 begin
-
+  Self.Canvas.Pen.Style := psSolid;
+  Self.Canvas.Brush.Style := bsSolid;
+  Self.Canvas.Pen.Color := clDefault;
+  Self.Canvas.Brush.Color := clDefault;
+  case FStateNotifyKind of
+    snNone:
+      begin
+        Self.Canvas.Clear;
+      end;
+    snProcess:
+      begin
+        Self.Canvas.Clear;
+        text_width := Self.Canvas.TextWidth('Сохранение...');
+        text_height := Self.Canvas.TextHeight('Сохранение...');
+        text_x := Round(Self.Width/2) - Round(text_width/2);
+        text_y := Round(Self.Height/2) - Round(text_height/2);
+        Self.Canvas.TextOut(text_x, text_y, 'Сохранение...');
+      end;
+    snFailed:
+      begin
+        Self.Canvas.Clear;
+        text_width := Self.Canvas.TextWidth('Ошибка при сохранении');
+        text_height := Self.Canvas.TextHeight('Ошибка при сохранении');
+        text_x := Round(Self.Width/2) - Round(text_width/2);
+        text_y := Round(Self.Height/2) - Round(text_height/2);
+        Self.Canvas.TextOut(text_x, text_y, 'Ошибка при сохранении');
+      end;
+    snSuccess:
+      begin
+        Self.Canvas.Clear;
+        text_width := Self.Canvas.TextWidth('Успешно сохранено');
+        text_height := Self.Canvas.TextHeight('Успешно сохранено');
+        text_x := Round(Self.Width/2) - Round(text_width/2);
+        text_y := Round(Self.Height/2) - Round(text_height/2);
+        Self.Canvas.TextOut(text_x, text_y, 'Успешно сохранено');
+        Self.Canvas.Pen.Style := psSolid;
+        Self.Canvas.Brush.Style := bsSolid;
+        Self.Canvas.Pen.Color := clGreen;
+        Self.Canvas.Brush.Color := clGreen;
+      end;
+    snCancel:
+      begin
+        Self.Canvas.Clear;
+        text_width := Self.Canvas.TextWidth('Сохранение отменено');
+        text_height := Self.Canvas.TextHeight('Сохранение отменено');
+        text_x := Round(Self.Width/2) - Round(text_width/2);
+        text_y := Round(Self.Height/2) - Round(text_height/2);
+        Self.Canvas.TextOut(text_x, text_y, 'Сохранение отменено');
+      end;
+  end;
 end;
 
-procedure CBondsArray.Move(ABonds: CBonds; APosition: Integer);
+procedure CStateNotify.TimerTicker(Sender: TObject);
 begin
+  FTimer.Enabled := False;
+  State := snNone;
+end;
 
+constructor CStateNotify.Create(TheOwner: TComponent);
+begin
+  inherited Create(TheOwner);
+
+  Self.OnPaint := @PaintState;
+  Self.Visible := False;
+  FTimer := TTimer.Create(Self);
+  FTimer.Enabled := False;
+  FTimer.OnTimer := @TimerTicker;
 end;
 
 { CBonds }

@@ -206,6 +206,7 @@ var
   glScenarioFilePaths: TStringList;
   glBonds: CBonds;
   glAdaptivePanels: Boolean = False;
+  StateNotify: CStateNotify;
 
 implementation
 
@@ -368,6 +369,20 @@ begin
   // Заполняем список (Видео)
   clboxVideoPlaylist.Items := glVideoFileNames;
 
+  // Оповещение о состоянии работы с файлом
+  StateNotify := CStateNotify.Create(fMain);
+  StateNotify.Parent := fMain;
+  StateNotify.Width := 250;
+  StateNotify.Height := 50;
+  StateNotify.Anchors := [];
+  StateNotify.AnchorParallel(akLeft, 20, fMain);
+  StateNotify.AnchorParallel(akBottom, 60, fMain);
+  StateNotify.Visible := False;
+  StateNotify.BorderStyle := bsNone;
+  StateNotify.BevelInner := bvNone;
+  StateNotify.BevelOuter := bvNone;
+  StateNotify.ShowTime := 3000;
+  StateNotify.BringToFront;
 end;
 
 procedure TfMain.clboxAudioPlaylistDblClick(Sender: TObject);
@@ -1063,6 +1078,8 @@ begin
   // Если имя файла был открыт ранее
   if SaveDialog.FileName <> '' then
   begin
+    StateNotify.State := snNone;
+    StateNotify.State := snProcess;
     jObject := TJSONObject.Create;
 
     jarArrayAudio := TJSONArray.Create;
@@ -1103,6 +1120,9 @@ begin
 
     FreeAndNil(jObject);
     FreeAndNil(StringList);
+
+    // Оповещение о выполненном сохранении
+    StateNotify.State := snSuccess;
   end
   // Если имя файл не существует
   else
@@ -1118,6 +1138,8 @@ begin
   SaveDialog.Title := 'Сохранить сценарий как';
   SaveDialog.DefaultExt := '.json';
   SaveDialog.Filter := 'JSON|*.json|Все файлы|*.*|';
+  StateNotify.State := snNone;
+  StateNotify.State := snProcess;
   if SaveDialog.Execute then
   begin
     jObject := TJSONObject.Create;
@@ -1162,7 +1184,9 @@ begin
 
     FreeAndNil(jObject);
     FreeAndNil(StringList);
-  end;
+    StateNotify.State := snSuccess;
+  end else
+    StateNotify.State := snCancel;
 end;
 
 procedure TfMain.ScenarioExitClick(Sender: TObject);
