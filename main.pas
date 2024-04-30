@@ -204,13 +204,7 @@ var
   glCurrentAudioItemIndex: Integer;
   glCurrentVideoItem: string;
   glCurrentVideoItemIndex: Integer;
-  glAudioFileNames: TStringList;
-  glAudioFilePaths: TStringList;
-  glVideoFileNames: TStringList;
-  glVideoFilePaths: TStringList;
-  glScenarioFileNames: TStringList;
-  glScenarioFilePaths: TStringList;
-  glBonds: CBonds;
+  ScenarioList: CScenarioList;
   glAdaptivePanels: Boolean = False;
   StateNotify: CStateNotify;
 
@@ -239,7 +233,7 @@ procedure TfMain.BondButtonClick(Sender: TObject);
 begin
   ShowMessage(
     IntToStr(
-      glBonds.GetInvokingWhereProvoking(
+      ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(
         StrToInt(
           (Sender as TBitBtn).Name[Length((Sender as TBitBtn).Name)]
         )
@@ -247,7 +241,7 @@ begin
     )
     + ' - ' +
     clboxVideoPlaylist.Items.Strings[
-      glBonds.GetInvokingWhereProvoking(
+      ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(
         StrToInt(
           (Sender as TBitBtn).Name[Length((Sender as TBitBtn).Name)]
         )
@@ -326,54 +320,36 @@ procedure TfMain.FormCreate(Sender: TObject);
 begin
   SetElementGlyphs();
 
-  // DoubleBuffered
+  // Двойная буферизация
   fMain.DoubleBuffered := True;
   panAudio.DoubleBuffered:=True;
   panVideo.DoubleBuffered:=True;
 
-  // Состояние звука (Аудио)
-  glAudioMute := False;
-
-  // Воспроизводимый на данный момент файл (Аудио)
-  glCurrentAudioItem := '';
-  glCurrentAudioItemIndex := -1;
-
-  // Время устанавливается в нулевое положение (Аудио)
-  resetTime('AudioPlayer');
-
-  // Иницализация хранилищ для списков имён и их путей (Аудио)
-  glAudioFileNames := TStringList.Create;
-  glAudioFilePaths := TStringList.Create;
-  // Заполняем список (Аудио)
-  clboxAudioPlaylist.Items := glAudioFileNames;
-
-  // Создаём списки сценариев
-  glScenarioFileNames := TStringList.Create;
-  glScenarioFilePaths := TStringList.Create;
+  // Сценарий
+  ScenarioList := CScenarioList.Create(True);
 
   // Вкладки
-  TabControl.Tabs.Add('Default');
-  glScenarioFileNames.Add('Default');
-  glScenarioFilePaths.Add('');
+  ScenarioList.Add(CScenario.Create);
+  ScenarioList.Items[0].Name := 'Default';
+  TabControl.Tabs.Add(ScenarioList.Items[0].Name);
 
-  // Списки зависимостей
-  glBonds := CBonds.Create;
+  // Заполняем список треков
+  clboxAudioPlaylist.Items := ScenarioList.Items[0].AudioFileNames; // Аудио
+  clboxVideoPlaylist.Items := ScenarioList.Items[0].VideoFileNames; // Видео
 
-  // Состояние звука (Видео)
-  glVideoMute := False;
+  { По умолчанию звук включен }
+  glAudioMute := False; // Аудио
+  glVideoMute := False; // Видео
 
-  // Воспроизводимый на данный момент файл (Видео)
-  glCurrentVideoItem := '';
+  { Воспроизводимый на данный момент файл }
+  glCurrentAudioItem := '';        // Аудио
+  glCurrentAudioItemIndex := -1;
+  glCurrentVideoItem := '';        // Видео
   glCurrentVideoItemIndex := -1;
 
-  // Время устанавливается в нулевое положение (Видео)
-  resetTime('VideoPlayer');
-
-  // Иницализация хранилищ для списков имён и их путей (Видео)
-  glVideoFileNames := TStringList.Create;
-  glVideoFilePaths := TStringList.Create;
-  // Заполняем список (Видео)
-  clboxVideoPlaylist.Items := glVideoFileNames;
+  { Время устанавливается в нулевое положение }
+  resetTime('AudioPlayer');  // Аудио
+  resetTime('VideoPlayer');  // Видео
 
   // Оповещение о состоянии работы с файлом
   StateNotify := CStateNotify.Create(fMain);
@@ -401,13 +377,13 @@ begin
     if (fPlaybackAudio.audioPlayer = nil) then Exit;
     if (clboxAudioPlaylist.Count = 0) then Exit;
 
-    glCurrentAudioItem := glAudioFilePaths[clboxAudioPlaylist.ItemIndex];
+    glCurrentAudioItem := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths[clboxAudioPlaylist.ItemIndex];
     glCurrentAudioItemIndex := clboxAudioPlaylist.ItemIndex;
     lblCurrentAudioItem.Caption := ExtractFileName(glCurrentAudioItem);
     audioPlayer.OpenFile(glCurrentAudioItem);
 
     { Связи }
-    IndexBond := glBonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex);
+    IndexBond := ScenarioList.Items[TabControl.TabIndex].Bonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex);
     if IndexBond <> -1 then
       begin
         clboxVideoPlaylist.OnDblClick(clboxVideoPlaylist);
@@ -442,13 +418,13 @@ begin
   miAudioDeleteBond.Visible := False;
 
   // !? Если ли в связях
-  if not(glBonds.InProvoking(clboxAudioPlaylist.ItemIndex)) then
+  if not(ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex)) then
     Exit;
 
   miAudioDeleteBond.Visible := True;
 
   clboxVideoPlaylist.ClearSelection;
-  clboxVideoPlaylist.Selected[glBonds.GetInvokingWhereProvoking(clboxAudioPlaylist.ItemIndex)] := True;
+  clboxVideoPlaylist.Selected[ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(clboxAudioPlaylist.ItemIndex)] := True;
 end;
 
 procedure TfMain.clboxVideoPlaylistDblClick(Sender: TObject);
@@ -460,7 +436,7 @@ begin
     if (fPlaybackVideo.videoPlayer = nil) then Exit;
     if (clboxVideoPlaylist.Count = 0) then Exit;
 
-    glCurrentVideoItem := glVideoFilePaths[clboxVideoPlaylist.ItemIndex];
+    glCurrentVideoItem := ScenarioList.Items[TabControl.TabIndex].VideoFilePaths[clboxVideoPlaylist.ItemIndex];
     glCurrentVideoItemIndex := clboxVideoPlaylist.ItemIndex;
     lblCurrentVideoItem.Caption := ExtractFileName(glCurrentVideoItem);
     VideoPlayer.OpenFile(glCurrentVideoItem);
@@ -498,28 +474,29 @@ begin
 end;
 
 procedure TfMain.FormDestroy(Sender: TObject);
-var i: Integer;
+var i, iscn: Integer;
     bbtnBond: TBitBtn;
 begin
-  FreeAndNil(glAudioFileNames);
-  FreeAndNil(glAudioFilePaths);
-  FreeAndNil(glVideoFileNames);
-  FreeAndNil(glVideoFilePaths);
-  FreeAndNil(glScenarioFileNames);
-  FreeAndNil(glScenarioFilePaths);
-  if glBonds.Count <> 0 then
+  for iscn := 0 to ScenarioList.Count-1 do
     begin
-      for i := 0 to glBonds.Count - 1 do
+      FreeAndNil(ScenarioList.Items[iscn].AudioFileNames);
+      FreeAndNil(ScenarioList.Items[iscn].AudioFilePaths);
+      FreeAndNil(ScenarioList.Items[iscn].VideoFileNames);
+      FreeAndNil(ScenarioList.Items[iscn].VideoFilePaths);
+      if ScenarioList.Items[iscn].Bonds.Count <> 0 then
         begin
-          if fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.arProvoking[i])) <> NIL then
+          for i := 0 to ScenarioList.Items[iscn].Bonds.Count - 1 do
             begin
-              bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.arProvoking[i])) as TBitBtn);
-              FreeAndNil(bbtnBond);
+              if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[iscn].Bonds.arProvoking[i])) <> NIL then
+                begin
+                  bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[iscn].Bonds.arProvoking[i])) as TBitBtn);
+                  FreeAndNil(bbtnBond);
+                end;
             end;
         end;
+      FreeAndNil(ScenarioList.Items[iscn].Bonds);
     end;
-  FreeAndNil(glBonds);
-  FreeAndNil(glBonds);
+  FreeAndNil(ScenarioList);
 end;
 
 procedure TfMain.AddBond(Sender: TObject);
@@ -536,17 +513,17 @@ begin
     Exit;
   end;
 
-  if glBonds.InProvoking(clboxAudioPlaylist.ItemIndex) then
+  if ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex) then
     begin
-      glBonds.DeleteWhereProvoking(clboxAudioPlaylist.ItemIndex);
+      ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereProvoking(clboxAudioPlaylist.ItemIndex);
     end;
 
-  glBonds.Add(clboxAudioPlaylist.ItemIndex, clboxVideoPlaylist.ItemIndex);
+  ScenarioList.Items[TabControl.TabIndex].Bonds.Add(clboxAudioPlaylist.ItemIndex, clboxVideoPlaylist.ItemIndex);
 
   if fMain.FindComponent('bbtnBondVideo' + IntToStr(clboxAudioPlaylist.ItemIndex)) <> NIL then
     begin
       bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(clboxAudioPlaylist.ItemIndex)) as TBitBtn);
-      bbtnFindedVideoBond.Caption := IntToStr(glBonds.arInvoking[glBonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex)]);
+      bbtnFindedVideoBond.Caption := IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arInvoking[ScenarioList.Items[TabControl.TabIndex].Bonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex)]);
     end;
 
   clboxAudioPlaylist.Repaint;
@@ -563,33 +540,33 @@ begin
     begin
       if isAudio(FileNames[i]) then
         begin
-          glAudioFilePaths.Add(FileNames[i]);
-          glAudioFileNames.Add(ExtractFileName(FileNames[i]));
+          ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
+          ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
         end
       else if isVideo(FileNames[i]) or isImage(FileNames[i]) then
         begin
-          glVideoFilePaths.Add(FileNames[i]);
-          glVideoFileNames.Add(ExtractFileName(FileNames[i]));
+          ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
+          ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
         end
       else
         begin
           case QuestionDlg('Неизвестный тип файла', 'Тип ' + ExtractFileExt(FileNames[i]) + ' файла ' + ExtractFileName(FileNames[i]) + ' неизвестен. Как воспринимать файл?', mtCustom, [mrAudio, 'Аудио', mrVideo, 'Видео', mrSkeep, 'Пропустить'], '') of
             mrAudio:
               begin
-                glAudioFilePaths.Add(FileNames[i]);
-                glAudioFileNames.Add(ExtractFileName(FileNames[i]));
+                ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
+                ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
               end;
             mrVideo:
               begin
-                glVideoFilePaths.Add(FileNames[i]);
-                glVideoFileNames.Add(ExtractFileName(FileNames[i]));
+                ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
+                ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
               end;
           end;
         end;
     end;
 
-  clboxAudioPlaylist.Items := glAudioFileNames;
-  clboxVideoPlaylist.Items := glVideoFileNames;
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 end;
 
 procedure TfMain.FormResize(Sender: TObject);
@@ -665,7 +642,7 @@ end;
 procedure TfMain.miAudioDeleteBondClick(Sender: TObject);
 var bbtnFindedVideoBond: TBitBtn;
 begin
-  glBonds.DeleteWhereProvoking(clboxAudioPlaylist.ItemIndex);
+  ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereProvoking(clboxAudioPlaylist.ItemIndex);
 
   if fMain.FindComponent('bbtnBondVideo' + IntToStr(clboxAudioPlaylist.ItemIndex)) <> NIL then
     begin
@@ -689,7 +666,7 @@ end;
 
 procedure TfMain.ppmnAudioPlaylistPopup(Sender: TObject);
 begin
-  if glBonds.InProvoking(clboxAudioPlaylist.ItemIndex) then
+  if ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex) then
     miAudioDeleteBond.Visible := True
   else
     miAudioDeleteBond.Visible := False;
@@ -749,8 +726,8 @@ begin
     Canvas.TextOut(ARect.Left + 23, (ARect.Top + ARect.Height div 4), savedItem);
 
     { Связи }{
-    if glBondsVideo.IndexOf(savedItem) <> -1 then
-      Canvas.TextOut(ARect.Left + 250, (ARect.Top + ARect.Height div 4), 'Cвязь: '+IntToStr(glBondsVideo.IndexOf(savedItem)));
+    if ScenarioList.Items[TabControl.TabIndex].BondsVideo.IndexOf(savedItem) <> -1 then
+      Canvas.TextOut(ARect.Left + 250, (ARect.Top + ARect.Height div 4), 'Cвязь: '+IntToStr(ScenarioList.Items[TabControl.TabIndex].BondsVideo.IndexOf(savedItem)));
     }{ Связи }
 
     { Номер элемента }
@@ -809,17 +786,17 @@ var
   i: integer;
 begin
   i := 0;
-  while i <> glVideoFileNames.Count do
+  while i <> ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Count do
   begin
-    if glVideoFileNames.Strings[i] <> glCurrentVideoItem then
+    if ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Strings[i] <> glCurrentVideoItem then
     begin
-      glVideoFileNames.Delete(i);
-      glVideoFilePaths.Delete(i);
+      ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Delete(i);
+      ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Delete(i);
     end
     else
       i += 1;
   end;
-  clboxVideoPlaylist.Items := glVideoFileNames;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 end;
 
 procedure TfMain.clboxAudioPlaylistDrawItem(Control: TWinControl;
@@ -867,26 +844,25 @@ begin
     { Номер элемента }
 
     { Связи }
-    if glBonds.IndexOfProvoking(Index) <> -1 then
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.IndexOfProvoking(Index) <> -1 then
     begin
       if fMain.FindComponent('bbtnBondVideo' + IntToStr(Index)) <> NIL then
         begin
           bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(Index)) as TBitBtn);
           bbtnFindedVideoBond.Left := ARect.Right - 54;
           bbtnFindedVideoBond.Top := ARect.Top + 5;
-          bbtnFindedVideoBond.Caption := IntToStr(glBonds.GetInvokingWhereProvoking(Index));
+          bbtnFindedVideoBond.Caption := IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(Index));
           bbtnFindedVideoBond.Repaint;
         end
       else
         begin
-          //ShowMessage('bbtnBondVideo' + IntToStr(Index) + ' is created');
           bbtnVideoBond := TBitBtn.Create(fMain);
           setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'video.png');
           bbtnVideoBond.Parent := clboxAudioPlaylist;
           bbtnVideoBond.Name := 'bbtnBondVideo' + IntToStr(Index);
           bbtnVideoBond.Height := 30;
           bbtnVideoBond.Width := 44;
-          bbtnVideoBond.Caption := IntToStr(glBonds.GetInvokingWhereProvoking(Index));
+          bbtnVideoBond.Caption := IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(Index));
           bbtnVideoBond.Top := ARect.Top + 5;
           bbtnVideoBond.Left := ARect.Right - 54;
           bbtnVideoBond.OnClick := @BondButtonClick;
@@ -931,27 +907,27 @@ begin
       if clboxVideoPlaylist.Items[i] <> glCurrentVideoItem then
       begin
         { Связи }
-        while glBonds.InProvoking(glBonds.GetProvokingWhereInvoking(i)) do
+        while ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(ScenarioList.Items[TabControl.TabIndex].Bonds.GetProvokingWhereInvoking(i)) do
           begin
             // Сначала очищаем кнопку
-            if fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.GetProvokingWhereInvoking(i))) <> NIL then
+            if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.GetProvokingWhereInvoking(i))) <> NIL then
               begin
-                bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.GetProvokingWhereInvoking(i))) as TBitBtn);
+                bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.GetProvokingWhereInvoking(i))) as TBitBtn);
                 FreeAndNil(bbtnFindedVideoBond);
                 // Затем очищаем саму связь
-                glBonds.DeleteWhereProvoking(glBonds.GetProvokingWhereInvoking(i));
+                ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereProvoking(ScenarioList.Items[TabControl.TabIndex].Bonds.GetProvokingWhereInvoking(i));
               end;
           end;
         { Связи }
 
-        glVideoFileNames.Delete(i);
-        glVideoFilePaths.Delete(i);
+        ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Delete(i);
+        ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Delete(i);
 
         { Связи }
         // Обновляем индексы по вызываемым
         for t := i to clboxVideoPlaylist.Count-1 do
         begin
-          glBonds.UpdateWhereInvoking(t, t-1);
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(t, t-1);
         end;
         { Связи }
       end;
@@ -959,7 +935,7 @@ begin
     Dec(i);
   end;
   clboxAudioPlaylist.Repaint;
-  clboxVideoPlaylist.Items := glVideoFileNames;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 end;
 
 procedure TfMain.sbtnVideoPlayClick(Sender: TObject);
@@ -993,17 +969,17 @@ end;
 
 procedure TfMain.ScenarioNewClick(Sender: TObject);
 begin
-  TabControl.Tabs.Add('Untitled');
+  ScenarioList.Add(CScenario.Create);
+  ScenarioList.Items[ScenarioList.Count-1].Name := 'Untitled';
+  TabControl.Tabs.Add(ScenarioList.Items[ScenarioList.Count-1].Name);
   TabControl.TabIndex := TabControl.Tabs.Count-1;
-  glScenarioFileNames.Add('Untitled');
-  glScenarioFilePaths.Add('');
 
-  glAudioFilePaths.Clear();
-  glAudioFileNames.Clear();
-  glVideoFilePaths.Clear();
-  glVideoFileNames.Clear();
-  clboxAudioPlaylist.Items := glAudioFilePaths;
-  clboxVideoPlaylist.Items := glAudioFilePaths;
+  ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Clear();
+  ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Clear();
+  ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Clear();
+  ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Clear();
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths;
 
   // Очищаем сценарный файл в диалоге
   SaveDialog.FileName := '';
@@ -1023,44 +999,36 @@ begin
   jaAudioBondsInvoking := (jdScenario.FindPath('AudioBondsInvoking') as TJSONArray);   (* Связи *)
   jaVideoFilePaths := (jdScenario.FindPath('VideoFilePaths') as TJSONArray); (* Видео *)
 
-  // Очищяем список файлов (Аудио)
-  glAudioFilePaths.Clear;
-  glAudioFileNames.Clear;
   // Заполняем список файлов (Аудио)
   if jaAudioFilePaths.Count > 0 then
     for i := 0 to jaAudioFilePaths.Count-1 do
     begin
       if FileExists(jaAudioFilePaths.Strings[i]) then
       begin
-        glAudioFilePaths.Add(jaAudioFilePaths.Strings[i]);
-        glAudioFileNames.Add(ExtractFileName(jaAudioFilePaths.Strings[i]));
+        ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(jaAudioFilePaths.Strings[i]);
+        ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(jaAudioFilePaths.Strings[i]));
       end;
     end;
-  clboxAudioPlaylist.Items := glAudioFileNames;
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
 
-  // Очищяем список (Связи)
-  glBonds.Clear;
   // Заполняем список (Связи)
   if jaAudioBondsProvoking.Count > 0 then
     for i := 0 to jaAudioBondsProvoking.Count-1 do
     begin
-      glBonds.Add(jaAudioBondsProvoking.Integers[i], jaAudioBondsInvoking.Integers[i]);
+      ScenarioList.Items[TabControl.TabIndex].Bonds.Add(jaAudioBondsProvoking.Integers[i], jaAudioBondsInvoking.Integers[i]);
     end;
 
-  // Очищяем список файлов (Видео)
-  glVideoFilePaths.Clear;
-  glVideoFileNames.Clear;
   // Заполняем список файлов (Видео)
   if jaVideoFilePaths.Count > 0 then
     for i := 0 to jaVideoFilePaths.Count-1 do
     begin
       if FileExists(jaVideoFilePaths.Strings[i]) then
       begin
-        glVideoFilePaths.Add(jaVideoFilePaths.Strings[i]);
-        glVideoFileNames.Add(ExtractFileName(jaVideoFilePaths.Strings[i]));
+        ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(jaVideoFilePaths.Strings[i]);
+        ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(jaVideoFilePaths.Strings[i]));
       end;
     end;
-  clboxVideoPlaylist.Items := glVideoFileNames;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 
   FreeAndNil(jdScenario);
 end;
@@ -1073,15 +1041,12 @@ begin
   OpenDialog.Filter := 'JSON|*.json|Все файлы|*.*|';
   if OpenDialog.Execute then
   begin
-    //FileStream := TFileStream.Create(OpenDialog.FileName, fmOpenRead);
-    //FreeAndNil(FileStream);
-    TabControl.Tabs.Add(OpenDialog.FileName);
+    ScenarioList.Add(CScenario.Create);
+    ScenarioList.Items[TabControl.TabIndex].FilePath := OpenDialog.FileName;
+    ScenarioList.Items[TabControl.TabIndex].Name := ExtractFileName(OpenDialog.FileName);
+    TabControl.Tabs.Add(ScenarioList.Items[TabControl.TabIndex].Name);
     TabControl.TabIndex := TabControl.Tabs.Count-1;
     LoadScenarioFromJSON(OpenDialog.FileName);
-
-    // Копируем имя файла в диалог SaveDialog,
-    // чтобы потом знать, куда сохранять:
-    SaveDialog.FileName := OpenDialog.FileName;
   end;
 end;
 
@@ -1092,47 +1057,47 @@ var jObject: TJSONObject;
     StringList: TStringList;
 begin
   // Если имя файла был открыт ранее
-  if SaveDialog.FileName <> '' then
+  if ScenarioList.Items[TabControl.TabIndex].FilePath <> '' then
   begin
     StateNotify.State := snNone;
     StateNotify.State := snProcess;
     jObject := TJSONObject.Create;
 
     jarArrayAudio := TJSONArray.Create;
-    if glAudioFilePaths.Count > 0 then
-    for i := 0 to glAudioFilePaths.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Count-1 do
     begin
-      jarArrayAudio.Add(glAudioFilePaths.Strings[i]);
+      jarArrayAudio.Add(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[i]);
     end;
     jObject.Add('AudioFilePaths', jarArrayAudio);
 
     jarAudioBondsProvoking := TJSONArray.Create;
-    if glBonds.Count > 0 then
-    for i := 0 to glBonds.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count-1 do
     begin
-      jarAudioBondsProvoking.Add(glBonds.arProvoking[i]);
+      jarAudioBondsProvoking.Add(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i]);
     end;
     jObject.Add('AudioBondsProvoking', jarAudioBondsProvoking);
 
     jarAudioBondsInvoking := TJSONArray.Create;
-    if glBonds.Count > 0 then
-    for i := 0 to glBonds.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count-1 do
     begin
-      jarAudioBondsInvoking.Add(glBonds.arInvoking[i]);
+      jarAudioBondsInvoking.Add(ScenarioList.Items[TabControl.TabIndex].Bonds.arInvoking[i]);
     end;
     jObject.Add('AudioBondsInvoking', jarAudioBondsInvoking);
 
     jarArrayVideo := TJSONArray.Create;
-    if glVideoFilePaths.Count > 0 then
-    for i := 0 to glVideoFilePaths.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Count-1 do
     begin
-      jarArrayVideo.Add(glVideoFilePaths.Strings[i]);
+      jarArrayVideo.Add(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[i]);
     end;
     jObject.Add('VideoFilePaths', jarArrayVideo);
 
     StringList := TStringList.Create;
     StringList.Add(jObject.FormatJSON);
-    StringList.SaveToFile(UTF8ToSys(SaveDialog.FileName));
+    StringList.SaveToFile(UTF8ToSys(ScenarioList.Items[TabControl.TabIndex].FilePath));
 
     FreeAndNil(jObject);
     FreeAndNil(StringList);
@@ -1161,34 +1126,34 @@ begin
     jObject := TJSONObject.Create;
 
     jarAudio := TJSONArray.Create;
-    if glAudioFilePaths.Count > 0 then
-    for i := 0 to glAudioFilePaths.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Count-1 do
     begin
-      jarAudio.Add(glAudioFilePaths.Strings[i]);
+      jarAudio.Add(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[i]);
     end;
     jObject.Add('AudioFilePaths', jarAudio);
 
     jarAudioBondsProvoking := TJSONArray.Create;
-    if glBonds.Count > 0 then
-    for i := 0 to glBonds.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count-1 do
     begin
-      jarAudioBondsProvoking.Add(glBonds.arProvoking[i]);
+      jarAudioBondsProvoking.Add(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i]);
     end;
     jObject.Add('AudioBondsProvoking', jarAudioBondsProvoking);
 
     jarAudioBondsInvoking := TJSONArray.Create;
-    if glBonds.Count > 0 then
-    for i := 0 to glBonds.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count-1 do
     begin
-      jarAudioBondsInvoking.Add(glBonds.arInvoking[i]);
+      jarAudioBondsInvoking.Add(ScenarioList.Items[TabControl.TabIndex].Bonds.arInvoking[i]);
     end;
     jObject.Add('AudioBondsInvoking', jarAudioBondsInvoking);
 
     jarVideo := TJSONArray.Create;
-    if glVideoFilePaths.Count > 0 then
-    for i := 0 to glVideoFilePaths.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Count > 0 then
+    for i := 0 to ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Count-1 do
     begin
-      jarVideo.Add(glVideoFilePaths.Strings[i]);
+      jarVideo.Add(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[i]);
     end;
     jObject.Add('VideoFilePaths', jarVideo);
 
@@ -1196,7 +1161,9 @@ begin
     StringList.Add(jObject.FormatJSON);
     StringList.SaveToFile(Utf8ToSys(SaveDialog.FileName));
 
-    TabControl.Tabs.Strings[TabControl.TabIndex] := SaveDialog.FileName;
+    ScenarioList.Items[TabControl.TabIndex].FilePath := SaveDialog.FileName;
+    ScenarioList.Items[TabControl.TabIndex].Name := ExtractFileName(SaveDialog.FileName);
+    TabControl.Tabs.Strings[TabControl.TabIndex] := ScenarioList.Items[TabControl.TabIndex].Name;
 
     FreeAndNil(jObject);
     FreeAndNil(StringList);
@@ -1236,18 +1203,18 @@ begin
     begin
       if Sender = sbtnAudioAdd then
       begin
-        glAudioFilePaths.Add(FilePath);
-        glAudioFileNames.Add(ExtractFileName(FilePath));
+        ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FilePath);
+        ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FilePath));
       end;
       if Sender = sbtnVideoAdd then
       begin
-        glVideoFilePaths.Add(FilePath);
-        glVideoFileNames.Add(ExtractFileName(FilePath));
+        ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FilePath);
+        ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FilePath));
       end;
     end;
 
-    if Sender = sbtnAudioAdd then clboxAudioPlaylist.Items := glAudioFileNames;
-    if Sender = sbtnVideoAdd then clboxVideoPlaylist.Items := glVideoFileNames;
+    if Sender = sbtnAudioAdd then clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
+    if Sender = sbtnVideoAdd then clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
   end;
 end;
 
@@ -1271,11 +1238,11 @@ begin
             bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) as TBitBtn);
             FreeAndNil(bbtnFindedVideoBond);
             // Затем очищаем саму связь
-            glBonds.DeleteWhereProvoking(i);
+            ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereProvoking(i);
           end;
         { Связи }
-        glAudioFileNames.Delete(i);
-        glAudioFilePaths.Delete(i);
+        ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Delete(i);
+        ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Delete(i);
         { Связи }
         // Обновляем индексы в вызывающих
         for t := i to clboxAudioPlaylist.Count-1 do
@@ -1286,14 +1253,14 @@ begin
             bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(t)) as TBitBtn);
             FreeAndNil(bbtnFindedVideoBond);
           end;
-          glBonds.UpdateWhereProvoking(t, t-1);
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(t, t-1);
         end;
         { Связи }
       end;
     end;
     Dec(i);
   end;
-  clboxAudioPlaylist.Items := glAudioFileNames;
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
 end;
 
 procedure TfMain.sbtnAudioClearClick(Sender: TObject);
@@ -1301,17 +1268,17 @@ var
   i: integer;
 begin
   i := 0;
-  while i <> glAudioFileNames.Count do
+  while i <> ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Count do
   begin
-    if glAudioFileNames.Strings[i] <> glCurrentAudioItem then
+    if ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Strings[i] <> glCurrentAudioItem then
     begin
-      glAudioFileNames.Delete(i);
-      glAudioFilePaths.Delete(i);
+      ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Delete(i);
+      ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Delete(i);
     end
     else
       i += 1;
   end;
-  clboxAudioPlaylist.Items := glAudioFileNames;
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
 end;
 
 
@@ -1455,38 +1422,25 @@ begin
 end;
 
 procedure TfMain.TabControlChange(Sender: TObject);
-var i: Integer;
-    LBitBtn: TBitBtn;
 begin
-  if FileExists(TabControl.Tabs.Strings[TabControl.TabIndex]) then
-    LoadScenarioFromJSON(TabControl.Tabs.Strings[TabControl.TabIndex])
-  else
-    begin
-      glAudioFileNames.Clear;
-      glAudioFilePaths.Clear;
-      glVideoFileNames.Clear;
-      glVideoFilePaths.Clear;
-      clboxAudioPlaylist.Clear;
-      clboxVideoPlaylist.Clear;
-      for i:= 0 to glBonds.Count - 1 do
-        begin
-          if fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.arProvoking[i])) <> NIL then
-            begin
-              LBitBtn := (fMain.FindComponent('bbtnBondVideo' + IntToStr(glBonds.arProvoking[i])) as TBitBtn);
-              FreeAndNil(LBitBtn);
-            end;
-        end;
-      glBonds.Clear;
-    end;
+  clboxAudioPlaylist.Clear;
+  clboxVideoPlaylist.Clear;
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 end;
 
 procedure TfMain.TabControlChanging(Sender: TObject; var AllowChange: Boolean);
+var i: Integer;
+    LBitBtn: TBitBtn;
 begin
-  if FileExists(TabControl.Tabs.Strings[TabControl.TabIndex]) then
-  begin
-    SaveDialog.FileName := TabControl.Tabs.Strings[TabControl.TabIndex];
-    ScenarioSaveClick(Self);
-  end;
+  for i:= 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
+    begin
+      if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
+        begin
+          LBitBtn := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+          FreeAndNil(LBitBtn);
+        end;
+    end;
 end;
 
 procedure TfMain.sbtnMonitorConfigureClick(Sender: TObject);

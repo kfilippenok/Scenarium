@@ -5,15 +5,13 @@ unit Pocket;
 interface
 
 uses
-  Classes, SysUtils, Buttons, Graphics, Dialogs, ExtCtrls, Controls;
+  Classes, SysUtils, Buttons, Graphics, Dialogs, ExtCtrls, Controls, fgl;
 
 type
 
-  TStateNotifyKind = (snNone, snProcess, snFailed, snSuccess, snCancel);
-
-  { TStateNotify }
-
   { CStateNotify }
+
+  TStateNotifyKind = (snNone, snProcess, snFailed, snSuccess, snCancel);
 
   CStateNotify = class(TCustomPanel)
   private
@@ -61,6 +59,21 @@ type
       property Count: Integer read GetCount;
   end;
 
+  { CScenario }
+
+  CScenario = Class(TObject)
+    public
+      Name: String;
+      FilePath: String;
+      AudioFileNames: TStringList;
+      AudioFilePaths: TStringList;
+      VideoFileNames: TStringList;
+      VideoFilePaths: TStringList;
+      Bonds: CBonds;
+      constructor Create;
+  end;
+
+  CScenarioList = specialize TFPGObjectList<CScenario>;
 
   procedure setGlyphSpeedButton(SpeedButton: TSpeedButton; Path: String); overload;
   procedure setGlyphSpeedButton(BitBtn: TBitBtn; Path: String); overload;
@@ -89,6 +102,20 @@ begin
   finally
     Picture.Destroy;
   end;
+end;
+
+{ CScenario }
+
+constructor CScenario.Create;
+begin
+  inherited Create;
+  Name := '';
+  FilePath := '';
+  AudioFileNames := TStringList.Create;
+  AudioFilePaths := TStringList.Create;
+  VideoFileNames := TStringList.Create;
+  VideoFilePaths := TStringList.Create;
+  Bonds := CBonds.Create;
 end;
 
 { CStateNotify }
