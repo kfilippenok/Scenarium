@@ -548,6 +548,9 @@ object fMain: TfMain
     Style = tsButtons
     TabHeight = 30
     Align = alTop
+    DragMode = dmAutomatic
+    OnDragDrop = TabControlDragDrop
+    OnDragOver = TabControlDragOver
     TabOrder = 1
   end
   object Splitter: TSplitter

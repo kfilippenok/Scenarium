@@ -153,6 +153,9 @@ type
     procedure sbtnAudioRepeatClick(Sender: TObject);
     procedure TabControlChange(Sender: TObject);
     procedure TabControlChanging(Sender: TObject; var AllowChange: Boolean);
+    procedure TabControlDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure TabControlDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
     procedure trbarAudioTimeChange(Sender: TObject);
     procedure trbarAudioTimeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
@@ -1441,6 +1444,30 @@ begin
           FreeAndNil(LBitBtn);
         end;
     end;
+end;
+
+procedure TfMain.TabControlDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  tc     : TTabControl;
+  newTabIndex : Integer;
+begin
+  tc := TTabControl(Sender);
+  newTabIndex := tc.IndexOfTabAt(X, Y);
+
+  if Source = Sender then begin
+    if (newTabIndex <> tc.TabIndex) then
+    begin
+      ScenarioList.Move(tc.TabIndex, newTabIndex);
+      tc.Tabs.Move(tc.TabIndex, newTabIndex);
+      tc.TabIndex := newTabIndex;
+    end;
+  end;
+end;
+
+procedure TfMain.TabControlDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+begin
+  Accept := True;
 end;
 
 procedure TfMain.sbtnMonitorConfigureClick(Sender: TObject);
