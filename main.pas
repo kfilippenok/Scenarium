@@ -1457,9 +1457,18 @@ begin
   if Source = Sender then begin
     if (newTabIndex <> tc.TabIndex) then
     begin
-      ScenarioList.Move(tc.TabIndex, newTabIndex);
-      tc.Tabs.Move(tc.TabIndex, newTabIndex);
-      tc.TabIndex := newTabIndex;
+      if newTabIndex <> -1 then // С вкладки на вкладку
+        begin
+          ScenarioList.Move(tc.TabIndex, newTabIndex);
+          tc.Tabs.Move(tc.TabIndex, newTabIndex);
+          tc.TabIndex := newTabIndex;
+        end
+      else // С вкладки на пустое место
+        begin
+          ScenarioList.Move(tc.TabIndex, tc.Tabs.Count-1);
+          tc.Tabs.Move(tc.TabIndex, tc.Tabs.Count-1);
+          tc.TabIndex := tc.Tabs.Count-1;
+        end;
     end;
   end;
 end;
