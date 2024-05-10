@@ -53,6 +53,7 @@ object fMain: TfMain
       Width = 563
       Align = alClient
       BorderStyle = bsNone
+      DragMode = dmAutomatic
       Font.CharSet = ANSI_CHARSET
       Font.Height = -15
       Font.Pitch = fpVariable
@@ -62,6 +63,8 @@ object fMain: TfMain
       OnClick = clboxAudioPlaylistClick
       OnDblClick = clboxAudioPlaylistDblClick
       OnDrawItem = clboxAudioPlaylistDrawItem
+      OnDragDrop = clboxAudioPlaylistDragDrop
+      OnDragOver = clboxAudioPlaylistDragOver
       ParentFont = False
       PopupMenu = ppmnAudioPlaylist
       Style = lbOwnerDrawFixed
@@ -553,22 +556,6 @@ object fMain: TfMain
     OnDragOver = TabControlDragOver
     TabOrder = 1
   end
-  object Splitter: TSplitter
-    AnchorSideTop.Control = TabControl
-    AnchorSideTop.Side = asrBottom
-    AnchorSideBottom.Control = Owner
-    AnchorSideBottom.Side = asrBottom
-    Left = 563
-    Height = 410
-    Top = 32
-    Width = 5
-    Align = alNone
-    Anchors = [akTop, akBottom]
-    Color = clScrollBar
-    ParentColor = False
-    ResizeAnchor = akRight
-    ResizeStyle = rsPattern
-  end
   object panVideo: TPanel
     AnchorSideLeft.Control = Splitter
     AnchorSideLeft.Side = asrBottom
@@ -590,7 +577,7 @@ object fMain: TfMain
     Color = clForm
     ParentBackground = False
     ParentColor = False
-    TabOrder = 3
+    TabOrder = 2
     object clboxVideoPlaylist: TCheckListBox
       Left = 0
       Height = 272
@@ -1180,6 +1167,22 @@ object fMain: TfMain
         ParentShowHint = False
       end
     end
+  end
+  object Splitter: TSplitter
+    AnchorSideTop.Control = TabControl
+    AnchorSideTop.Side = asrBottom
+    AnchorSideBottom.Control = Owner
+    AnchorSideBottom.Side = asrBottom
+    Left = 563
+    Height = 410
+    Top = 32
+    Width = 5
+    Align = alNone
+    Anchors = [akTop, akBottom]
+    Color = clScrollBar
+    ParentColor = False
+    ResizeAnchor = akRight
+    ResizeStyle = rsPattern
   end
   object MainMenu: TMainMenu
     Left = 152

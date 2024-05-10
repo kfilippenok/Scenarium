@@ -106,6 +106,10 @@ type
 
     procedure clboxAudioPlaylistClick(Sender: TObject);
     procedure clboxAudioPlaylistDblClick(Sender: TObject);
+    procedure clboxAudioPlaylistDragDrop(Sender, Source: TObject; X, Y: Integer
+      );
+    procedure clboxAudioPlaylistDragOver(Sender, Source: TObject; X,
+      Y: Integer; State: TDragState; var Accept: Boolean);
     procedure clboxVideoPlaylistClick(Sender: TObject);
     procedure clboxVideoPlaylistDblClick(Sender: TObject);
     procedure clboxVideoPlaylistItemClick(Sender: TObject; Index: integer);
@@ -404,6 +408,80 @@ begin
     setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
     setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
   end;
+end;
+
+procedure TfMain.clboxAudioPlaylistDragDrop(Sender, Source: TObject; X,
+  Y: Integer);
+var clbox : TCheckListBox;
+    oldIndex, newIndex, i: Integer;
+    LBitBtn: TBitBtn;
+begin
+  if clboxAudioPlaylist.Count = 0 then
+    Exit;
+
+  clbox := TCheckListBox(Sender);
+  newIndex := clbox.GetIndexAtXY(X, Y);
+  oldIndex := clboxAudioPlaylist.ItemIndex;
+
+  if newIndex = oldIndex then // Проверка на смену позиции
+    Exit;
+
+  if (Sender = Source) then
+    begin
+      clboxAudioPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем крайние
+      ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Move(oldIndex, newIndex);
+      ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Move(oldIndex, newIndex);
+
+      if oldIndex > newIndex then
+        begin
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(oldIndex, -1);
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex)) <> NIL then
+            begin
+              LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex))) as TBitBtn);
+              FreeAndNil(LBitBtn);
+            end;
+          for i := oldIndex-1 downto newIndex do
+            begin
+              if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
+              begin
+                LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
+                FreeAndNil(LBitBtn);
+              end;
+              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i+1);
+            end;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
+        end
+      else
+        begin
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(oldIndex, -1);
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex)) <> NIL then
+            begin
+              LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex))) as TBitBtn);
+              FreeAndNil(LBitBtn);
+            end;
+          for i := oldIndex+1 to newIndex do
+            begin
+              if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
+              begin
+                LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
+                FreeAndNil(LBitBtn);
+              end;
+              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i-1);
+            end;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
+        end;
+
+      clboxAudioPlaylist.ItemIndex := newIndex;
+      clboxAudioPlaylist.ClearSelection;
+      clboxAudioPlaylist.Selected[newIndex] := True;
+    end;
+end;
+
+procedure TfMain.clboxAudioPlaylistDragOver(Sender, Source: TObject; X,
+  Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  if clboxAudioPlaylist.Count > 0 then
+    Accept := True;
 end;
 
 procedure TfMain.clboxVideoPlaylistClick(Sender: TObject);
@@ -1045,9 +1123,9 @@ begin
   if OpenDialog.Execute then
   begin
     ScenarioList.Add(CScenario.Create);
-    ScenarioList.Items[TabControl.TabIndex].FilePath := OpenDialog.FileName;
-    ScenarioList.Items[TabControl.TabIndex].Name := ExtractFileName(OpenDialog.FileName);
-    TabControl.Tabs.Add(ScenarioList.Items[TabControl.TabIndex].Name);
+    ScenarioList.Items[TabControl.Tabs.Count].FilePath := OpenDialog.FileName;
+    ScenarioList.Items[TabControl.Tabs.Count].Name := ExtractFileName(OpenDialog.FileName);
+    TabControl.Tabs.Add(ScenarioList.Items[TabControl.Tabs.Count].Name);
     TabControl.TabIndex := TabControl.Tabs.Count-1;
     LoadScenarioFromJSON(OpenDialog.FileName);
   end;

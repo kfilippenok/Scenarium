@@ -35,6 +35,8 @@ type
     Invoking - вызываемый элемен
   *)
 
+  { CBonds }
+
   CBonds = Class(TObject)
     private
       function GetCount: Integer;
@@ -48,8 +50,11 @@ type
       function GetProvokingWhereInvoking(Invoking: Integer): Integer;
       function IndexOfProvoking(Provoking: Integer): Integer;
       function IndexOfInvoking(Invoking: Integer): Integer;
+      procedure SwapWhereProvoking(ProvokingFirst, ProvokingTwo: Integer);
       procedure UpdateWhereProvoking(oldProvoking, newProvoking: Integer);
       procedure UpdateWhereInvoking(oldInvoking, newInvoking: Integer);
+      procedure TwiceUpdateWhereProvoking(oldProvokingFirst, newProvokingFirst,
+                                    oldProvokingTwo, newProvokingTwo: Integer);
       function InProvoking(Number: Integer): Boolean;
       function InInvoking(Number: Integer): Boolean;
       function InBonds(Number: Integer): Boolean; overload;
@@ -319,6 +324,21 @@ begin
       Exit(i);
 end;
 
+procedure CBonds.SwapWhereProvoking(ProvokingFirst, ProvokingTwo: Integer);
+var i: Integer;
+begin
+  if Count = 0 then
+    Exit;
+
+  for i := 0 to Count-1 do
+    begin
+      if arProvoking[i] = ProvokingFirst then
+         arProvoking[i] := ProvokingTwo
+      else if arProvoking[i] = ProvokingTwo then
+         arProvoking[i] := ProvokingFirst;
+    end;
+end;
+
 procedure CBonds.UpdateWhereProvoking(oldProvoking, newProvoking: Integer);
 var i: Integer;
 begin
@@ -339,6 +359,21 @@ begin
   for i := 0 to Count-1 do
     if arInvoking[i] = oldInvoking then
          arInvoking[i] := newInvoking;
+end;
+
+procedure CBonds.TwiceUpdateWhereProvoking(oldProvokingFirst, newProvokingFirst,
+  oldProvokingTwo, newProvokingTwo: Integer);
+var i: Integer;
+begin
+  if Count = 0 then
+    Exit;
+
+  for i := 0 to Count-1 do
+    if arProvoking[i] = oldProvokingFirst then
+      arProvoking[i] := newProvokingFirst
+    else if arProvoking[i] = oldProvokingTwo then
+      arProvoking[i] := newProvokingTwo;
+
 end;
 
 function CBonds.InProvoking(Number: Integer): Boolean;
