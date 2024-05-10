@@ -585,6 +585,7 @@ object fMain: TfMain
       Width = 545
       Align = alClient
       BorderStyle = bsNone
+      DragMode = dmAutomatic
       Font.CharSet = ANSI_CHARSET
       Font.Height = -15
       Font.Pitch = fpVariable
@@ -594,6 +595,8 @@ object fMain: TfMain
       OnClick = clboxVideoPlaylistClick
       OnDblClick = clboxVideoPlaylistDblClick
       OnDrawItem = clboxVideoPlaylistDrawItem
+      OnDragDrop = clboxVideoPlaylistDragDrop
+      OnDragOver = clboxVideoPlaylistDragOver
       OnMouseDown = clboxVideoPlaylistMouseDown
       ParentFont = False
       Style = lbOwnerDrawFixed

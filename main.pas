@@ -112,6 +112,10 @@ type
       Y: Integer; State: TDragState; var Accept: Boolean);
     procedure clboxVideoPlaylistClick(Sender: TObject);
     procedure clboxVideoPlaylistDblClick(Sender: TObject);
+    procedure clboxVideoPlaylistDragDrop(Sender, Source: TObject; X, Y: Integer
+      );
+    procedure clboxVideoPlaylistDragOver(Sender, Source: TObject; X,
+      Y: Integer; State: TDragState; var Accept: Boolean);
     procedure clboxVideoPlaylistItemClick(Sender: TObject; Index: integer);
     procedure clboxVideoPlaylistKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
@@ -535,6 +539,61 @@ begin
 
     setFullyDisplay(True);
   end;
+end;
+
+procedure TfMain.clboxVideoPlaylistDragDrop(Sender, Source: TObject; X,
+  Y: Integer);
+var clbox : TCheckListBox;
+    oldIndex, newIndex, i: Integer;
+    LBitBtn: TBitBtn;
+begin
+  if clboxVideoPlaylist.Count = 0 then
+    Exit;
+
+  clbox := TCheckListBox(Sender);
+  newIndex := clbox.GetIndexAtXY(X, Y);
+  oldIndex := clboxVideoPlaylist.ItemIndex;
+
+  if newIndex = oldIndex then // Проверка на смену позиции
+    Exit;
+
+  if (Sender = Source) then // Если перемещение происходит внутри компонента
+    begin
+      clboxVideoPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем крайние
+      ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Move(oldIndex, newIndex);
+      ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Move(oldIndex, newIndex);
+
+      if oldIndex > newIndex then
+        begin
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
+          for i := oldIndex-1 downto newIndex do
+            begin
+              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i+1);
+            end;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
+        end
+      else
+        begin
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
+          for i := oldIndex+1 to newIndex do
+            begin
+              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i-1);
+            end;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
+        end;
+
+      clboxAudioPlaylist.Repaint;
+      clboxVideoPlaylist.ItemIndex := newIndex;
+      clboxVideoPlaylist.ClearSelection;
+      clboxVideoPlaylist.Selected[newIndex] := True;
+    end;
+end;
+
+procedure TfMain.clboxVideoPlaylistDragOver(Sender, Source: TObject; X,
+  Y: Integer; State: TDragState; var Accept: Boolean);
+begin
+  if clboxVideoPlaylist.Count > 0 then
+    Accept := True;
 end;
 
 procedure TfMain.clboxVideoPlaylistItemClick(Sender: TObject; Index: integer);
