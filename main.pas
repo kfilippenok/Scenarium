@@ -220,7 +220,7 @@ var
   glCurrentVideoItem: string;
   glCurrentVideoItemIndex: Integer;
   ScenarioList: CScenarioList;
-  glAdaptivePanels: Boolean = False;
+  glAdaptivePanels: Boolean = True;
   StateNotify: CStateNotify;
 
 implementation
@@ -793,7 +793,7 @@ begin
   if not(glAdaptivePanels) then
     Exit;
 
-  if fMain.Height > 500 then
+  if (fMain.Height / fMain.Width) >= 1 then
     begin
       setColumnView;
     end

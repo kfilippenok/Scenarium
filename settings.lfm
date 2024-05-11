@@ -58,7 +58,9 @@ object fSettings: TfSettings
         Top = 125
         Width = 144
         Caption = 'Адаптивные панели'
+        Checked = True
         OnChange = chkboxAdaptivePanelsChange
+        State = cbChecked
         TabOrder = 1
       end
     end
