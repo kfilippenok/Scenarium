@@ -62,18 +62,9 @@ begin
   LMonitor := TSpeedButton.Create(panMonitors);
   LMonitor := (Sender as TSpeedButton);
   LMonitorIndex := StrToInt(LMonitor.Name[Length(LMonitor.Name)]);
-  if Screen.Monitors[LMonitorIndex-1].MonitorNum = fMonitorConfigure.Monitor.MonitorNum then
-    begin
-      QuestionDlg('Предупреждение!',
-        'Скорее всего вы ошибочно выбрали данный экран. Окно воспроизведения перекроет окно управления. Так нельзя!', mtInformation, [mrCancel, 'Ок', 'IsDefault'], '');
-      Exit();
-    end
-  else
-    begin
-      PlaybackMonitor := LMonitorIndex;
-      fPLaybackVideo.BoundsRect := Screen.Monitors[PlaybackMonitor-1].BoundsRect;
-      UpdateMonitorsList(Sender);
-    end;
+  PlaybackMonitor := LMonitorIndex;
+  fPLaybackVideo.BoundsRect := Screen.Monitors[PlaybackMonitor].BoundsRect;
+  UpdateMonitorsList(Sender);
 end;
 
 procedure TfMonitorConfigure.ClearMonitorsList;
@@ -89,21 +80,27 @@ procedure TfMonitorConfigure.PrintMonitorsList;
 var SpeedButton: TSpeedButton;
     i: Byte;
 begin
-  for i := 1 to Screen.MonitorCount do
+  for i := 0 to Screen.MonitorCount-1 do
   begin
     SpeedButton := TSpeedButton.Create(panMonitors);
     SpeedButton.Parent := panMonitors;
     SpeedButton.Top := Trunc(panMonitors.Height/2)-50;
-    SpeedButton.Left := i*100;
+    SpeedButton.Left := (i+1)*100;
     SpeedButton.Name := 'imgMonitor' + IntToStr(i);
     SpeedButton.Width := 100;
     SpeedButton.Height := 100;
     SpeedButton.Flat := True;
     SpeedButton.OnClick := @MonitorClick;
 
-    if PlaybackMonitor = i
-      then setGlyphSpeedButton(SpeedButton, 'icons\monitor_active.png')
-      else setGlyphSpeedButton(SpeedButton, 'icons\monitor_inactive.png');
+    if PlaybackMonitor = i then
+      setGlyphSpeedButton(SpeedButton, 'icons' + PathDelim +'monitor_active.png')
+    else if i = fMonitorConfigure.Monitor.MonitorNum then
+      begin
+        SpeedButton.Enabled := False;
+        setGlyphSpeedButton(SpeedButton, 'icons' + PathDelim +'monitor_disable.png')
+      end
+    else
+      setGlyphSpeedButton(SpeedButton, 'icons' + PathDelim +'monitor_inactive.png');
   end;
 end;
 
