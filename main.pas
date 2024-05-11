@@ -28,11 +28,13 @@ type
     lblVideoTimeTotal: TLabel;
     lblVideoTimeCurrent: TLabel;
     lblCurrentAudioItem: TLabel;
+    miCloseTab: TMenuItem;
     miAudioDeleteBond: TMenuItem;
     miAudioAddBond: TMenuItem;
     miVideoAddBond: TMenuItem;
     miAudioDelete: TMenuItem;
     muVideoDelete: TMenuItem;
+    ppmnTabControl: TPopupMenu;
     ppmnAudioPlaylist: TPopupMenu;
     ppmnVideoPlaylist: TPopupMenu;
     sbtnAudioRepeat: TSpeedButton;
@@ -42,12 +44,12 @@ type
 
     { Меню }
     MainMenu: TMainMenu;
-    ScenarioNew: TMenuItem;
-    ScenarioOpen: TMenuItem;
-    ScenarioSaveAs: TMenuItem;
-    ScenarioSave: TMenuItem;
-    Scenario: TMenuItem;
-    ScenarioExit: TMenuItem;
+    miScenarioNew: TMenuItem;
+    miScenarioOpen: TMenuItem;
+    miScenarioSaveAs: TMenuItem;
+    miScenarioSave: TMenuItem;
+    miScenario: TMenuItem;
+    miScenarioExit: TMenuItem;
     Settings: TMenuItem;
     Info: TMenuItem;
     InfoAboutProgram: TMenuItem;
@@ -128,18 +130,20 @@ type
     procedure FormResize(Sender: TObject);
     procedure miAudioDeleteBondClick(Sender: TObject);
     procedure miAudioDeleteClick(Sender: TObject);
+    procedure miCloseTabClick(Sender: TObject);
     procedure muVideoDeleteClick(Sender: TObject);
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
+    procedure ppmnTabControlPopup(Sender: TObject);
     procedure sbtnVideoRepeatClick(Sender: TObject);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
 
     { Меню }
-    procedure ScenarioNewClick(Sender: TObject);
-    procedure ScenarioOpenClick(Sender: TObject);
-    procedure ScenarioSaveClick(Sender: TObject);
-    procedure ScenarioSaveAsClick(Sender: TObject);
-    procedure ScenarioExitClick(Sender: TObject);
+    procedure miScenarioNewClick(Sender: TObject);
+    procedure miScenarioOpenClick(Sender: TObject);
+    procedure miScenarioSaveClick(Sender: TObject);
+    procedure miScenarioSaveAsClick(Sender: TObject);
+    procedure miScenarioExitClick(Sender: TObject);
     procedure SettingsClick(Sender: TObject);
     procedure InfoAboutProgramClick(Sender: TObject);
 
@@ -432,9 +436,11 @@ begin
 
   if (Sender = Source) then
     begin
-      clboxAudioPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем крайние
+      clboxAudioPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем элемент
       ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Move(oldIndex, newIndex);
       ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Move(oldIndex, newIndex);
+
+      ShowMessage('glCurrentAudioItemIndex  = ' + IntToStr(glCurrentAudioItemIndex));
 
       if oldIndex > newIndex then
         begin
@@ -446,6 +452,8 @@ begin
             end;
           for i := oldIndex-1 downto newIndex do
             begin
+              if i = glCurrentAudioItemIndex then
+                glCurrentAudioItemIndex := i+1;
               if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
               begin
                 LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
@@ -454,6 +462,8 @@ begin
               ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i+1);
             end;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
+          if oldIndex = glCurrentAudioItemIndex then
+                glCurrentAudioItemIndex := newIndex;
         end
       else
         begin
@@ -465,6 +475,8 @@ begin
             end;
           for i := oldIndex+1 to newIndex do
             begin
+              if i = glCurrentAudioItemIndex then
+                glCurrentAudioItemIndex := i-1;
               if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
               begin
                 LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
@@ -473,11 +485,15 @@ begin
               ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i-1);
             end;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
+          if oldIndex = glCurrentAudioItemIndex then
+                glCurrentAudioItemIndex := newIndex;
         end;
 
       clboxAudioPlaylist.ItemIndex := newIndex;
       clboxAudioPlaylist.ClearSelection;
       clboxAudioPlaylist.Selected[newIndex] := True;
+
+      ShowMessage('glCurrentAudioItemIndex  = ' + IntToStr(glCurrentAudioItemIndex));
     end;
 end;
 
@@ -565,21 +581,29 @@ begin
 
       if oldIndex > newIndex then
         begin
+          if i = glCurrentAudioItemIndex then
+                glCurrentAudioItemIndex := i-1;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
           for i := oldIndex-1 downto newIndex do
             begin
               ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i+1);
             end;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
+          if oldIndex = glCurrentAudioItemIndex then
+            glCurrentAudioItemIndex := newIndex;
         end
       else
         begin
+          if i = glCurrentAudioItemIndex then
+                glCurrentAudioItemIndex := i-1;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
           for i := oldIndex+1 to newIndex do
             begin
               ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i-1);
             end;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
+          if oldIndex = glCurrentAudioItemIndex then
+            glCurrentAudioItemIndex := newIndex;
         end;
 
       clboxAudioPlaylist.Repaint;
@@ -797,6 +821,41 @@ procedure TfMain.miAudioDeleteClick(Sender: TObject);
 begin
   miAudioDeleteBondClick(Self);
   sbtnAudioSubtract.Click;
+end;
+
+procedure TfMain.miCloseTabClick(Sender: TObject);
+var Scenario: CScenario;
+    i: Integer;
+    bbtnBond: TBitBtn;
+begin
+  Scenario := ScenarioList.Extract(ScenarioList.Items[TabControl.TabIndex]);
+  TabControl.Tabs.Delete(TabControl.TabIndex);
+  FreeAndNil(Scenario.AudioFileNames);
+  FreeAndNil(Scenario.AudioFilePaths);
+  FreeAndNil(Scenario.VideoFileNames);
+  FreeAndNil(Scenario.VideoFilePaths);
+  if Scenario.Bonds.Count <> 0 then
+    begin
+      for i := 0 to Scenario.Bonds.Count - 1 do
+        begin
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(Scenario.Bonds.arProvoking[i])) <> NIL then
+            begin
+              bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(Scenario.Bonds.arProvoking[i])) as TBitBtn);
+              FreeAndNil(bbtnBond);
+            end;
+        end;
+    end;
+  FreeAndNil(Scenario.Bonds);
+  FreeAndNil(Scenario);
+  clboxAudioPlaylist.Clear;
+  clboxVideoPlaylist.Clear;
+  clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
+  clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
+end;
+
+procedure TfMain.ppmnTabControlPopup(Sender: TObject);
+begin
+  miCloseTab.Enabled := TabControl.Tabs.Count > 1;
 end;
 
 procedure TfMain.muVideoDeleteClick(Sender: TObject);
@@ -1107,7 +1166,7 @@ end;
 
 { Меню }
 
-procedure TfMain.ScenarioNewClick(Sender: TObject);
+procedure TfMain.miScenarioNewClick(Sender: TObject);
 begin
   ScenarioList.Add(CScenario.Create);
   ScenarioList.Items[ScenarioList.Count-1].Name := 'Untitled';
@@ -1173,7 +1232,7 @@ begin
   FreeAndNil(jdScenario);
 end;
 
-procedure TfMain.ScenarioOpenClick(Sender: TObject);
+procedure TfMain.miScenarioOpenClick(Sender: TObject);
 begin
   OpenDialog.FileName := '';
   OpenDialog.Title := 'Открыть сценарий';
@@ -1190,7 +1249,7 @@ begin
   end;
 end;
 
-procedure TfMain.ScenarioSaveClick(Sender: TObject);
+procedure TfMain.miScenarioSaveClick(Sender: TObject);
 var jObject: TJSONObject;
     jarArrayAudio, jarArrayVideo, jarAudioBondsProvoking, jarAudioBondsInvoking: TJSONArray;
     i: Word;
@@ -1247,10 +1306,10 @@ begin
   end
   // Если имя файл не существует
   else
-    ScenarioSaveAsClick(Sender);
+    miScenarioSaveAsClick(Sender);
 end;
 
-procedure TfMain.ScenarioSaveAsClick(Sender: TObject);
+procedure TfMain.miScenarioSaveAsClick(Sender: TObject);
 var jObject: TJSONObject;
     jarAudio, jarVideo, jarAudioBondsProvoking, jarAudioBondsInvoking: TJSONArray;
     i: Word;
@@ -1312,7 +1371,7 @@ begin
     StateNotify.State := snCancel;
 end;
 
-procedure TfMain.ScenarioExitClick(Sender: TObject);
+procedure TfMain.miScenarioExitClick(Sender: TObject);
 begin
   Close;
 end;

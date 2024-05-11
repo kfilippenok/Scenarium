@@ -554,6 +554,7 @@ object fMain: TfMain
     DragMode = dmAutomatic
     OnDragDrop = TabControlDragDrop
     OnDragOver = TabControlDragOver
+    PopupMenu = ppmnTabControl
     TabOrder = 1
   end
   object panVideo: TPanel
@@ -1190,7 +1191,7 @@ object fMain: TfMain
   object MainMenu: TMainMenu
     Left = 152
     Top = 160
-    object Scenario: TMenuItem
+    object miScenario: TMenuItem
       Caption = 'Сценарий'
       Bitmap.Data = {
         76020000424D760200000000000036000000280000000C0000000C0000000100
@@ -1214,30 +1215,30 @@ object fMain: TfMain
         2170FFFFFF00FFFFFF0021212130212121F0212121FF212121FF212121FF2121
         21FF212121FF212121FF212121A0FFFFFF00FFFFFF00FFFFFF00
       }
-      object ScenarioNew: TMenuItem
+      object miScenarioNew: TMenuItem
         Caption = 'Новый'
         ShortCut = 16462
-        OnClick = ScenarioNewClick
+        OnClick = miScenarioNewClick
       end
-      object ScenarioOpen: TMenuItem
+      object miScenarioOpen: TMenuItem
         Caption = 'Окрыть'
         ShortCut = 16463
-        OnClick = ScenarioOpenClick
+        OnClick = miScenarioOpenClick
       end
-      object ScenarioSave: TMenuItem
+      object miScenarioSave: TMenuItem
         Caption = 'Сохранить'
         ShortCut = 16467
-        OnClick = ScenarioSaveClick
+        OnClick = miScenarioSaveClick
       end
-      object ScenarioSaveAs: TMenuItem
+      object miScenarioSaveAs: TMenuItem
         Caption = 'Сохранить как'
         ShortCut = 24659
-        OnClick = ScenarioSaveAsClick
+        OnClick = miScenarioSaveAsClick
       end
-      object ScenarioExit: TMenuItem
+      object miScenarioExit: TMenuItem
         Caption = 'Выйти'
         ShortCut = 32883
-        OnClick = ScenarioExitClick
+        OnClick = miScenarioExitClick
       end
     end
     object Settings: TMenuItem
@@ -1346,6 +1347,16 @@ object fMain: TfMain
     object miVideoAddBond: TMenuItem
       Caption = 'Добавить связь'
       OnClick = AddBond
+    end
+  end
+  object ppmnTabControl: TPopupMenu
+    OnPopup = ppmnTabControlPopup
+    Left = 736
+    Top = 176
+    object miCloseTab: TMenuItem
+      Caption = 'Закрыть вкладку'
+      ShortCut = 16499
+      OnClick = miCloseTabClick
     end
   end
 end
