@@ -554,6 +554,7 @@ object fMain: TfMain
     DragMode = dmAutomatic
     OnDragDrop = TabControlDragDrop
     OnDragOver = TabControlDragOver
+    OnMouseMove = TabControlMouseMove
     PopupMenu = ppmnTabControl
     TabOrder = 1
   end

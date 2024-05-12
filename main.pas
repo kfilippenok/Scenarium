@@ -168,6 +168,8 @@ type
     procedure TabControlDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure TabControlDragOver(Sender, Source: TObject; X, Y: Integer;
       State: TDragState; var Accept: Boolean);
+    procedure TabControlMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure trbarAudioTimeChange(Sender: TObject);
     procedure trbarAudioTimeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
@@ -222,6 +224,8 @@ var
   ScenarioList: CScenarioList;
   glAdaptivePanels: Boolean = True;
   StateNotify: CStateNotify;
+  MousePos_TabControl: TPoint;
+  Popuped_TabControl: Boolean = False;
 
 implementation
 
@@ -825,11 +829,20 @@ end;
 
 procedure TfMain.miCloseTabClick(Sender: TObject);
 var Scenario: CScenario;
-    i: Integer;
+    i, choose_index: Integer;
     bbtnBond: TBitBtn;
 begin
-  Scenario := ScenarioList.Extract(ScenarioList.Items[TabControl.TabIndex]);
-  TabControl.Tabs.Delete(TabControl.TabIndex);
+  if Popuped_TabControl then
+    begin
+      choose_index := TabControl.IndexOfTabAt(MousePos_TabControl.X, MousePos_TabControl.Y);
+      if choose_index = -1 then
+        choose_index := TabControl.TabIndex;
+      Popuped_TabControl := False;
+    end
+  else
+    choose_index := TabControl.TabIndex;
+  Scenario := ScenarioList.Extract(ScenarioList.Items[choose_index]);
+  TabControl.Tabs.Delete(choose_index);
   FreeAndNil(Scenario.AudioFileNames);
   FreeAndNil(Scenario.AudioFilePaths);
   FreeAndNil(Scenario.VideoFileNames);
@@ -856,6 +869,8 @@ end;
 procedure TfMain.ppmnTabControlPopup(Sender: TObject);
 begin
   miCloseTab.Enabled := TabControl.Tabs.Count > 1;
+
+  Popuped_TabControl := True;
 end;
 
 procedure TfMain.muVideoDeleteClick(Sender: TObject);
@@ -1673,6 +1688,13 @@ procedure TfMain.TabControlDragOver(Sender, Source: TObject; X, Y: Integer;
   State: TDragState; var Accept: Boolean);
 begin
   Accept := True;
+end;
+
+procedure TfMain.TabControlMouseMove(Sender: TObject; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  MousePos_TabControl.X := X;
+  MousePos_TabControl.Y := Y;
 end;
 
 procedure TfMain.sbtnMonitorConfigureClick(Sender: TObject);
