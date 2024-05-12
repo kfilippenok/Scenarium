@@ -243,6 +243,7 @@ object fMain: TfMain
         Position = 0
         Anchors = [akTop, akLeft, akRight]
         OnMouseDown = trbarAudioTimeMouseDown
+        OnMouseMove = trbarAudioTimeMouseMove
         OnMouseUp = trbarAudioTimeMouseUp
         TabOrder = 0
       end
@@ -777,6 +778,7 @@ object fMain: TfMain
         Position = 0
         Anchors = [akTop, akLeft, akRight]
         OnMouseDown = trbarVideoTimeMouseDown
+        OnMouseMove = trbarVideoTimeMouseMove
         OnMouseUp = trbarVideoTimeMouseUp
         ParentShowHint = False
         TabOrder = 0

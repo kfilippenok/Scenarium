@@ -173,6 +173,8 @@ type
     procedure trbarAudioTimeChange(Sender: TObject);
     procedure trbarAudioTimeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure trbarAudioTimeMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure trbarAudioTimeMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
 
@@ -191,6 +193,8 @@ type
     procedure trbarVideoTimeChange(Sender: TObject);
     procedure trbarVideoTimeMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure trbarVideoTimeMouseMove(Sender: TObject; Shift: TShiftState; X,
+      Y: Integer);
     procedure trbarVideoTimeMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
     procedure trbarVideoVolumeChange(Sender: TObject);
@@ -1711,8 +1715,17 @@ end;
 procedure TfMain.trbarAudioTimeMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
-  // Пользователь начал выбирать время
   glAudioTrackRewinding := True;
+  with trbarAudioTime do
+      Position := Round((Max - Min) / Width * X) + Min;
+end;
+
+procedure TfMain.trbarAudioTimeMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  if glAudioTrackRewinding then
+    with trbarAudioTime do
+      Position := Round((Max - Min) / Width * X) + Min;
 end;
 
 procedure TfMain.trbarAudioTimeMouseUp(Sender: TObject; Button: TMouseButton;
@@ -1834,6 +1847,17 @@ procedure TfMain.trbarVideoTimeMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   // Пользователь начал выбирать время
   glVideoTrackRewinding := True;
+
+  with trbarVideoTime do
+      Position := Round((Max - Min) / Width * X) + Min;
+end;
+
+procedure TfMain.trbarVideoTimeMouseMove(Sender: TObject; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  if glVideoTrackRewinding then
+    with trbarVideoTime do
+      Position := Round((Max - Min) / Width * X) + Min;
 end;
 
 procedure TfMain.trbarVideoTimeMouseUp(Sender: TObject; Button: TMouseButton;
