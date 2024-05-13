@@ -171,8 +171,7 @@ type
     procedure TabControlMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure trbarAudioTimeChange(Sender: TObject);
-    procedure trbarAudioTimeMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure trbarAudioTimeMouseLeave(Sender: TObject);
     procedure trbarAudioTimeMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure trbarAudioTimeMouseUp(Sender: TObject; Button: TMouseButton;
@@ -191,8 +190,7 @@ type
     { Таймер }
     procedure TimerMediaTimer(Sender: TObject);
     procedure trbarVideoTimeChange(Sender: TObject);
-    procedure trbarVideoTimeMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: integer);
+    procedure trbarVideoTimeMouseLeave(Sender: TObject);
     procedure trbarVideoTimeMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure trbarVideoTimeMouseUp(Sender: TObject; Button: TMouseButton;
@@ -916,7 +914,7 @@ begin
     savedItem := Items[Index];
 
     // Фоновый цвет файлов
-    if ExtractFileExt(clboxVideoPlaylist.Items[Index]) = '.mp4' then
+    if IsVideo(clboxVideoPlaylist.Items[Index]) then
       Canvas.Brush.Color := RGBToColor(222, 218, 244)
     else
       Canvas.Brush.Color := RGBToColor(192, 248, 191);
@@ -930,7 +928,7 @@ begin
     // Выделенная строка
     if (odSelected in ReceivedState) then
     begin
-      if ExtractFileExt(clboxVideoPlaylist.Items[Index]) = '.mp4' then
+      if IsVideo(clboxVideoPlaylist.Items[Index]) then
         Canvas.Brush.Color := RGBToColor(144, 89, 223)
       else
         Canvas.Brush.Color := RGBToColor(32, 204, 29);
@@ -1709,22 +1707,21 @@ end;
 procedure TfMain.trbarAudioTimeChange(Sender: TObject);
 begin
   lblAudioTimeCurrent.Caption := SecsToTimeStr(trbarAudioTime.Position);
-  if trbarAudioTime.Position = trbarAudioTime.Max then sbtnAudioStop.Click;
+  if trbarAudioTime.SelEnd = trbarAudioTime.Max then sbtnAudioStop.Click;
 end;
 
-procedure TfMain.trbarAudioTimeMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TfMain.trbarAudioTimeMouseLeave(Sender: TObject);
 begin
-  glAudioTrackRewinding := True;
   with trbarAudioTime do
-      Position := Round((Max - Min) / Width * X) + Min;
+      Position := SelEnd;
+  glAudioTrackRewinding := False;
 end;
 
 procedure TfMain.trbarAudioTimeMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
-  if glAudioTrackRewinding then
-    with trbarAudioTime do
+  glAudioTrackRewinding := True;
+  with trbarAudioTime do
       Position := Round((Max - Min) / Width * X) + Min;
 end;
 
@@ -1839,25 +1836,25 @@ end;
 procedure TfMain.trbarVideoTimeChange(Sender: TObject);
 begin
   lblVideoTimeCurrent.Caption := SecsToTimeStr(trbarVideoTime.Position);
-  if trbarVideoTime.Position = trbarVideoTime.Max then sbtnVideoStop.Click;
+  if trbarVideoTime.SelEnd = trbarVideoTime.Max then
+    sbtnVideoStop.Click;
 end;
 
-procedure TfMain.trbarVideoTimeMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: integer);
+procedure TfMain.trbarVideoTimeMouseLeave(Sender: TObject);
 begin
-  // Пользователь начал выбирать время
-  glVideoTrackRewinding := True;
-
+  glVideoTrackRewinding := False;
   with trbarVideoTime do
-      Position := Round((Max - Min) / Width * X) + Min;
+    Position := SelEnd;
 end;
 
 procedure TfMain.trbarVideoTimeMouseMove(Sender: TObject; Shift: TShiftState;
   X, Y: Integer);
 begin
-  if glVideoTrackRewinding then
-    with trbarVideoTime do
-      Position := Round((Max - Min) / Width * X) + Min;
+  // Пользователь начал выбирать время
+  glVideoTrackRewinding := True;
+
+  with trbarVideoTime do
+    Position := Round((Max - Min) / Width * X) + Min;
 end;
 
 procedure TfMain.trbarVideoTimeMouseUp(Sender: TObject; Button: TMouseButton;
@@ -1924,6 +1921,8 @@ begin
     // Время устанавливается в нулевое положение
     trbarAudioTime.SelEnd := 0;
     trbarAudioTime.Position := 0;
+    trbarAudioTime.Min := 0;
+    trbarAudioTime.Max := 0;
     lblAudioTimeTotal.Caption := '00:00';
     lblAudioTimeCurrent.Caption := '00:00';
   end
@@ -1932,6 +1931,8 @@ begin
     // Время устанавливается в нулевое положение
     trbarVideoTime.SelEnd := 0;
     trbarVideoTime.Position := 0;
+    trbarVideoTime.Min := 0;
+    trbarVideoTime.Max := 0;
     lblVideoTimeTotal.Caption := '00:00';
     lblVideoTimeCurrent.Caption := '00:00';
   end;
