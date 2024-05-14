@@ -109,11 +109,11 @@ begin
   if Screen.MonitorCount > 1 then
     begin
       if Screen.Monitors[0].MonitorNum <> fMonitorConfigure.Monitor.MonitorNum then
-        PlaybackMonitor := 1
+        PlaybackMonitor := 0
       else if Screen.Monitors[1].MonitorNum <> fMonitorConfigure.Monitor.MonitorNum then
-        PlaybackMonitor := 2;
+        PlaybackMonitor := 1;
 
-      fPLaybackVideo.BoundsRect := Screen.Monitors[PlaybackMonitor-1].BoundsRect;
+      fPLaybackVideo.BoundsRect := Screen.Monitors[PlaybackMonitor].BoundsRect;
     end;
 end;
 
