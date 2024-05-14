@@ -14,9 +14,9 @@ type
   { TfMonitorConfigure }
 
   TfMonitorConfigure = class(TForm)
-    panMonitors: TPanel;
     panUpdateMonitorsList: TPanel;
     sbtnUpdateMonitorsList: TSpeedButton;
+    scrboxMonitors: TScrollBox;
     procedure FormCreate(Sender: TObject);
     procedure UpdateMonitorsList(Sender: TObject);
   private
@@ -59,7 +59,7 @@ procedure TfMonitorConfigure.MonitorClick(Sender: TObject);
 var LMonitor: TSpeedButton;
     LMonitorIndex: Integer;
 begin
-  LMonitor := TSpeedButton.Create(panMonitors);
+  LMonitor := TSpeedButton.Create(scrboxMonitors);
   LMonitor := (Sender as TSpeedButton);
   LMonitorIndex := StrToInt(LMonitor.Name[Length(LMonitor.Name)]);
   PlaybackMonitor := LMonitorIndex;
@@ -70,9 +70,9 @@ end;
 procedure TfMonitorConfigure.ClearMonitorsList;
 var icmp: Byte;
 begin;
-  for icmp := 0 to panMonitors.ComponentCount-1 do
+  for icmp := 0 to scrboxMonitors.ComponentCount-1 do
   begin
-      panMonitors.Components[0].Free;
+      scrboxMonitors.Components[0].Free;
   end;
 end;
 
@@ -82,9 +82,9 @@ var SpeedButton: TSpeedButton;
 begin
   for i := 0 to Screen.MonitorCount-1 do
   begin
-    SpeedButton := TSpeedButton.Create(panMonitors);
-    SpeedButton.Parent := panMonitors;
-    SpeedButton.Top := Trunc(panMonitors.Height/2)-50;
+    SpeedButton := TSpeedButton.Create(scrboxMonitors);
+    SpeedButton.Parent := scrboxMonitors;
+    SpeedButton.Top := Trunc(scrboxMonitors.Height/2)-50;
     SpeedButton.Left := (i+1)*100;
     SpeedButton.Name := 'imgMonitor' + IntToStr(i);
     SpeedButton.Width := 100;

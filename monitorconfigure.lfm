@@ -10,14 +10,6 @@ object fMonitorConfigure: TfMonitorConfigure
   OnCreate = FormCreate
   Position = poMainFormCenter
   LCLVersion = '2.2.6.0'
-  object panMonitors: TPanel
-    Left = 0
-    Height = 190
-    Top = 50
-    Width = 425
-    Align = alClient
-    TabOrder = 0
-  end
   object panUpdateMonitorsList: TPanel
     Left = 0
     Height = 50
@@ -28,7 +20,7 @@ object fMonitorConfigure: TfMonitorConfigure
     Caption = 'panUpdateMonitorsList'
     ClientHeight = 50
     ClientWidth = 425
-    TabOrder = 1
+    TabOrder = 0
     object sbtnUpdateMonitorsList: TSpeedButton
       Left = 0
       Height = 50
@@ -39,5 +31,16 @@ object fMonitorConfigure: TfMonitorConfigure
       Color = clHotLight
       OnClick = UpdateMonitorsList
     end
+  end
+  object scrboxMonitors: TScrollBox
+    Left = 0
+    Height = 190
+    Top = 50
+    Width = 425
+    HorzScrollBar.Page = 1
+    VertScrollBar.Page = 1
+    VertScrollBar.Visible = False
+    Align = alClient
+    TabOrder = 1
   end
 end
