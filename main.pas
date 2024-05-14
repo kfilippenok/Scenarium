@@ -437,6 +437,9 @@ begin
   newIndex := clbox.GetIndexAtXY(X, Y);
   oldIndex := clboxAudioPlaylist.ItemIndex;
 
+  if newIndex = -1 then                        // Если перенесли на пустое место
+    newIndex := clboxAudioPlaylist.Count-1;
+
   if newIndex = oldIndex then // Проверка на смену позиции
     Exit;
 
@@ -445,8 +448,6 @@ begin
       clboxAudioPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем элемент
       ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Move(oldIndex, newIndex);
       ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Move(oldIndex, newIndex);
-
-      ShowMessage('glCurrentAudioItemIndex  = ' + IntToStr(glCurrentAudioItemIndex));
 
       if oldIndex > newIndex then
         begin
@@ -498,8 +499,6 @@ begin
       clboxAudioPlaylist.ItemIndex := newIndex;
       clboxAudioPlaylist.ClearSelection;
       clboxAudioPlaylist.Selected[newIndex] := True;
-
-      ShowMessage('glCurrentAudioItemIndex  = ' + IntToStr(glCurrentAudioItemIndex));
     end;
 end;
 
@@ -575,6 +574,9 @@ begin
   clbox := TCheckListBox(Sender);
   newIndex := clbox.GetIndexAtXY(X, Y);
   oldIndex := clboxVideoPlaylist.ItemIndex;
+
+  if newIndex = -1 then                      // Если перенесли на пустое место
+    newIndex := clboxVideoPlaylist.Count-1;
 
   if newIndex = oldIndex then // Проверка на смену позиции
     Exit;
