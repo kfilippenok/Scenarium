@@ -1161,7 +1161,7 @@ begin
   with fPlaybackVideo do
   begin
     if (videoPlayer = nil) then Exit;
-    if (clboxVideoPlaylist.Count = 0) then Exit;
+    if (glCurrentVideoItem = '') then Exit;
 
     videoPlayer.Resume;
     // Включаем таймер
@@ -1514,7 +1514,7 @@ begin
   with fPlaybackAudio do
   begin
     if (audioPlayer = nil) then Exit;
-    if (clboxAudioPlaylist.Count = 0) then Exit;
+    if (glCurrentAudioItem = '') then Exit;
 
     audioPlayer.Resume;
     // Включаем таймер
@@ -1538,6 +1538,8 @@ procedure TfMain.MediaPause(Sender: TObject);
 begin
   if Sender = sbtnAudioPause then
   begin
+    if (glCurrentAudioItem = '') then Exit;
+
     with fPlaybackAudio do
     begin
       if (audioPlayer = nil) then Exit;
@@ -1553,6 +1555,8 @@ begin
   end
   else if Sender = sbtnVideoPause then
   begin
+    if (glCurrentVideoItem = '') then Exit;
+
     with fPlaybackVideo do
     begin
       if (videoPlayer = nil) then Exit;
@@ -1575,6 +1579,8 @@ begin
   if Sender = sbtnAudioStop then
   begin
     if (fPlaybackAudio.audioPlayer = nil) then Exit;
+
+    if (glCurrentAudioItem = '') then Exit;
 
     fPlaybackAudio.audioPlayer.Stop;
 
@@ -1604,6 +1610,8 @@ begin
   else if Sender = sbtnVideoStop then
   begin
     if (fPlaybackVideo.VideoPlayer = nil) then Exit;
+
+    if (glCurrentVideoItem = '') then Exit;
 
     // Выключаем окно воспроизведения
     setFullyDisplay(False);
