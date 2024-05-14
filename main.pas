@@ -1724,7 +1724,8 @@ end;
 procedure TfMain.trbarAudioTimeChange(Sender: TObject);
 begin
   lblAudioTimeCurrent.Caption := SecsToTimeStr(trbarAudioTime.Position);
-  if trbarAudioTime.SelEnd = trbarAudioTime.Max then sbtnAudioStop.Click;
+  if trbarAudioTime.SelEnd = trbarAudioTime.Max-1
+    then sbtnAudioStop.Click;
 end;
 
 procedure TfMain.trbarAudioTimeMouseLeave(Sender: TObject);
@@ -1853,7 +1854,7 @@ end;
 procedure TfMain.trbarVideoTimeChange(Sender: TObject);
 begin
   lblVideoTimeCurrent.Caption := SecsToTimeStr(trbarVideoTime.Position);
-  if trbarVideoTime.SelEnd = trbarVideoTime.Max then
+  if trbarVideoTime.SelEnd = trbarVideoTime.Max-1 then
     sbtnVideoStop.Click;
 end;
 
