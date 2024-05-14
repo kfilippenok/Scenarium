@@ -1186,10 +1186,20 @@ end;
 { Меню }
 
 procedure TfMain.miScenarioNewClick(Sender: TObject);
+var i: Integer;
+    LBitBtn: TBitBtn;
 begin
   ScenarioList.Add(CScenario.Create);
   ScenarioList.Items[ScenarioList.Count-1].Name := 'Untitled';
   TabControl.Tabs.Add(ScenarioList.Items[ScenarioList.Count-1].Name);
+  for i:= 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
+    begin
+      if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
+        begin
+          LBitBtn := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+          FreeAndNil(LBitBtn);
+        end;
+    end;
   TabControl.TabIndex := TabControl.Tabs.Count-1;
 
   ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Clear();
@@ -1198,9 +1208,6 @@ begin
   ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Clear();
   clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths;
   clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths;
-
-  // Очищаем сценарный файл в диалоге
-  SaveDialog.FileName := '';
 end;
 
 procedure TfMain.LoadScenarioFromJSON(FilePath: String);
