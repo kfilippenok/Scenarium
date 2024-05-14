@@ -751,7 +751,7 @@ procedure TfMain.FormResize(Sender: TObject);
     panVideo.Visible := False;
 
     Splitter.Anchors := [];
-    Splitter.AnchorParallel(akTop, 0, TabControl);
+    Splitter.AnchorToNeighbour(akTop, 0, TabControl);
     Splitter.AnchorParallel(akBottom, 0, fMain);
     Splitter.ResizeAnchor := akLeft;
     Splitter.Width := 5;
