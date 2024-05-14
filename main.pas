@@ -28,12 +28,13 @@ type
     lblVideoTimeTotal: TLabel;
     lblVideoTimeCurrent: TLabel;
     lblCurrentAudioItem: TLabel;
+    miVideoDeleteBonds: TMenuItem;
     miCloseTab: TMenuItem;
     miAudioDeleteBond: TMenuItem;
     miAudioAddBond: TMenuItem;
     miVideoAddBond: TMenuItem;
     miAudioDelete: TMenuItem;
-    muVideoDelete: TMenuItem;
+    miVideoDelete: TMenuItem;
     ppmnTabControl: TPopupMenu;
     ppmnAudioPlaylist: TPopupMenu;
     ppmnVideoPlaylist: TPopupMenu;
@@ -131,9 +132,11 @@ type
     procedure miAudioDeleteBondClick(Sender: TObject);
     procedure miAudioDeleteClick(Sender: TObject);
     procedure miCloseTabClick(Sender: TObject);
-    procedure muVideoDeleteClick(Sender: TObject);
+    procedure miVideoDeleteBondsClick(Sender: TObject);
+    procedure miVideoDeleteClick(Sender: TObject);
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
+    procedure ppmnVideoPlaylistPopup(Sender: TObject);
     procedure sbtnVideoRepeatClick(Sender: TObject);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
@@ -521,13 +524,9 @@ begin
   if clboxAudioPlaylist.ItemIndex = -1 then
     Exit;
 
-  miAudioDeleteBond.Visible := False;
-
   // !? Если ли в связях
   if not(ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex)) then
     Exit;
-
-  miAudioDeleteBond.Visible := True;
 
   clboxVideoPlaylist.ClearSelection;
   clboxVideoPlaylist.Selected[ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(clboxAudioPlaylist.ItemIndex)] := True;
@@ -870,6 +869,23 @@ begin
   clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 end;
 
+procedure TfMain.miVideoDeleteBondsClick(Sender: TObject);
+var i: Integer;
+    bbtnFindedVideoBond: TBitBtn;
+begin
+  for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count-1 do
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.arInvoking[i] = clboxVideoPlaylist.ItemIndex then
+    if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
+      begin
+        bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+        FreeAndNil(bbtnFindedVideoBond);
+      end;
+
+  ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereInvoking(clboxVideoPlaylist.ItemIndex);
+
+  clboxAudioPlaylist.Repaint;
+end;
+
 procedure TfMain.ppmnTabControlPopup(Sender: TObject);
 begin
   miCloseTab.Enabled := TabControl.Tabs.Count > 1;
@@ -877,17 +893,50 @@ begin
   Popuped_TabControl := True;
 end;
 
-procedure TfMain.muVideoDeleteClick(Sender: TObject);
+procedure TfMain.ppmnVideoPlaylistPopup(Sender: TObject);
 begin
+  if clboxVideoPlaylist.Count <> 0 then
+    begin
+      miVideoDelete.Enabled := True;
+      if clboxAudioPlaylist.ItemIndex <> -1
+        then miVideoAddBond.Enabled := True
+        else miVideoAddBond.Enabled := False;
+      if ScenarioList.Items[TabControl.TabIndex].Bonds.InInvoking(clboxVideoPlaylist.ItemIndex)
+        then miVideoDeleteBonds.Enabled := True
+        else miVideoDeleteBonds.Enabled := False;
+    end
+  else
+    begin
+      miVideoDelete.Enabled := False;
+      miVideoAddBond.Enabled := False;
+      miVideoDeleteBonds.Enabled := False;
+    end;
+end;
+
+procedure TfMain.miVideoDeleteClick(Sender: TObject);
+begin
+  miVideoDeleteBondsClick(Self);
   sbtnVideoSubtract.Click;
 end;
 
 procedure TfMain.ppmnAudioPlaylistPopup(Sender: TObject);
 begin
-  if ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex) then
-    miAudioDeleteBond.Visible := True
+  if clboxAudioPlaylist.Count <> 0 then
+    begin
+      miAudioDelete.Enabled := True;
+      if clboxVideoPlaylist.ItemIndex <> -1
+        then miAudioAddBond.Enabled := True
+        else miAudioAddBond.Enabled := False;
+      if ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex)
+        then miAudioDeleteBond.Enabled := True
+        else miAudioDeleteBond.Enabled := False;
+    end
   else
-    miAudioDeleteBond.Visible := False;
+    begin
+      miAudioDelete.Enabled := False;
+      miAudioAddBond.Enabled := False;
+      miAudioDeleteBond.Enabled := False;
+    end;
 end;
 
 procedure TfMain.sbtnVideoRepeatClick(Sender: TObject);

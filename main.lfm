@@ -602,6 +602,7 @@ object fMain: TfMain
       OnDragOver = clboxVideoPlaylistDragOver
       OnMouseDown = clboxVideoPlaylistMouseDown
       ParentFont = False
+      PopupMenu = ppmnVideoPlaylist
       Style = lbOwnerDrawFixed
       TabOrder = 1
     end
@@ -1332,24 +1333,30 @@ object fMain: TfMain
     end
     object miAudioAddBond: TMenuItem
       Caption = 'Связать'
+      Enabled = False
       OnClick = AddBond
     end
     object miAudioDeleteBond: TMenuItem
-      Caption = 'Отвязать'
-      Visible = False
+      Caption = 'Удалить связь'
+      Enabled = False
       OnClick = miAudioDeleteBondClick
     end
   end
   object ppmnVideoPlaylist: TPopupMenu
+    OnPopup = ppmnVideoPlaylistPopup
     Left = 624
     Top = 176
-    object muVideoDelete: TMenuItem
+    object miVideoDelete: TMenuItem
       Caption = 'Удалить'
-      OnClick = muVideoDeleteClick
+      OnClick = miVideoDeleteClick
     end
     object miVideoAddBond: TMenuItem
-      Caption = 'Добавить связь'
+      Caption = 'Связать'
       OnClick = AddBond
+    end
+    object miVideoDeleteBonds: TMenuItem
+      Caption = 'Очистить связи элемента'
+      OnClick = miVideoDeleteBondsClick
     end
   end
   object ppmnTabControl: TPopupMenu
