@@ -231,6 +231,7 @@ var
   StateNotify: CStateNotify;
   MousePos_TabControl: TPoint;
   Popuped_TabControl: Boolean = False;
+  NewTab_Count: Integer = 0;
 
 implementation
 
@@ -1239,7 +1240,8 @@ var i: Integer;
     LBitBtn: TBitBtn;
 begin
   ScenarioList.Add(CScenario.Create);
-  ScenarioList.Items[ScenarioList.Count-1].Name := 'Untitled';
+  ScenarioList.Items[ScenarioList.Count-1].Name := 'Untitled' + IntToStr(NewTab_Count);
+  Inc(NewTab_Count);
   TabControl.Tabs.Add(ScenarioList.Items[ScenarioList.Count-1].Name);
   for i:= 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
     begin
