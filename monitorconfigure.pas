@@ -79,13 +79,17 @@ end;
 procedure TfMonitorConfigure.PrintMonitorsList;
 var SpeedButton: TSpeedButton;
     i: Byte;
+    OffsetBorder: Integer = 50;
+    OffsetElement: Integer = 10;
 begin
   for i := 0 to Screen.MonitorCount-1 do
   begin
     SpeedButton := TSpeedButton.Create(scrboxMonitors);
     SpeedButton.Parent := scrboxMonitors;
     SpeedButton.Top := Trunc(scrboxMonitors.Height/2)-50;
-    SpeedButton.Left := (i+1)*100;
+    if i <> 0 then
+      SpeedButton.Left := OffsetElement;
+    SpeedButton.Left := SpeedButton.Left + OffsetBorder + i*100;
     SpeedButton.Name := 'imgMonitor' + IntToStr(i);
     SpeedButton.Width := 100;
     SpeedButton.Height := 100;
