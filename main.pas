@@ -246,8 +246,7 @@ var
   arrImageExtensions: Array of string = ('.BMP', '.GIF', '.HDR',
                                          '.HEIC', '.HEIF', '.ICO',
                                          '.JPG', '.JPEG', '.PNG',
-                                         '.RAW', '.RPF', '.SVG',
-                                         '.WEBP');
+                                         '.RAW', '.RPF', '.WEBP');
 
 implementation
 
