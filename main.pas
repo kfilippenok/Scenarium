@@ -137,6 +137,7 @@ type
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
+    procedure sbtnVideoAddClick(Sender: TObject);
     procedure sbtnVideoRepeatClick(Sender: TObject);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
@@ -232,6 +233,21 @@ var
   MousePos_TabControl: TPoint;
   Popuped_TabControl: Boolean = False;
   NewTab_Count: Integer = 0;
+  arrAudioExtensions: Array of string = ('.AAC', '.FLAC', '.MP3',
+                                         '.OGG', '.OPUS', '.VOC',
+                                         '.WAV', '.WFP');
+  arrVideoExtensions: Array of string = ('.AVI', '.AVC', '.BDMV',
+                                         '.H264', '.M2V', '.M4S',
+                                         '.MJPEG', '.MKV', '.MOV',
+                                         '.MP4', '.MP5', '.MPEG',
+                                         '.MPV', '.SRT', '.STR',
+                                         '.VID', '.WEBM', '.WLMP',
+                                         '.WMV', '.XVID');
+  arrImageExtensions: Array of string = ('.BMP', '.GIF', '.HDR',
+                                         '.HEIC', '.HEIF', '.ICO',
+                                         '.JPG', '.JPEG', '.PNG',
+                                         '.RAW', '.RPF', '.SVG',
+                                         '.WEBP');
 
 implementation
 
@@ -276,67 +292,45 @@ begin
 end;
 
 function TfMain.isAudio(const FileName: String): Boolean;
+var i: Integer;
 begin
   Result := False;
 
-  case UpperCase(ExtractFileExt(FileName)) of
-    '.AAC' : Result := True;
-    '.FLAC' : Result := True;
-    '.MP3' : Result := True;
-    '.OGG' : Result := True;
-    '.OPUS' : Result := True;
-    '.VOC' : Result := True;
-    '.WFP' : Result := True;
-  end;
+  for i := Low(arrAudioExtensions) to High(arrAudioExtensions) do
+    begin
+      if UpperCase(ExtractFileExt(FileName)) = arrAudioExtensions[i] then
+        begin
+          Exit(True);
+        end;
+    end;
 end;
 
 function TfMain.isVideo(const FileName: String): Boolean;
+var i: Integer;
 begin
   Result := False;
 
-  case UpperCase(ExtractFileExt(FileName)) of
-    '.AVI' : Result := True;
-    '.AVC' : Result := True;
-    '.BDMV' : Result := True;
-    '.H264' : Result := True;
-    '.M2V' : Result := True;
-    '.M4S' : Result := True;
-    '.MJPEG' : Result := True;
-    '.MKV' : Result := True;
-    '.MOV' : Result := True;
-    '.MP4' : Result := True;
-    '.MP5' : Result := True;
-    '.MPEG' : Result := True;
-    '.MPV' : Result := True;
-    '.SRT' : Result := True;
-    '.STR' : Result := True;
-    '.VID' : Result := True;
-    '.WEBM' : Result := True;
-    '.WLMP' : Result := True;
-    '.WMV' : Result := True;
-    '.XVID' : Result := True;
-  end;
+  for i := Low(arrVideoExtensions) to High(arrVideoExtensions) do
+    begin
+      if UpperCase(ExtractFileExt(FileName)) = arrVideoExtensions[i] then
+        begin
+          Exit(True);
+        end;
+    end;
 end;
 
 function TfMain.isImage(const FileName: String): Boolean;
+var i: Integer;
 begin
   Result := False;
 
-  case UpperCase(ExtractFileExt(FileName)) of
-    '.BMP' : Result := True;
-    '.GIF' : Result := True;
-    '.HDR' : Result := True;
-    '.HEIC' : Result := True;
-    '.HEIF' : Result := True;
-    '.ICO' : Result := True;
-    '.JPG' : Result := True;
-    '.JPEG' : Result := True;
-    '.PNG' : Result := True;
-    '.RAW' : Result := True;
-    '.RPF' : Result := True;
-    '.SVG' : Result := True;
-    '.WEBP' : Result := True;
-  end;
+  for i := Low(arrAudioExtensions) to High(arrAudioExtensions) do
+    begin
+      if UpperCase(ExtractFileExt(FileName)) = arrImageExtensions[i] then
+        begin
+          Exit(True);
+        end;
+    end;
 end;
 
 { TfMain }
@@ -914,6 +908,34 @@ begin
     end;
 end;
 
+procedure TfMain.sbtnVideoAddClick(Sender: TObject);
+var
+  FilePath: string;
+  ImageExtensions, VideoExtensions: String;
+  i: Integer;
+begin
+  OpenDialog.Title := 'Добавить элемент';
+  OpenDialog.DefaultExt := '';
+
+  ImageExtensions := ''; VideoExtensions := '';
+  for i := Low(arrVideoExtensions) to High(arrVideoExtensions) do
+    VideoExtensions := VideoExtensions + '*' + arrVideoExtensions[i] + ';';
+  for i := Low(arrImageExtensions) to High(arrImageExtensions) do
+    ImageExtensions := ImageExtensions + '*' + arrImageExtensions[i] + ';';
+
+  OpenDialog.Filter := 'Video and Images|' + VideoExtensions + ImageExtensions + '|' + 'Video|' + VideoExtensions + '|' + 'Image|' + ImageExtensions + '|' + 'All files|*.*';
+  if OpenDialog.Execute then
+  begin
+    for FilePath in OpenDialog.Files do
+    begin
+      ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FilePath);
+      ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FilePath));
+    end;
+
+    clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
+  end;
+end;
+
 procedure TfMain.miVideoDeleteClick(Sender: TObject);
 begin
   miVideoDeleteBondsClick(Self);
@@ -1469,28 +1491,23 @@ end;
 procedure TfMain.sbtnAudioAddClick(Sender: TObject);
 var
   FilePath: string;
+  AudioExtensions: String = '';
+  i: Integer;
 begin
   OpenDialog.Title := 'Добавить элемент';
   OpenDialog.DefaultExt := '';
-  OpenDialog.Filter := 'Media|*.mp4; *.mp3; *.jpg; *.jpeg; *.png|All files|*.*';
+  for i := Low(arrAudioExtensions) to High(arrAudioExtensions) do
+    AudioExtensions := AudioExtensions + '*' + arrAudioExtensions[i] + ';';
+  OpenDialog.Filter := 'Audio|' + AudioExtensions + '|All files|*.*';
   if OpenDialog.Execute then
   begin
     for FilePath in OpenDialog.Files do
     begin
-      if Sender = sbtnAudioAdd then
-      begin
-        ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FilePath);
-        ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FilePath));
-      end;
-      if Sender = sbtnVideoAdd then
-      begin
-        ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FilePath);
-        ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FilePath));
-      end;
+      ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FilePath);
+      ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FilePath));
     end;
 
-    if Sender = sbtnAudioAdd then clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
-    if Sender = sbtnVideoAdd then clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
+    clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
   end;
 end;
 

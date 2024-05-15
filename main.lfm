@@ -1121,7 +1121,7 @@ object fMain: TfMain
         Top = 6
         Width = 32
         Flat = True
-        OnClick = sbtnAudioAddClick
+        OnClick = sbtnVideoAddClick
         ShowHint = True
         ParentShowHint = False
       end
