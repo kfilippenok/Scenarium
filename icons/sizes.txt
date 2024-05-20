@@ -1,6 +1,7 @@
 add.png - 14x14 px
 clear.png - 18x18 px
 info.png - 12x12 px
+link_off, link_on - 18x18px
 monitor_active.png - 60x60 px
 monitor_inactive.png - 60x60 px
 pause.png - 14x14 px

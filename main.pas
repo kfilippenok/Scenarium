@@ -40,6 +40,8 @@ type
     ppmnVideoPlaylist: TPopupMenu;
     sbtnAudioRepeat: TSpeedButton;
     sbtnVideoRepeat: TSpeedButton;
+    sbtnAudioLinkPlayers: TSpeedButton;
+    sbtnVideoLinkPlayers: TSpeedButton;
     { Вкладки }
     TabControl: TTabControl;
 
@@ -137,7 +139,10 @@ type
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
+    procedure sbtnAudioPauseClick(Sender: TObject);
+    procedure sbtnAudioStopClick(Sender: TObject);
     procedure sbtnVideoAddClick(Sender: TObject);
+    procedure sbtnVideoLinkPlayersClick(Sender: TObject);
     procedure sbtnVideoRepeatClick(Sender: TObject);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
@@ -164,9 +169,10 @@ type
 
     { Воспроизведение }
     procedure sbtnAudioPlayClick(Sender: TObject);
-    procedure MediaPause(Sender: TObject);
-    procedure MediaStop(Sender: TObject);
+    procedure sbtnVideoPauseClick(Sender: TObject);
+    procedure sbtnVideoStopClick(Sender: TObject);
     procedure sbtnAudioRepeatClick(Sender: TObject);
+    procedure sbtnAudioLinkPlayersClick(Sender: TObject);
     procedure TabControlChange(Sender: TObject);
     procedure TabControlChanging(Sender: TObject; var AllowChange: Boolean);
     procedure TabControlDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -233,6 +239,7 @@ var
   MousePos_TabControl: TPoint;
   Popuped_TabControl: Boolean = False;
   NewTab_Count: Integer = 0;
+  Link_Players: Boolean = False;
   arrAudioExtensions: Array of string = ('.AAC', '.FLAC', '.MP3',
                                          '.OGG', '.OPUS', '.VOC',
                                          '.WAV', '.WFP');
@@ -404,6 +411,10 @@ begin
     IndexBond := ScenarioList.Items[TabControl.TabIndex].Bonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex);
     if IndexBond <> -1 then
       begin
+        Link_Players := True;
+        setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+        setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+
         clboxVideoPlaylist.OnDblClick(clboxVideoPlaylist);
       end;
     { Связи }
@@ -467,7 +478,7 @@ begin
             end;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
           if oldIndex = glCurrentAudioItemIndex then
-                glCurrentAudioItemIndex := newIndex;
+            glCurrentAudioItemIndex := newIndex;
         end
       else
         begin
@@ -490,7 +501,7 @@ begin
             end;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
           if oldIndex = glCurrentAudioItemIndex then
-                glCurrentAudioItemIndex := newIndex;
+            glCurrentAudioItemIndex := newIndex;
         end;
 
       clboxAudioPlaylist.ItemIndex := newIndex;
@@ -907,6 +918,71 @@ begin
     end;
 end;
 
+procedure TfMain.sbtnAudioPauseClick(Sender: TObject);
+begin
+  if (glCurrentAudioItem = '') then Exit;
+
+  with fPlaybackAudio do
+  begin
+    if (audioPlayer = nil) then Exit;
+
+    audioPlayer.Pause;
+  end;
+  TimerAudio.Enabled := False;
+
+  // Изменение состояния элементов воспроизведения
+  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
+  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause_active.png');
+
+  if Link_Players then
+    begin
+      Link_Players := False;
+      sbtnVideoPauseClick(Self);
+      Link_Players := True;
+    end;
+end;
+
+procedure TfMain.sbtnAudioStopClick(Sender: TObject);
+begin
+  if (fPlaybackAudio.audioPlayer = nil) then Exit;
+
+  if (glCurrentAudioItem = '') then Exit;
+
+  fPlaybackAudio.audioPlayer.Stop;
+
+  // Изменение состояния элементов воспроизведения
+  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop_active.png');
+
+  // "Проигриваемый элемент" очищается (Аудио)
+  if Not(glAudioTrackRepeat) then
+    begin
+      glCurrentAudioItem := '';
+      glCurrentAudioItemIndex := -1;
+      lblCurrentAudioItem.Caption := '';
+    end;
+  // Список элементов переотрисовывается (Аудио)
+  clboxAudioPlaylist.Repaint;
+  // Выключаем таймер (Аудио)
+  TimerAudio.Enabled := False;
+
+  // Время устанавливается в нулевое положение (Аудио)
+  resetTime('AudioPlayer');
+
+  if Link_Players then
+    begin
+      Link_Players := False;
+      sbtnVideoStopClick(Self);
+      Link_Players := True;
+      sbtnAudioLinkPlayersClick(Sender);
+    end;
+
+  if glAudioTrackRepeat then
+    clboxAudioPlaylistDblClick(Self);
+end;
+
 procedure TfMain.sbtnVideoAddClick(Sender: TObject);
 var
   FilePath: string;
@@ -933,6 +1009,22 @@ begin
 
     clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
   end;
+end;
+
+procedure TfMain.sbtnVideoLinkPlayersClick(Sender: TObject);
+begin
+  Link_Players := Not(Link_Players);
+
+  if Link_Players then
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+    end
+  else
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_off.png');
+    end;
 end;
 
 procedure TfMain.miVideoDeleteClick(Sender: TObject);
@@ -1235,6 +1327,7 @@ begin
     if (glCurrentVideoItem = '') then Exit;
 
     videoPlayer.Resume;
+
     // Включаем таймер
     TimerVideo.Enabled := True;
 
@@ -1242,13 +1335,17 @@ begin
     // проиграиваемого элемента
     clboxVideoPlaylist.Repaint;
 
-    // Включаем таймер
-    TimerVideo.Enabled := True;
-
     // Изменение состояния элементов воспроизведения
     setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
     setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
     setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play_active.png');
+
+    if Link_Players then
+    begin
+      Link_Players := False;
+      sbtnAudioPlayClick(Self);
+      Link_Players := True;
+    end;
   end;
 end;
 
@@ -1591,91 +1688,48 @@ begin
     // проиграиваемого элемента
     clboxAudioPlaylist.Repaint;
 
-    // Включаем таймер
-    TimerAudio.Enabled := True;
-
     // Изменение состояния элементов воспроизведения
     setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
     setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
     setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play_active.png');
-  end;
-end;
 
-procedure TfMain.MediaPause(Sender: TObject);
-begin
-  if Sender = sbtnAudioPause then
-  begin
-    if (glCurrentAudioItem = '') then Exit;
-
-    with fPlaybackAudio do
-    begin
-      if (audioPlayer = nil) then Exit;
-
-      audioPlayer.Pause;
-    end;
-    TimerAudio.Enabled := False;
-
-    // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
-    setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-    setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause_active.png');
-  end
-  else if Sender = sbtnVideoPause then
-  begin
-    if (glCurrentVideoItem = '') then Exit;
-
-    with fPlaybackVideo do
-    begin
-      if (videoPlayer = nil) then Exit;
-
-      videoPlayer.Pause;
-    end;
-    TimerVideo.Enabled := False;
-
-    // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
-    setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-    setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause_active.png');
-  end;
-end;
-
-procedure TfMain.MediaStop(Sender: TObject);
-var
-  i: word;
-begin
-  if Sender = sbtnAudioStop then
-  begin
-    if (fPlaybackAudio.audioPlayer = nil) then Exit;
-
-    if (glCurrentAudioItem = '') then Exit;
-
-    fPlaybackAudio.audioPlayer.Stop;
-
-    // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-    setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-    setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop_active.png');
-
-    // "Проигриваемый элемент" очищается (Аудио)
-    if Not(glAudioTrackRepeat) then
+    if Link_Players then
       begin
-        glCurrentAudioItem := '';
-        glCurrentAudioItemIndex := -1;
-        lblCurrentAudioItem.Caption := '';
+        Link_Players := False;
+        sbtnVideoPlayClick(Self);
+        Link_Players := True;
       end;
-    // Список элементов переотрисовывается (Аудио)
-    clboxAudioPlaylist.Repaint;
-    // Выключаем таймер (Аудио)
-    TimerAudio.Enabled := False;
+  end;
+end;
 
-    // Время устанавливается в нулевое положение (Аудио)
-    resetTime('AudioPlayer');
+procedure TfMain.sbtnVideoPauseClick(Sender: TObject);
+begin
+  if (glCurrentVideoItem = '') then Exit;
 
-    if glAudioTrackRepeat then
-      clboxAudioPlaylistDblClick(Self);
-  end
-  else if Sender = sbtnVideoStop then
+  with fPlaybackVideo do
   begin
+    if (videoPlayer = nil) then Exit;
+
+    videoPlayer.Pause;
+
+  end;
+  TimerVideo.Enabled := False;
+
+  // Изменение состояния элементов воспроизведения
+  setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
+  setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause_active.png');
+
+  if Link_Players then
+    begin
+      Link_Players := False;
+      sbtnAudioPauseClick(Self);
+      Link_Players := True;
+    end;
+end;
+
+procedure TfMain.sbtnVideoStopClick(Sender: TObject);
+begin
     if (fPlaybackVideo.VideoPlayer = nil) then Exit;
 
     if (glCurrentVideoItem = '') then Exit;
@@ -1706,9 +1760,16 @@ begin
     // Время устанавливается в нулевое положение (Видео)
     resetTime('VideoPlayer');
 
+    if Link_Players then
+    begin
+      Link_Players := False;
+      sbtnAudioStopClick(Self);
+      Link_Players := True;
+      sbtnVideoLinkPlayersClick(Sender);
+    end;
+
     if glVideoTrackRepeat then
       clboxVideoPlaylistDblClick(Self);
-  end;
 end;
 
 procedure TfMain.sbtnAudioRepeatClick(Sender: TObject);
@@ -1719,6 +1780,22 @@ begin
     setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_on.png')
   else
     setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_off.png');
+end;
+
+procedure TfMain.sbtnAudioLinkPlayersClick(Sender: TObject);
+begin
+  Link_Players := Not(Link_Players);
+
+  if Link_Players then
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+    end
+  else
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_off.png');
+    end;
 end;
 
 procedure TfMain.TabControlChange(Sender: TObject);
@@ -1800,6 +1877,12 @@ begin
   with trbarAudioTime do
       Position := SelEnd;
   glAudioTrackRewinding := False;
+
+  if Link_Players then
+    begin
+      glVideoTrackRewinding := False;
+      trbarVideoTime.Position := trbarVideoTime.SelEnd;
+    end;
 end;
 
 procedure TfMain.trbarAudioTimeMouseMove(Sender: TObject; Shift: TShiftState;
@@ -1808,6 +1891,15 @@ begin
   glAudioTrackRewinding := True;
   with trbarAudioTime do
       Position := Round((Max - Min) / Width * X) + Min;
+
+  if Link_Players then
+    begin
+      glVideoTrackRewinding := True;
+      if trbarAudioTime.Position > trbarVideoTime.Max
+        then trbarVideoTime.Position := trbarVideoTime.Max
+        else trbarVideoTime.Position := trbarAudioTime.Position;
+    end;
+
 end;
 
 procedure TfMain.trbarAudioTimeMouseUp(Sender: TObject; Button: TMouseButton;
@@ -1818,9 +1910,21 @@ begin
   // Ставим прогресс на позицию метки
   fPlaybackAudio.audioPlayer.Seek(double(trbarAudioTime.Position), False);
   // Ставим на выбранную позицию
-  TimerAudio.Enabled := True; // Включаем таймер
   glAudioTrackRewinding := False;
+  TimerAudio.Enabled := True; // Включаем таймер
   // Трек больше не перематывается
+
+  if Link_Players then
+    begin
+      if trbarVideoTime.Position = trbarVideoTime.Max
+        then sbtnAudioStopClick(Self)
+        else
+          begin
+            Link_Players := False;
+            trbarVideoTimeMouseUp(Sender, Button, Shift, X, Y);
+            Link_Players := True;
+          end;
+    end;
 end;
 
 
@@ -1930,6 +2034,12 @@ begin
   glVideoTrackRewinding := False;
   with trbarVideoTime do
     Position := SelEnd;
+
+  if Link_Players then
+    begin
+      glAudioTrackRewinding := False;
+      trbarAudioTime.Position := trbarAudioTime.SelEnd;
+    end;
 end;
 
 procedure TfMain.trbarVideoTimeMouseMove(Sender: TObject; Shift: TShiftState;
@@ -1940,19 +2050,40 @@ begin
 
   with trbarVideoTime do
     Position := Round((Max - Min) / Width * X) + Min;
+
+  if Link_Players then
+    begin
+      glAudioTrackRewinding := True;
+      if trbarVideoTime.Position > trbarAudioTime.Max
+        then trbarAudioTime.Position := trbarAudioTime.Max
+        else trbarAudioTime.Position := trbarVideoTime.Position;
+    end;
 end;
 
 procedure TfMain.trbarVideoTimeMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: integer);
 begin
   // Пользователь выбрал нужное время
+  if trbarVideoTime.Position = trbarVideoTime.Max then
+    trbarVideoTime.Position := trbarVideoTime.Position - 1;
   trbarVideoTime.SelEnd := trbarVideoTime.Position;
   // Ставим прогресс на позицию метки
   fPlaybackVideo.videoPlayer.Seek(double(trbarVideoTime.Position), False);
   // Ставим на выбранную позицию
-  TimerVideo.Enabled := True; // Включаем таймер
   glVideoTrackRewinding := False;
-  // Трек больше не перематывается
+  TimerVideo.Enabled := True; // Включаем таймер
+
+  if Link_Players then
+    begin
+      if trbarAudioTime.Position = trbarAudioTime.Max
+        then sbtnVideoStopClick(Self)
+        else
+          begin
+            Link_Players := False;
+            trbarAudioTimeMouseUp(Sender, Button, Shift, X, Y);
+            Link_Players := True;
+          end;
+    end;
 end;
 
 procedure TfMain.trbarVideoVolumeChange(Sender: TObject);
