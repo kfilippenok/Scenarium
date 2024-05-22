@@ -79,33 +79,11 @@ procedure TfSettings.chkboxTipsChange(Sender: TObject);
 begin
   if (Sender as TCheckBox).Checked then
   begin
-    fMain.sbtnAudioAdd.ShowHint := True;
-    fMain.sbtnAudioClear.ShowHint := True;
-    fMain.sbtnAudioSubtract.ShowHint := True;
-    fMain.sbtnAudioPlay.ShowHint := True;
-    fMain.sbtnAudioPause.ShowHint := True;
-    fMain.sbtnAudioStop.ShowHint := True;
-    fMain.sbtnVideoAdd.ShowHint := True;
-    fMain.sbtnVideoClear.ShowHint := True;
-    fMain.sbtnVideoSubtract.ShowHint := True;
-    fMain.sbtnVideoPlay.ShowHint := True;
-    fMain.sbtnVideoPause.ShowHint := True;
-    fMain.sbtnVideoStop.ShowHint := True;
+    fMain.ShowHint := True;
   end
   else
   begin
-    fMain.sbtnAudioAdd.ShowHint := False;
-    fMain.sbtnAudioClear.ShowHint := False;
-    fMain.sbtnAudioSubtract.ShowHint := False;
-    fMain.sbtnAudioPlay.ShowHint := False;
-    fMain.sbtnAudioPause.ShowHint := False;
-    fMain.sbtnAudioStop.ShowHint := False;
-    fMain.sbtnVideoAdd.ShowHint := False;
-    fMain.sbtnVideoClear.ShowHint := False;
-    fMain.sbtnVideoSubtract.ShowHint := False;
-    fMain.sbtnVideoPlay.ShowHint := False;
-    fMain.sbtnVideoPause.ShowHint := False;
-    fMain.sbtnVideoStop.ShowHint := False;
+    fMain.ShowHint := False;
   end;
 end;
 

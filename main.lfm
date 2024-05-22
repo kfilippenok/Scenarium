@@ -24,6 +24,7 @@ object fMain: TfMain
   OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
   OnResize = FormResize
+  ShowHint = True
   LCLVersion = '2.2.6.0'
   object panAudio: TPanel
     AnchorSideLeft.Control = Owner
@@ -130,13 +131,11 @@ object fMain: TfMain
           000000000000000000000000000000000000000000000000000000000000
         }
         OnClick = sbtnAudioPlayClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnAudioPause: TSpeedButton
         Left = 208
         Height = 30
-        Hint = 'Пауза'
+        Hint = 'Приостановить'
         Top = 26
         Width = 32
         Anchors = [akTop]
@@ -180,8 +179,6 @@ object fMain: TfMain
           210021212100212121002121210021212100212121002121210000000000
         }
         OnClick = sbtnAudioPauseClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnAudioStop: TSpeedButton
         Left = 289
@@ -230,8 +227,6 @@ object fMain: TfMain
           210021212100212121002121210021212100212121002121210021212100
         }
         OnClick = sbtnAudioStopClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object trbarAudioTime: TTrackBar
         Left = 24
@@ -250,6 +245,7 @@ object fMain: TfMain
       object lblAudioTimeCurrent: TLabel
         Left = 9
         Height = 19
+        Hint = 'Текущее время воспроизведения'
         Top = 38
         Width = 56
         Alignment = taCenter
@@ -260,6 +256,7 @@ object fMain: TfMain
       object lblAudioTimeTotal: TLabel
         Left = 488
         Height = 19
+        Hint = 'Длительность трека'
         Top = 39
         Width = 56
         Alignment = taCenter
@@ -271,6 +268,7 @@ object fMain: TfMain
       object lblCurrentAudioItem: TLabel
         Left = 37
         Height = 19
+        Hint = 'Название проигрываемого трека'
         Top = 2
         Width = 478
         Alignment = taCenter
@@ -281,6 +279,7 @@ object fMain: TfMain
       object sbtnAudioRepeat: TSpeedButton
         Left = 336
         Height = 30
+        Hint = 'Повтор трека'
         Top = 26
         Width = 32
         Anchors = [akTop]
@@ -319,6 +318,7 @@ object fMain: TfMain
       object sbtnAudioLinkPlayers: TSpeedButton
         Left = 162
         Height = 30
+        Hint = 'Связное управление воспроизведением'
         Top = 26
         Width = 32
         Flat = True
@@ -430,12 +430,11 @@ object fMain: TfMain
           211822222200212121002121210000000000000000000000000000000000
         }
         OnClick = sbtnAudioClearClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnAudioVolume: TSpeedButton
         Left = 351
         Height = 28
+        Hint = 'Вкл./выкл. звук'
         Top = 7
         Width = 34
         Anchors = [akTop, akRight]
@@ -541,8 +540,6 @@ object fMain: TfMain
           210021212100212121000000000000000000000000000000000000000000
         }
         OnClick = sbtnAudioAddClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnAudioSubtract: TSpeedButton
         Left = 48
@@ -590,8 +587,6 @@ object fMain: TfMain
           000000000000000000000000000000000000000000000000000000000000
         }
         OnClick = sbtnAudioSubtractClick
-        ShowHint = True
-        ParentShowHint = False
       end
     end
   end
@@ -719,13 +714,11 @@ object fMain: TfMain
           000000000000000000000000000000000000000000000000000000000000
         }
         OnClick = sbtnVideoPlayClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnVideoPause: TSpeedButton
         Left = 205
         Height = 30
-        Hint = 'Пауза'
+        Hint = 'Приостановить'
         Top = 26
         Width = 32
         Anchors = [akTop]
@@ -769,8 +762,6 @@ object fMain: TfMain
           210021212100212121002121210021212100212121002121210000000000
         }
         OnClick = sbtnVideoPauseClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnVideoStop: TSpeedButton
         Left = 284
@@ -819,8 +810,6 @@ object fMain: TfMain
           210021212100212121002121210021212100212121002121210021212100
         }
         OnClick = sbtnVideoStopClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object trbarVideoTime: TTrackBar
         Left = 24
@@ -834,12 +823,12 @@ object fMain: TfMain
         OnMouseLeave = trbarVideoTimeMouseLeave
         OnMouseMove = trbarVideoTimeMouseMove
         OnMouseUp = trbarVideoTimeMouseUp
-        ParentShowHint = False
         TabOrder = 0
       end
       object lblVideoTimeCurrent: TLabel
         Left = 9
         Height = 19
+        Hint = 'Текущее время воспроизведения'
         Top = 38
         Width = 56
         Alignment = taCenter
@@ -850,6 +839,7 @@ object fMain: TfMain
       object lblVideoTimeTotal: TLabel
         Left = 476
         Height = 19
+        Hint = 'Длительность трека'
         Top = 39
         Width = 56
         Alignment = taCenter
@@ -861,6 +851,7 @@ object fMain: TfMain
       object lblCurrentVideoItem: TLabel
         Left = 37
         Height = 19
+        Hint = 'Название проигрываемого трека'
         Top = 2
         Width = 466
         Alignment = taCenter
@@ -871,6 +862,7 @@ object fMain: TfMain
       object sbtnVideoRepeat: TSpeedButton
         Left = 328
         Height = 30
+        Hint = 'Повтор трека'
         Top = 26
         Width = 32
         Anchors = [akTop]
@@ -909,6 +901,7 @@ object fMain: TfMain
       object sbtnVideoLinkPlayers: TSpeedButton
         Left = 161
         Height = 30
+        Hint = 'Связное управление воспроизведением'
         Top = 26
         Width = 32
         Flat = True
@@ -1018,8 +1011,6 @@ object fMain: TfMain
           0000000000000000000000000000000000000000000000000000
         }
         OnClick = sbtnVideoClearClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnFullyDisplay: TSpeedButton
         Left = 232
@@ -1109,12 +1100,11 @@ object fMain: TfMain
           0000000000000000000000000000
         }
         OnClick = sbtnFullyDisplayClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnMonitorConfigure: TSpeedButton
         Left = 270
         Height = 28
+        Hint = 'Настройки отображения'
         Top = 8
         Width = 32
         Anchors = [akRight, akBottom]
@@ -1162,6 +1152,7 @@ object fMain: TfMain
       object sbtnVideoVolume: TSpeedButton
         Left = 331
         Height = 28
+        Hint = 'Вкл./выкл. звук'
         Top = 7
         Width = 32
         Anchors = [akRight, akBottom]
@@ -1228,8 +1219,6 @@ object fMain: TfMain
         Width = 32
         Flat = True
         OnClick = sbtnVideoAddClick
-        ShowHint = True
-        ParentShowHint = False
       end
       object sbtnVideoSubtract: TSpeedButton
         Left = 48
@@ -1277,8 +1266,6 @@ object fMain: TfMain
           000000000000000000000000000000000000000000000000000000000000
         }
         OnClick = sbtnVideoSubtractClick
-        ShowHint = True
-        ParentShowHint = False
       end
     end
   end
