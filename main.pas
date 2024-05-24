@@ -726,7 +726,9 @@ procedure TfMain.FormDropFiles(Sender: TObject; const FileNames: array of string
 const  mrAudio = 21;
        mrVideo = 22;
        mrSkeep = 23;
+       mrSkeepAll = 24;
 var i: Word;
+    SkeepAll: Boolean = False;
 begin
   for i := 0 to Length(FileNames)-1 do
     begin
@@ -742,18 +744,21 @@ begin
         end
       else
         begin
-          case QuestionDlg('Неизвестный тип файла', 'Тип ' + ExtractFileExt(FileNames[i]) + ' файла ' + ExtractFileName(FileNames[i]) + ' неизвестен. Как воспринимать файл?', mtCustom, [mrAudio, 'Аудио', mrVideo, 'Видео', mrSkeep, 'Пропустить'], '') of
-            mrAudio:
-              begin
-                ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
-                ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
-              end;
-            mrVideo:
-              begin
-                ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
-                ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
-              end;
-          end;
+          if Not(SkeepAll) then
+            case QuestionDlg('Неизвестный тип файла', 'Тип ' + ExtractFileExt(FileNames[i]) + ' файла ' + ExtractFileName(FileNames[i]) + ' неизвестен. Как воспринимать файл?', mtCustom, [mrAudio, 'Аудио', mrVideo, 'Видео', mrSkeep, 'Пропустить', mrSkeepAll, 'Пропустить все'], '') of
+              mrAudio:
+                begin
+                  ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
+                  ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
+                end;
+              mrVideo:
+                begin
+                  ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
+                  ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
+                end;
+              mrSkeepAll:
+                SkeepAll := True;
+            end;
         end;
     end;
 
