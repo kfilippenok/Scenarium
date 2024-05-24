@@ -143,9 +143,13 @@ type
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
     procedure sbtnAudioPauseClick(Sender: TObject);
     procedure sbtnAudioStopClick(Sender: TObject);
+    procedure sbtnAudioStopMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure sbtnVideoAddClick(Sender: TObject);
     procedure sbtnVideoLinkPlayersClick(Sender: TObject);
     procedure sbtnVideoRepeatClick(Sender: TObject);
+    procedure sbtnVideoStopMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
     procedure sbtnVideoVolumeClick(Sender: TObject);
     procedure sbtnVideoPlayClick(Sender: TObject);
 
@@ -1003,7 +1007,6 @@ end;
 procedure TfMain.sbtnAudioStopClick(Sender: TObject);
 begin
   if (fPlaybackAudio.audioPlayer = nil) then Exit;
-
   if (glCurrentAudioItem = '') then Exit;
 
   fPlaybackAudio.audioPlayer.Stop;
@@ -1011,7 +1014,7 @@ begin
   // Изменение состояния элементов воспроизведения
   setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
   setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop_active.png');
+  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
 
   // "Проигриваемый элемент" очищается (Аудио)
   if Not(glAudioTrackRepeat) then
@@ -1038,6 +1041,18 @@ begin
 
   if glAudioTrackRepeat then
     clboxAudioPlaylistDblClick(Self);
+end;
+
+procedure TfMain.sbtnAudioStopMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if (fPlaybackAudio.audioPlayer = nil) then Exit;
+  if (glCurrentAudioItem = '') then Exit;
+
+  // Изменение состояния элементов воспроизведения
+  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop_active.png');
 end;
 
 procedure TfMain.sbtnVideoAddClick(Sender: TObject);
@@ -1118,6 +1133,14 @@ begin
     setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_on.png')
   else
     setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_off.png');
+end;
+
+procedure TfMain.sbtnVideoStopMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop_active.png');
 end;
 
 procedure TfMain.clboxVideoPlaylistDrawItem(Control: TWinControl;
@@ -1820,7 +1843,6 @@ end;
 procedure TfMain.sbtnVideoStopClick(Sender: TObject);
 begin
     if (fPlaybackVideo.VideoPlayer = nil) then Exit;
-
     if (glCurrentVideoItem = '') then Exit;
 
     // Выключаем окно воспроизведения
@@ -1832,7 +1854,7 @@ begin
     // Изменение состояния элементов воспроизведения
     setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
     setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-    setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop_active.png');
+    setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
 
     // "Проигриваемый элемент" очищается (Видео)
     if Not(glVideoTrackRepeat) then

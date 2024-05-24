@@ -228,6 +228,7 @@ object fMain: TfMain
           210021212100212121002121210021212100212121002121210021212100
         }
         OnClick = sbtnAudioStopClick
+        OnMouseDown = sbtnAudioStopMouseDown
       end
       object trbarAudioTime: TTrackBar
         Left = 24
@@ -811,6 +812,7 @@ object fMain: TfMain
           210021212100212121002121210021212100212121002121210021212100
         }
         OnClick = sbtnVideoStopClick
+        OnMouseDown = sbtnVideoStopMouseDown
       end
       object trbarVideoTime: TTrackBar
         Left = 24
