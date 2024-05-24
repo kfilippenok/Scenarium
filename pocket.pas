@@ -11,7 +11,7 @@ type
 
   { CStateNotify }
 
-  TStateNotifyKind = (snNone, snProcess, snFailed, snSuccess, snCancel);
+  TStateNotifyKind = (snNone, snProcess, snFailed, snSuccess, snReload, snCancel);
 
   CStateNotify = class(TCustomPanel)
   private
@@ -74,6 +74,7 @@ type
       AudioFilePaths: TStringList;
       VideoFileNames: TStringList;
       VideoFilePaths: TStringList;
+      MissingFiles: TStringList;
       Bonds: CBonds;
       constructor Create;
   end;
@@ -120,6 +121,7 @@ begin
   AudioFilePaths := TStringList.Create;
   VideoFileNames := TStringList.Create;
   VideoFilePaths := TStringList.Create;
+  MissingFiles := TStringList.Create;
   Bonds := CBonds.Create;
 end;
 
@@ -134,7 +136,7 @@ begin
         Self.Visible := False;
       end;
     snProcess: Self.Visible := True;
-    snFailed, snSuccess, snCancel:
+    snFailed, snSuccess, snReload, snCancel:
       begin
         Self.Visible := True;
         FTimer.Interval := ShowTime;
@@ -174,6 +176,15 @@ begin
         text_x := Round(Self.Width/2) - Round(text_width/2);
         text_y := Round(Self.Height/2) - Round(text_height/2);
         Self.Canvas.TextOut(text_x, text_y, 'Ошибка при сохранении');
+      end;
+    snReload:
+      begin
+        Self.Canvas.Clear;
+        text_width := Self.Canvas.TextWidth('Перезагрузка совершена');
+        text_height := Self.Canvas.TextHeight('Перезагрузка совершена');
+        text_x := Round(Self.Width/2) - Round(text_width/2);
+        text_y := Round(Self.Height/2) - Round(text_height/2);
+        Self.Canvas.TextOut(text_x, text_y, 'Перезагрузка совершена');
       end;
     snSuccess:
       begin

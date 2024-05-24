@@ -28,6 +28,7 @@ type
     lblVideoTimeTotal: TLabel;
     lblVideoTimeCurrent: TLabel;
     lblCurrentAudioItem: TLabel;
+    miScenarioReload: TMenuItem;
     miVideoDeleteBonds: TMenuItem;
     miCloseTab: TMenuItem;
     miAudioDeleteBond: TMenuItem;
@@ -134,6 +135,7 @@ type
     procedure miAudioDeleteBondClick(Sender: TObject);
     procedure miAudioDeleteClick(Sender: TObject);
     procedure miCloseTabClick(Sender: TObject);
+    procedure miScenarioReloadClick(Sender: TObject);
     procedure miVideoDeleteBondsClick(Sender: TObject);
     procedure miVideoDeleteClick(Sender: TObject);
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
@@ -330,7 +332,7 @@ var i: Integer;
 begin
   Result := False;
 
-  for i := Low(arrAudioExtensions) to High(arrAudioExtensions) do
+  for i := Low(arrImageExtensions) to High(arrImageExtensions) do
     begin
       if UpperCase(ExtractFileExt(FileName)) = arrImageExtensions[i] then
         begin
@@ -401,6 +403,11 @@ begin
   begin
     if (fPlaybackAudio.audioPlayer = nil) then Exit;
     if (clboxAudioPlaylist.Count = 0) then Exit;
+    if ScenarioList.Items[TabControl.TabIndex].MissingFiles.IndexOf(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[clboxAudioPlaylist.ItemIndex]) <> -1 then
+      begin
+        ShowMessage('Файл по пути ' + ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[clboxAudioPlaylist.ItemIndex] + ' отсутствует.');
+        Exit;
+      end;
 
     glCurrentAudioItem := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths[clboxAudioPlaylist.ItemIndex];
     glCurrentAudioItemIndex := clboxAudioPlaylist.ItemIndex;
@@ -545,6 +552,11 @@ begin
   begin
     if (fPlaybackVideo.videoPlayer = nil) then Exit;
     if (clboxVideoPlaylist.Count = 0) then Exit;
+    if ScenarioList.Items[TabControl.TabIndex].MissingFiles.IndexOf(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex]) <> -1 then
+      begin
+        ShowMessage('Файл по пути ' + ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex] + ' отсутствует.');
+        Exit;
+      end;
 
     glCurrentVideoItem := ScenarioList.Items[TabControl.TabIndex].VideoFilePaths[clboxVideoPlaylist.ItemIndex];
     glCurrentVideoItemIndex := clboxVideoPlaylist.ItemIndex;
@@ -874,6 +886,51 @@ begin
   clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 end;
 
+procedure TfMain.miScenarioReloadClick(Sender: TObject);
+var i, AudioItemIndex, VideoItemIndex: Integer;
+    LBitBtn: TBitBtn;
+begin
+  if ScenarioList.Items[TabControl.TabIndex].FilePath = '' then
+    begin
+      ScenarioList.Items[TabControl.TabIndex].MissingFiles.Clear;
+      for i := 0 to clboxAudioPlaylist.Count-1 do
+        if Not(FileExists(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[i])) then
+          begin
+            ScenarioList.Items[TabControl.TabIndex].MissingFiles.Add(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[i]);
+            ShowMessage(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[i]);
+          end;
+      for i := 0 to clboxVideoPlaylist.Count-1 do
+        if Not(FileExists(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[i])) then
+          ScenarioList.Items[TabControl.TabIndex].MissingFiles.Add(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[i]);
+      clboxAudioPlaylist.Repaint;
+      clboxVideoPlaylist.Repaint;
+      StateNotify.State := snReload;
+    end
+  else
+    begin
+      for i:= 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
+        begin
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
+            begin
+              LBitBtn := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+              FreeAndNil(LBitBtn);
+            end;
+        end;
+      AudioItemIndex := clboxAudioPlaylist.ItemIndex;
+      VideoItemIndex := clboxVideoPlaylist.ItemIndex;
+      ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Clear;
+      ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Clear;
+      ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Clear;
+      ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Clear;
+      ScenarioList.Items[TabControl.TabIndex].MissingFiles.Clear;
+      ScenarioList.Items[TabControl.TabIndex].Bonds.Clear;
+      LoadScenarioFromJSON(ScenarioList.Items[TabControl.TabIndex].FilePath);
+      clboxAudioPlaylist.ItemIndex := AudioItemIndex;
+      clboxVideoPlaylist.ItemIndex := VideoItemIndex;
+      StateNotify.State := snReload;
+    end;
+end;
+
 procedure TfMain.miVideoDeleteBondsClick(Sender: TObject);
 var i: Integer;
     bbtnFindedVideoBond: TBitBtn;
@@ -1079,26 +1136,41 @@ begin
     savedItem := Items[Index];
 
     // Фоновый цвет файлов
-    if IsVideo(clboxVideoPlaylist.Items[Index]) then
-      Canvas.Brush.Color := RGBToColor(222, 218, 244)
+    // Если файл отсутствует
+    if ScenarioList.Items[TabControl.TabIndex].MissingFiles.IndexOf(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[Index]) <> -1 then
+      begin
+        if Not(odSelected in ReceivedState) then
+          begin
+            Canvas.Brush.Color := RGBToColor(244, 234, 218);
+            Canvas.Font.Color := clBlack;
+          end
+        else
+          begin
+            Canvas.Brush.Color := RGBToColor(255, 203, 92);
+            Canvas.Font.Color := clBlack;
+          end;
+      end
+    else if (odSelected in ReceivedState) then   // Выбранный элемент
+      begin
+        if IsVideo(clboxVideoPlaylist.Items[Index]) then
+          Canvas.Brush.Color := RGBToColor(144, 89, 223)
+        else
+          Canvas.Brush.Color := RGBToColor(32, 204, 29);
+        Canvas.Font.Color := clWhite;
+      end                                        // Проигрываемый
+    else if (Index = glCurrentVideoItemIndex) and (clboxVideoPlaylist.Items[Index] = lblCurrentVideoItem.Caption) then
+      begin
+        Canvas.Brush.Color := RGBToColor(146, 146, 146);
+        Canvas.Font.Color := clWhite;
+      end
     else
-      Canvas.Brush.Color := RGBToColor(192, 248, 191);
+      begin                                      // Обычный
+        if IsVideo(clboxVideoPlaylist.Items[Index]) then
+          Canvas.Brush.Color := RGBToColor(222, 218, 244)
+        else
+          Canvas.Brush.Color := RGBToColor(192, 248, 191);
+      end;
 
-    if (Index = glCurrentVideoItemIndex) and (clboxVideoPlaylist.Items[Index] = lblCurrentVideoItem.Caption) then
-    begin
-      Canvas.Brush.Color := RGBToColor(146, 146, 146);
-      Canvas.Font.Color := clWhite;
-    end;
-
-    // Выделенная строка
-    if (odSelected in ReceivedState) then
-    begin
-      if IsVideo(clboxVideoPlaylist.Items[Index]) then
-        Canvas.Brush.Color := RGBToColor(144, 89, 223)
-      else
-        Canvas.Brush.Color := RGBToColor(32, 204, 29);
-      Canvas.Font.Color := clWhite;
-    end;
 
     // Готовим холст к отрисовке
     Canvas.FillRect(ARect);
@@ -1201,18 +1273,30 @@ begin
     // Присваиваем нужный цвет фону элементам
     Canvas.Brush.Color := RGBToColor(244, 218, 218);
 
-    if (Index = glCurrentAudioItemIndex) and (clboxAudioPlaylist.Items[Index] = lblCurrentAudioItem.Caption) then
-    begin
-      Canvas.Brush.Color := RGBToColor(146, 146, 146);
-      Canvas.Font.Color := clWhite;
-    end;
-
-    // Выделенная строка
-    if (odSelected in ReceivedState) then
-    begin
-      Canvas.Brush.Color := RGBToColor(255, 92, 92);
-      Canvas.Font.Color := clWhite;
-    end;
+    // Если файл отсутствует
+    if ScenarioList.Items[TabControl.TabIndex].MissingFiles.IndexOf(ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[Index]) <> -1 then
+      begin
+        if Not(odSelected in ReceivedState) then
+          begin
+            Canvas.Brush.Color := RGBToColor(244, 234, 218);
+            Canvas.Font.Color := clBlack;
+          end
+        else
+          begin
+            Canvas.Brush.Color := RGBToColor(255, 203, 92);
+            Canvas.Font.Color := clBlack;
+          end;
+      end
+    else if (odSelected in ReceivedState) then   // Выделенная строка
+      begin
+        Canvas.Brush.Color := RGBToColor(255, 92, 92);
+        Canvas.Font.Color := clWhite;
+      end
+    else if (Index = glCurrentAudioItemIndex) and (clboxAudioPlaylist.Items[Index] = lblCurrentAudioItem.Caption) then
+      begin
+        Canvas.Brush.Color := RGBToColor(146, 146, 146);
+        Canvas.Font.Color := clWhite;
+      end;
 
     // Готовим холст к отрисовке
     Canvas.FillRect(ARect);
@@ -1397,10 +1481,11 @@ begin
   if jaAudioFilePaths.Count > 0 then
     for i := 0 to jaAudioFilePaths.Count-1 do
     begin
-      if FileExists(jaAudioFilePaths.Strings[i]) then
+      ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(jaAudioFilePaths.Strings[i]);
+      ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(jaAudioFilePaths.Strings[i]));
+      if Not(FileExists(jaAudioFilePaths.Strings[i])) then
       begin
-        ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(jaAudioFilePaths.Strings[i]);
-        ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(jaAudioFilePaths.Strings[i]));
+        ScenarioList.Items[TabControl.TabIndex].MissingFiles.Add(jaAudioFilePaths.Strings[i]);
       end;
     end;
   clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
@@ -1420,6 +1505,10 @@ begin
       begin
         ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(jaVideoFilePaths.Strings[i]);
         ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(jaVideoFilePaths.Strings[i]));
+        if Not(FileExists(jaVideoFilePaths.Strings[i])) then
+        begin
+          ScenarioList.Items[TabControl.TabIndex].MissingFiles.Add(jaVideoFilePaths.Strings[i]);
+        end;
       end;
     end;
   clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
@@ -1880,6 +1969,8 @@ begin
 
   if Link_Players then
     begin
+      If IsImage(ExtractFileName(glCurrentVideoItem)) then
+        Exit;
       glVideoTrackRewinding := False;
       trbarVideoTime.Position := trbarVideoTime.SelEnd;
     end;
@@ -1894,6 +1985,8 @@ begin
 
   if Link_Players then
     begin
+      If IsImage(ExtractFileName(glCurrentVideoItem)) then
+        Exit;
       glVideoTrackRewinding := True;
       if trbarAudioTime.Position > trbarVideoTime.Max
         then trbarVideoTime.Position := trbarVideoTime.Max
@@ -1916,12 +2009,15 @@ begin
 
   if Link_Players then
     begin
+      If IsImage(ExtractFileName(glCurrentVideoItem)) then
+        Exit;
       if trbarVideoTime.Position = trbarVideoTime.Max
         then sbtnAudioStopClick(Self)
         else
           begin
             Link_Players := False;
-            trbarVideoTimeMouseUp(Sender, Button, Shift, X, Y);
+            If Not(IsImage(glCurrentVideoItem)) then
+              trbarVideoTimeMouseUp(Sender, Button, Shift, X, Y);
             Link_Players := True;
           end;
     end;
@@ -2037,6 +2133,8 @@ begin
 
   if Link_Players then
     begin
+      If IsImage(ExtractFileName(glCurrentVideoItem)) then
+        Exit;
       glAudioTrackRewinding := False;
       trbarAudioTime.Position := trbarAudioTime.SelEnd;
     end;
@@ -2053,6 +2151,8 @@ begin
 
   if Link_Players then
     begin
+      If IsImage(ExtractFileName(glCurrentVideoItem)) then
+        Exit;
       glAudioTrackRewinding := True;
       if trbarVideoTime.Position > trbarAudioTime.Max
         then trbarAudioTime.Position := trbarAudioTime.Max
@@ -2075,6 +2175,8 @@ begin
 
   if Link_Players then
     begin
+      If IsImage(ExtractFileName(glCurrentVideoItem)) then
+        Exit;
       if trbarAudioTime.Position = trbarAudioTime.Max
         then sbtnVideoStopClick(Self)
         else

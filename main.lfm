@@ -6,6 +6,7 @@ object fMain: TfMain
   Width = 1113
   VertScrollBar.Increment = 2
   VertScrollBar.Page = 20
+  VertScrollBar.Smooth = True
   VertScrollBar.Tracking = True
   AllowDropFiles = True
   Caption = 'Scenarium'
@@ -1331,6 +1332,11 @@ object fMain: TfMain
         Caption = 'Сохранить как'
         ShortCut = 24659
         OnClick = miScenarioSaveAsClick
+      end
+      object miScenarioReload: TMenuItem
+        Caption = 'Перезагрузить сценарий'
+        ShortCut = 16466
+        OnClick = miScenarioReloadClick
       end
       object miScenarioExit: TMenuItem
         Caption = 'Выйти'
