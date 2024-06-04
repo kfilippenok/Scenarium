@@ -272,7 +272,7 @@ object fMain: TfMain
         Height = 19
         Hint = 'Название проигрываемого трека'
         Top = 2
-        Width = 478
+        Width = 451
         Alignment = taCenter
         Anchors = [akTop, akLeft, akRight]
         AutoSize = False

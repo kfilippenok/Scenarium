@@ -1,7 +1,7 @@
 object fAboutProject: TfAboutProject
-  Left = 321
+  Left = 584
   Height = 240
-  Top = 127
+  Top = 305
   Width = 320
   Caption = 'О проекте'
   ClientHeight = 240
