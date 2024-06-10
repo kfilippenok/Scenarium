@@ -323,6 +323,7 @@ object fMain: TfMain
         Hint = 'Связное управление воспроизведением'
         Top = 26
         Width = 32
+        Anchors = [akTop]
         Flat = True
         Glyph.Data = {
           46050000424D4605000000000000360000002800000012000000120000000100
@@ -907,6 +908,7 @@ object fMain: TfMain
         Hint = 'Связное управление воспроизведением'
         Top = 26
         Width = 32
+        Anchors = [akTop]
         Flat = True
         Glyph.Data = {
           46050000424D4605000000000000360000002800000012000000120000000100
