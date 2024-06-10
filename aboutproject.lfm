@@ -16,7 +16,7 @@ object fAboutProject: TfAboutProject
   object lblName: TLabel
     Left = 112
     Height = 23
-    Top = 37
+    Top = 27
     Width = 101
     Caption = 'Scenarium'
     Font.CharSet = ANSI_CHARSET
@@ -30,15 +30,15 @@ object fAboutProject: TfAboutProject
   object lblVersion: TLabel
     Left = 72
     Height = 19
-    Top = 93
-    Width = 103
-    Caption = 'Версия: Концепт'
+    Top = 104
+    Width = 122
+    Caption = 'Версия: Дипломная'
     ParentColor = False
   end
   object lblAutor: TLabel
     Left = 78
     Height = 19
-    Top = 117
+    Top = 128
     Width = 171
     Caption = 'Автор: Кирилл Филиппенок'
     ParentColor = False
@@ -53,5 +53,13 @@ object fAboutProject: TfAboutProject
     Kind = bkClose
     ModalResult = 11
     TabOrder = 0
+  end
+  object lblBuild: TLabel
+    Left = 71
+    Height = 19
+    Top = 78
+    Width = 114
+    Caption = 'Сборка: 10.06.2024'
+    ParentColor = False
   end
 end

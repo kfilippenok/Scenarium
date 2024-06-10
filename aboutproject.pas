@@ -13,6 +13,7 @@ type
 
   TfAboutProject = class(TForm)
     bClose: TBitBtn;
+    lblBuild: TLabel;
     lblAutor: TLabel;
     lblName: TLabel;
     lblVersion: TLabel;
