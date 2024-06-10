@@ -216,6 +216,7 @@ type
       Shift: TShiftState; X, Y: integer);
   private
     procedure OpenAndPlayAudio(AItemIndex: Integer);
+    procedure OpenAndPlayVideo(AItemIndex: Integer);
     procedure setFullyDisplay(ShowPlayback: Boolean);
     procedure resetTime(Player: string);
     procedure SetElementGlyphs;
@@ -405,21 +406,20 @@ var IndexBond: Integer;
 begin
   with fPlaybackAudio do
   begin
-    glCurrentPlaylist := ScenarioList.Items[TabControl.TabIndex];
-    glCurrentAudioItem := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths[clboxAudioPlaylist.ItemIndex];
+    glCurrentAudioItem := glCurrentPlaylist.AudioFilePaths[AItemIndex];
     glCurrentAudioItemIndex := AItemIndex;
     lblCurrentAudioItem.Caption := ExtractFileName(glCurrentAudioItem);
     audioPlayer.OpenFile(glCurrentAudioItem);
 
     { Связи }
-    IndexBond := ScenarioList.Items[TabControl.TabIndex].Bonds.IndexOfProvoking(clboxAudioPlaylist.ItemIndex);
+    IndexBond := glCurrentPlaylist.Bonds.IndexOfProvoking(AItemIndex);
     if IndexBond <> -1 then
       begin
         Link_Players := True;
         setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
         setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
 
-        clboxVideoPlaylist.OnDblClick(clboxVideoPlaylist);
+        OpenAndPlayVideo(glCurrentPlaylist.Bonds.GetInvokingWhereProvoking(AItemIndex));
       end;
     { Связи }
 
@@ -449,6 +449,7 @@ begin
       Exit;
     end;
 
+  glCurrentPlaylist := ScenarioList.Items[TabControl.TabIndex];
   OpenAndPlayAudio(clboxAudioPlaylist.ItemIndex);
 end;
 
@@ -557,23 +558,12 @@ begin
   clboxVideoPlaylist.Selected[ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(clboxAudioPlaylist.ItemIndex)] := True;
 end;
 
-procedure TfMain.clboxVideoPlaylistDblClick(Sender: TObject);
-var
-  i: word;
+procedure TfMain.OpenAndPlayVideo(AItemIndex: Integer);
 begin
   with fPlaybackVideo do
   begin
-    if (fPlaybackVideo.videoPlayer = nil) then Exit;
-    if (clboxVideoPlaylist.Count = 0) then Exit;
-    if ScenarioList.Items[TabControl.TabIndex].MissingFiles.IndexOf(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex]) <> -1 then
-      begin
-        ShowMessage('Файл по пути ' + ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex] + ' отсутствует.');
-        Exit;
-      end;
-
-    glCurrentPlaylist := ScenarioList.Items[TabControl.TabIndex];
-    glCurrentVideoItem := ScenarioList.Items[TabControl.TabIndex].VideoFilePaths[clboxVideoPlaylist.ItemIndex];
-    glCurrentVideoItemIndex := clboxVideoPlaylist.ItemIndex;
+    glCurrentVideoItem := glCurrentPlaylist.VideoFilePaths[AItemIndex];
+    glCurrentVideoItemIndex := AItemIndex;
     lblCurrentVideoItem.Caption := ExtractFileName(glCurrentVideoItem);
     VideoPlayer.OpenFile(glCurrentVideoItem);
 
@@ -589,6 +579,25 @@ begin
     setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
 
     setFullyDisplay(True);
+  end;
+end;
+
+procedure TfMain.clboxVideoPlaylistDblClick(Sender: TObject);
+var
+  i: word;
+begin
+  with fPlaybackVideo do
+  begin
+    if (fPlaybackVideo.videoPlayer = nil) then Exit;
+    if (clboxVideoPlaylist.Count = 0) then Exit;
+    if ScenarioList.Items[TabControl.TabIndex].MissingFiles.IndexOf(ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex]) <> -1 then
+      begin
+        ShowMessage('Файл по пути ' + ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex] + ' отсутствует.');
+        Exit;
+      end;
+
+    glCurrentPlaylist := ScenarioList.Items[TabControl.TabIndex];
+    OpenAndPlayVideo(clboxVideoPlaylist.ItemIndex);
   end;
 end;
 
@@ -1024,39 +1033,45 @@ begin
   if (fPlaybackAudio.audioPlayer = nil) then Exit;
   if (glCurrentAudioItem = '') then Exit;
 
-  fPlaybackAudio.audioPlayer.Stop;
-
-  // Изменение состояния элементов воспроизведения
-  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
-
-  // "Проигриваемый элемент" очищается (Аудио)
   if Not(glAudioTrackRepeat) then
     begin
+      fPlaybackAudio.audioPlayer.Stop;
+
+      // Изменение состояния элементов воспроизведения
+      setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
+      setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
+      setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
+
+      // "Проигриваемый элемент" очищается (Аудио)
       glCurrentPlaylist := NIL;
       glCurrentAudioItem := '';
       glCurrentAudioItemIndex := -1;
       lblCurrentAudioItem.Caption := '';
-    end;
-  // Список элементов переотрисовывается (Аудио)
-  clboxAudioPlaylist.Repaint;
-  // Выключаем таймер (Аудио)
-  TimerAudio.Enabled := False;
+      // Список элементов переотрисовывается (Аудио)
+      clboxAudioPlaylist.Repaint;
+      // Выключаем таймер (Аудио)
+      TimerAudio.Enabled := False;
 
-  // Время устанавливается в нулевое положение (Аудио)
-  resetTime('AudioPlayer');
+      // Время устанавливается в нулевое положение (Аудио)
+      resetTime('AudioPlayer');
 
-  if Link_Players then
+      if Link_Players then
+        begin
+          Link_Players := False;
+          if glVideoTrackRepeat then
+            begin
+              sbtnVideoRepeat.Click;
+            end;
+          sbtnVideoStopClick(Self);
+          Link_Players := True;
+          sbtnAudioLinkPlayersClick(Sender);
+        end;
+    end
+  else
     begin
-      Link_Players := False;
-      sbtnVideoStopClick(Self);
-      Link_Players := True;
-      sbtnAudioLinkPlayersClick(Sender);
+      TimerAudio.Enabled := False;
+      OpenAndPlayAudio(glCurrentAudioItemIndex);
     end;
-
-  if glAudioTrackRepeat then
-    clboxAudioPlaylistDblClick(Self);
 end;
 
 procedure TfMain.sbtnAudioStopMouseDown(Sender: TObject; Button: TMouseButton;
@@ -1887,43 +1902,56 @@ begin
     if (fPlaybackVideo.VideoPlayer = nil) then Exit;
     if (glCurrentVideoItem = '') then Exit;
 
-    // Выключаем окно воспроизведения
-    setFullyDisplay(False);
-
-    // Выключаем воспроизведение видео
-    fPlaybackVideo.videoPlayer.Stop;
-
-    // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
-    setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-    setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
-
-    // "Проигриваемый элемент" очищается (Видео)
     if Not(glVideoTrackRepeat) then
       begin
-        glCurrentPlaylist := NIL;
-        glCurrentVideoItem := '';
-        glCurrentVideoItemIndex := -1;
-        lblCurrentVideoItem.Caption := '';
+        // Выключаем окно воспроизведения
+        if Not(glAudioTrackRepeat) then
+          setFullyDisplay(False);
+
+        // Выключаем воспроизведение видео
+        fPlaybackVideo.videoPlayer.Stop;
+
+        // Изменение состояния элементов воспроизведения
+        setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
+        setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
+        setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
+        if not(glAudioTrackRepeat) then
+          begin
+            // "Проигриваемый элемент" очищается (Видео)
+            glCurrentPlaylist := NIL;
+            glCurrentVideoItem := '';
+            glCurrentVideoItemIndex := -1;
+            lblCurrentVideoItem.Caption := '';
+            // Список элементов переотрисовывается (Видео)
+            clboxVideoPlaylist.Invalidate;
+            // Выключаем таймер (Видео)
+            TimerVideo.Enabled := False;
+            resetTime('VideoPlayer');
+          end;
+
+        if Link_Players then
+        begin
+          if glAudioTrackRepeat then
+            begin
+              TimerVideo.Enabled := False;
+              sbtnAudioStopClick(Sender);
+            end
+          else
+            begin
+              Link_Players := False;
+              sbtnAudioStopClick(Self);
+              Link_Players := True;
+              sbtnVideoLinkPlayersClick(Sender);
+            end;
+        end;
+      end
+    else
+      begin
+        // Выключаем таймер (Видео)
+        TimerVideo.Enabled := False;
+
+        OpenAndPlayVideo(glCurrentVideoItemIndex);
       end;
-    // Список элементов переотрисовывается (Видео)
-    clboxVideoPlaylist.Invalidate;
-    // Выключаем таймер (Видео)
-    TimerVideo.Enabled := False;
-
-    // Время устанавливается в нулевое положение (Видео)
-    resetTime('VideoPlayer');
-
-    if Link_Players then
-    begin
-      Link_Players := False;
-      sbtnAudioStopClick(Self);
-      Link_Players := True;
-      sbtnVideoLinkPlayersClick(Sender);
-    end;
-
-    if glVideoTrackRepeat then
-      clboxVideoPlaylistDblClick(Self);
 end;
 
 procedure TfMain.sbtnAudioRepeatClick(Sender: TObject);
