@@ -694,6 +694,7 @@ begin
       FreeAndNil(ScenarioList.Items[iscn].AudioFilePaths);
       FreeAndNil(ScenarioList.Items[iscn].VideoFileNames);
       FreeAndNil(ScenarioList.Items[iscn].VideoFilePaths);
+      FreeAndNil(ScenarioList.Items[iscn].MissingFiles);
       if ScenarioList.Items[iscn].Bonds.Count <> 0 then
         begin
           for i := 0 to ScenarioList.Items[iscn].Bonds.Count - 1 do
