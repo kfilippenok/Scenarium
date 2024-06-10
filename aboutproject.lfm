@@ -47,7 +47,7 @@ object fAboutProject: TfAboutProject
     Left = 112
     Height = 29
     Top = 176
-    Width = 100
+    Width = 102
     AutoSize = True
     DefaultCaption = True
     Kind = bkClose

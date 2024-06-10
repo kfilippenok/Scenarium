@@ -1384,7 +1384,6 @@ begin
         begin
           bbtnVideoBond := TBitBtn.Create(fMain);
           InvokingIndex := ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(Index);
-
           if IsVideo(ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Strings[InvokingIndex])
             then setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'video.png')
             else setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'image.png');
