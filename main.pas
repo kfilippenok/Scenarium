@@ -1322,6 +1322,7 @@ var
   BondRect: TRect;
   bbtnVideoBond: TBitBtn;
   bbtnFindedVideoBond: TBitBtn;
+  InvokingIndex: Integer;
 begin
   with clboxAudioPlaylist do
   begin
@@ -1382,7 +1383,11 @@ begin
       else
         begin
           bbtnVideoBond := TBitBtn.Create(fMain);
-          setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'video.png');
+          InvokingIndex := ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(Index);
+
+          if IsVideo(ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Strings[InvokingIndex])
+            then setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'video.png')
+            else setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'image.png');
           bbtnVideoBond.Parent := clboxAudioPlaylist;
           bbtnVideoBond.Name := 'bbtnBondVideo' + IntToStr(Index);
           bbtnVideoBond.Height := 30;
