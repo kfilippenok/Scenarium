@@ -17,6 +17,7 @@ type
     lblAutor: TLabel;
     lblName: TLabel;
     lblVersion: TLabel;
+    procedure bCloseClick(Sender: TObject);
   private
 
   public
@@ -29,6 +30,13 @@ var
 implementation
 
 {$R *.lfm}
+
+{ TfAboutProject }
+
+procedure TfAboutProject.bCloseClick(Sender: TObject);
+begin
+  Close;
+end;
 
 end.
 
