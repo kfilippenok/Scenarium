@@ -28,6 +28,8 @@ type
     lblVideoTimeTotal: TLabel;
     lblVideoTimeCurrent: TLabel;
     lblCurrentAudioItem: TLabel;
+    miVideoReloadPlaylist: TMenuItem;
+    miAudioReloadPlaylist: TMenuItem;
     miScenarioReload: TMenuItem;
     miVideoDeleteBonds: TMenuItem;
     miCloseTab: TMenuItem;
@@ -961,18 +963,23 @@ begin
 end;
 
 procedure TfMain.miVideoDeleteBondsClick(Sender: TObject);
-var i: Integer;
+var i, tmpProvoking: Integer;
     bbtnFindedVideoBond: TBitBtn;
 begin
-  for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count-1 do
+  i := 0;
+  while i < ScenarioList.Items[TabControl.TabIndex].Bonds.Count do
     if ScenarioList.Items[TabControl.TabIndex].Bonds.arInvoking[i] = clboxVideoPlaylist.ItemIndex then
-    if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
       begin
-        bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
-        FreeAndNil(bbtnFindedVideoBond);
-      end;
-
-  ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereInvoking(clboxVideoPlaylist.ItemIndex);
+        tmpProvoking := ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i];
+        ScenarioList.Items[TabControl.TabIndex].Bonds.DeleteWhereProvoking(tmpProvoking);
+        if fMain.FindComponent('bbtnBondVideo' + IntToStr(tmpProvoking)) <> NIL then
+          begin
+            bbtnFindedVideoBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(tmpProvoking)) as TBitBtn);
+            FreeAndNil(bbtnFindedVideoBond);
+          end;
+      end
+    else
+      Inc(i);
 
   clboxAudioPlaylist.Repaint;
 end;

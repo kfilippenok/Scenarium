@@ -1288,7 +1288,6 @@ object fMain: TfMain
     Color = clScrollBar
     ParentColor = False
     ResizeAnchor = akRight
-    ResizeStyle = rsPattern
   end
   object MainMenu: TMainMenu
     Left = 152
@@ -1444,6 +1443,10 @@ object fMain: TfMain
       Enabled = False
       OnClick = miAudioDeleteBondClick
     end
+    object miAudioReloadPlaylist: TMenuItem
+      Caption = 'Перезагрузить сценарий'
+      OnClick = miScenarioReloadClick
+    end
   end
   object ppmnVideoPlaylist: TPopupMenu
     OnPopup = ppmnVideoPlaylistPopup
@@ -1460,6 +1463,10 @@ object fMain: TfMain
     object miVideoDeleteBonds: TMenuItem
       Caption = 'Очистить связи элемента'
       OnClick = miVideoDeleteBondsClick
+    end
+    object miVideoReloadPlaylist: TMenuItem
+      Caption = 'Перезагрузить сценарий'
+      OnClick = miScenarioReloadClick
     end
   end
   object ppmnTabControl: TPopupMenu
