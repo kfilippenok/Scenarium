@@ -105,7 +105,7 @@ object fAboutProject: TfAboutProject
     Height = 19
     Top = 78
     Width = 114
-    Caption = 'Сборка: 10.06.2024'
+    Caption = 'Сборка: 13.06.2024'
     ParentColor = False
   end
 end
