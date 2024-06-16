@@ -5,7 +5,8 @@ unit AboutProject;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Buttons,
+  ExtCtrls;
 
 type
 
@@ -13,6 +14,7 @@ type
 
   TfAboutProject = class(TForm)
     bClose: TBitBtn;
+    Image1: TImage;
     lblBuild: TLabel;
     lblAutor: TLabel;
     lblName: TLabel;
