@@ -3,7 +3,7 @@ object fMain: TfMain
   Left = 439
   Height = 462
   Top = 299
-  Width = 1113
+  Width = 1097
   VertScrollBar.Increment = 2
   VertScrollBar.Page = 20
   VertScrollBar.Smooth = True
@@ -11,7 +11,7 @@ object fMain: TfMain
   AllowDropFiles = True
   Caption = 'Scenarium'
   ClientHeight = 442
-  ClientWidth = 1113
+  ClientWidth = 1097
   Color = 14540253
   Constraints.MinHeight = 372
   Constraints.MinWidth = 486
@@ -37,12 +37,12 @@ object fMain: TfMain
     Left = 0
     Height = 410
     Top = 32
-    Width = 563
+    Width = 555
     Anchors = [akTop, akLeft, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'panAudio'
     ClientHeight = 410
-    ClientWidth = 563
+    ClientWidth = 555
     Color = clForm
     FullRepaint = False
     ParentBackground = False
@@ -52,7 +52,7 @@ object fMain: TfMain
       Left = 0
       Height = 272
       Top = 96
-      Width = 563
+      Width = 555
       Align = alClient
       BorderStyle = bsNone
       DragMode = dmAutomatic
@@ -76,17 +76,17 @@ object fMain: TfMain
       Left = 0
       Height = 96
       Top = 0
-      Width = 563
+      Width = 555
       Align = alTop
       BevelOuter = bvNone
       ClientHeight = 96
-      ClientWidth = 563
+      ClientWidth = 555
       Color = clForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 0
       object sbtnAudioPlay: TSpeedButton
-        Left = 249
+        Left = 245
         Height = 30
         Hint = 'Воспроизвести'
         Top = 26
@@ -134,7 +134,7 @@ object fMain: TfMain
         OnClick = sbtnAudioPlayClick
       end
       object sbtnAudioPause: TSpeedButton
-        Left = 208
+        Left = 205
         Height = 30
         Hint = 'Приостановить'
         Top = 26
@@ -182,7 +182,7 @@ object fMain: TfMain
         OnClick = sbtnAudioPauseClick
       end
       object sbtnAudioStop: TSpeedButton
-        Left = 289
+        Left = 285
         Height = 30
         Hint = 'Остановить'
         Top = 26
@@ -234,7 +234,7 @@ object fMain: TfMain
         Left = 24
         Height = 25
         Top = 64
-        Width = 502
+        Width = 480
         Max = 0
         OnChange = trbarAudioTimeChange
         Position = 0
@@ -256,10 +256,10 @@ object fMain: TfMain
         ParentColor = False
       end
       object lblAudioTimeTotal: TLabel
-        Left = 488
+        Left = 464
         Height = 19
         Hint = 'Длительность трека'
-        Top = 39
+        Top = 38
         Width = 56
         Alignment = taCenter
         Anchors = [akTop, akRight]
@@ -272,14 +272,14 @@ object fMain: TfMain
         Height = 19
         Hint = 'Название проигрываемого трека'
         Top = 2
-        Width = 451
+        Width = 443
         Alignment = taCenter
         Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         ParentColor = False
       end
       object sbtnAudioRepeat: TSpeedButton
-        Left = 336
+        Left = 331
         Height = 30
         Hint = 'Повтор трека'
         Top = 26
@@ -317,8 +317,8 @@ object fMain: TfMain
         }
         OnClick = sbtnAudioRepeatClick
       end
-      object sbtnAudioLinkPlayers: TSpeedButton
-        Left = 162
+      object sbtnAudioLinkControlButtons: TSpeedButton
+        Left = 159
         Height = 30
         Hint = 'Связное управление воспроизведением'
         Top = 26
@@ -370,24 +370,79 @@ object fMain: TfMain
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
           FF00FFFFFF00FFFFFF00
         }
-        OnClick = sbtnAudioLinkPlayersClick
+        OnClick = sbtnAudioLinkControlButtonsClick
+      end
+      object sbtnAudioLinkControlTrackBar: TSpeedButton
+        Left = 516
+        Height = 21
+        Hint = 'Связное управление воспроизведением'
+        Top = 62
+        Width = 27
+        Anchors = [akTop]
+        Flat = True
+        Glyph.Data = {
+          46050000424D4605000000000000360000002800000012000000120000000100
+          2000000000001005000064000000640000000000000000000000FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF002121213021212180212121B0212121C021212190FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF0021212190212121C0212121B02121218021212130FFFFFF00FFFF
+          FF00FFFFFF0021212190212121FF212121FF212121FF212121FF212121FF2121
+          2130FFFFFF00FFFFFF0021212130212121FF212121FF212121FF212121FF2121
+          21FF21212190FFFFFF0021212170212121FF212121FF212121A0212121802121
+          218021212150FFFFFF00FFFFFF00FFFFFF00FFFFFF0021212150212121802121
+          2180212121B0212121FF212121FF21212170212121E0212121FF21212170FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF0021212170212121FF212121E0212121FF2121
+          21FFFFFFFF0021212130212121F0212121FF212121FF212121FF212121FF2121
+          21FF212121FF212121FF212121FF212121F021212130FFFFFF00212121FF2121
+          21FF212121FF212121FFFFFFFF0021212130212121F0212121FF212121FF2121
+          21FF212121FF212121FF212121FF212121FF212121FF212121F021212130FFFF
+          FF00212121FF212121FF212121E0212121FF21212170FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF0021212170212121FF212121E021212170212121FF212121FF2121
+          21B0212121802121218021212150FFFFFF00FFFFFF00FFFFFF00FFFFFF002121
+          21502121218021212180212121A0212121FF212121FF21212170FFFFFF002121
+          2190212121FF212121FF212121FF212121FF212121FF21212130FFFFFF00FFFF
+          FF0021212130212121FF212121FF212121FF212121FF212121FF21212190FFFF
+          FF00FFFFFF00FFFFFF002121213021212180212121B0212121C021212190FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF0021212190212121C0212121B0212121802121
+          2130FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00
+        }
+        OnClick = sbtnAudioLinkControlTrackBarClick
       end
     end
     object panAudioControlsBottom: TPanel
       Left = 0
       Height = 42
       Top = 368
-      Width = 563
+      Width = 555
       Align = alBottom
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 563
+      ClientWidth = 555
       Color = clForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 2
       object sbtnAudioClear: TSpeedButton
-        Left = 524
+        Left = 516
         Height = 30
         Hint = 'Очистить список'
         Top = 6
@@ -435,7 +490,7 @@ object fMain: TfMain
         OnClick = sbtnAudioClearClick
       end
       object sbtnAudioVolume: TSpeedButton
-        Left = 351
+        Left = 343
         Height = 28
         Hint = 'Вкл./выкл. звук'
         Top = 7
@@ -483,7 +538,7 @@ object fMain: TfMain
         OnClick = sbtnAudioVolumeClick
       end
       object trbarAudioVolume: TTrackBar
-        Left = 389
+        Left = 381
         Height = 28
         Top = 11
         Width = 110
@@ -597,7 +652,7 @@ object fMain: TfMain
     Left = 0
     Height = 32
     Top = 0
-    Width = 1113
+    Width = 1097
     OnChange = TabControlChange
     OnChanging = TabControlChanging
     Style = tsButtons
@@ -619,15 +674,15 @@ object fMain: TfMain
     AnchorSideRight.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 568
+    Left = 560
     Height = 410
     Top = 32
-    Width = 545
+    Width = 537
     Anchors = [akTop, akLeft, akRight, akBottom]
     BevelOuter = bvNone
     Caption = 'panVideo'
     ClientHeight = 410
-    ClientWidth = 545
+    ClientWidth = 537
     Color = clForm
     ParentBackground = False
     ParentColor = False
@@ -636,7 +691,7 @@ object fMain: TfMain
       Left = 0
       Height = 272
       Top = 96
-      Width = 545
+      Width = 537
       Align = alClient
       BorderStyle = bsNone
       DragMode = dmAutomatic
@@ -661,17 +716,17 @@ object fMain: TfMain
       Left = 0
       Height = 96
       Top = 0
-      Width = 545
+      Width = 537
       Align = alTop
       BevelOuter = bvNone
       ClientHeight = 96
-      ClientWidth = 545
+      ClientWidth = 537
       Color = clForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 0
       object sbtnVideoPlay: TSpeedButton
-        Left = 243
+        Left = 239
         Height = 30
         Hint = 'Воспроизвести'
         Top = 26
@@ -719,7 +774,7 @@ object fMain: TfMain
         OnClick = sbtnVideoPlayClick
       end
       object sbtnVideoPause: TSpeedButton
-        Left = 205
+        Left = 202
         Height = 30
         Hint = 'Приостановить'
         Top = 26
@@ -767,7 +822,7 @@ object fMain: TfMain
         OnClick = sbtnVideoPauseClick
       end
       object sbtnVideoStop: TSpeedButton
-        Left = 284
+        Left = 280
         Height = 30
         Hint = 'Остановить'
         Top = 26
@@ -819,7 +874,7 @@ object fMain: TfMain
         Left = 24
         Height = 25
         Top = 62
-        Width = 482
+        Width = 461
         Max = 0
         OnChange = trbarVideoTimeChange
         Position = 0
@@ -841,7 +896,7 @@ object fMain: TfMain
         ParentColor = False
       end
       object lblVideoTimeTotal: TLabel
-        Left = 476
+        Left = 445
         Height = 19
         Hint = 'Длительность трека'
         Top = 39
@@ -857,14 +912,14 @@ object fMain: TfMain
         Height = 19
         Hint = 'Название проигрываемого трека'
         Top = 2
-        Width = 466
+        Width = 458
         Alignment = taCenter
         Anchors = [akTop, akLeft, akRight]
         AutoSize = False
         ParentColor = False
       end
       object sbtnVideoRepeat: TSpeedButton
-        Left = 328
+        Left = 323
         Height = 30
         Hint = 'Повтор трека'
         Top = 26
@@ -902,8 +957,8 @@ object fMain: TfMain
         }
         OnClick = sbtnVideoRepeatClick
       end
-      object sbtnVideoLinkPlayers: TSpeedButton
-        Left = 161
+      object sbtnVideoLinkControlButtons: TSpeedButton
+        Left = 158
         Height = 30
         Hint = 'Связное управление воспроизведением'
         Top = 26
@@ -955,24 +1010,79 @@ object fMain: TfMain
           FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
           FF00FFFFFF00FFFFFF00
         }
-        OnClick = sbtnVideoLinkPlayersClick
+        OnClick = sbtnVideoLinkControlButtonsClick
+      end
+      object sbtnVideoLinkControlTrackBar: TSpeedButton
+        Left = 499
+        Height = 22
+        Hint = 'Связное управление воспроизведением'
+        Top = 59
+        Width = 24
+        Anchors = [akTop]
+        Flat = True
+        Glyph.Data = {
+          46050000424D4605000000000000360000002800000012000000120000000100
+          2000000000001005000064000000640000000000000000000000FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF002121213021212180212121B0212121C021212190FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF0021212190212121C0212121B02121218021212130FFFFFF00FFFF
+          FF00FFFFFF0021212190212121FF212121FF212121FF212121FF212121FF2121
+          2130FFFFFF00FFFFFF0021212130212121FF212121FF212121FF212121FF2121
+          21FF21212190FFFFFF0021212170212121FF212121FF212121A0212121802121
+          218021212150FFFFFF00FFFFFF00FFFFFF00FFFFFF0021212150212121802121
+          2180212121B0212121FF212121FF21212170212121E0212121FF21212170FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF0021212170212121FF212121E0212121FF2121
+          21FFFFFFFF0021212130212121F0212121FF212121FF212121FF212121FF2121
+          21FF212121FF212121FF212121FF212121F021212130FFFFFF00212121FF2121
+          21FF212121FF212121FFFFFFFF0021212130212121F0212121FF212121FF2121
+          21FF212121FF212121FF212121FF212121FF212121FF212121F021212130FFFF
+          FF00212121FF212121FF212121E0212121FF21212170FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF0021212170212121FF212121E021212170212121FF212121FF2121
+          21B0212121802121218021212150FFFFFF00FFFFFF00FFFFFF00FFFFFF002121
+          21502121218021212180212121A0212121FF212121FF21212170FFFFFF002121
+          2190212121FF212121FF212121FF212121FF212121FF21212130FFFFFF00FFFF
+          FF0021212130212121FF212121FF212121FF212121FF212121FF21212190FFFF
+          FF00FFFFFF00FFFFFF002121213021212180212121B0212121C021212190FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF0021212190212121C0212121B0212121802121
+          2130FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFFFF00FFFF
+          FF00FFFFFF00FFFFFF00
+        }
+        OnClick = sbtnVideoLinkControlTrackBarClick
       end
     end
     object panVideoControlsBottom: TPanel
       Left = 0
       Height = 42
       Top = 368
-      Width = 545
+      Width = 537
       Align = alBottom
       BevelOuter = bvNone
       ClientHeight = 42
-      ClientWidth = 545
+      ClientWidth = 537
       Color = clForm
       ParentBackground = False
       ParentColor = False
       TabOrder = 2
       object sbtnVideoClear: TSpeedButton
-        Left = 506
+        Left = 498
         Height = 30
         Hint = 'Очистить список'
         Top = 6
@@ -1018,7 +1128,7 @@ object fMain: TfMain
         OnClick = sbtnVideoClearClick
       end
       object sbtnFullyDisplay: TSpeedButton
-        Left = 232
+        Left = 224
         Height = 27
         Hint = 'Включить окно воспроизведения'
         Top = 8
@@ -1107,7 +1217,7 @@ object fMain: TfMain
         OnClick = sbtnFullyDisplayClick
       end
       object sbtnMonitorConfigure: TSpeedButton
-        Left = 270
+        Left = 262
         Height = 28
         Hint = 'Настройки отображения'
         Top = 8
@@ -1155,7 +1265,7 @@ object fMain: TfMain
         OnClick = sbtnMonitorConfigureClick
       end
       object sbtnVideoVolume: TSpeedButton
-        Left = 331
+        Left = 323
         Height = 28
         Hint = 'Вкл./выкл. звук'
         Top = 7
@@ -1203,7 +1313,7 @@ object fMain: TfMain
         OnClick = sbtnVideoVolumeClick
       end
       object trbarVideoVolume: TTrackBar
-        Left = 368
+        Left = 360
         Height = 28
         Top = 11
         Width = 110
@@ -1279,7 +1389,7 @@ object fMain: TfMain
     AnchorSideTop.Side = asrBottom
     AnchorSideBottom.Control = Owner
     AnchorSideBottom.Side = asrBottom
-    Left = 563
+    Left = 555
     Height = 410
     Top = 32
     Width = 5

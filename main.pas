@@ -41,10 +41,12 @@ type
     ppmnTabControl: TPopupMenu;
     ppmnAudioPlaylist: TPopupMenu;
     ppmnVideoPlaylist: TPopupMenu;
+    sbtnAudioLinkControlTrackBar: TSpeedButton;
     sbtnAudioRepeat: TSpeedButton;
+    sbtnVideoLinkControlTrackBar: TSpeedButton;
     sbtnVideoRepeat: TSpeedButton;
-    sbtnAudioLinkPlayers: TSpeedButton;
-    sbtnVideoLinkPlayers: TSpeedButton;
+    sbtnAudioLinkControlButtons: TSpeedButton;
+    sbtnVideoLinkControlButtons: TSpeedButton;
     { Вкладки }
     TabControl: TTabControl;
 
@@ -143,12 +145,14 @@ type
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
+    procedure sbtnAudioLinkControlTrackBarClick(Sender: TObject);
     procedure sbtnAudioPauseClick(Sender: TObject);
     procedure sbtnAudioStopClick(Sender: TObject);
     procedure sbtnAudioStopMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure sbtnVideoAddClick(Sender: TObject);
-    procedure sbtnVideoLinkPlayersClick(Sender: TObject);
+    procedure sbtnVideoLinkControlButtonsClick(Sender: TObject);
+    procedure sbtnVideoLinkControlTrackBarClick(Sender: TObject);
     procedure sbtnVideoRepeatClick(Sender: TObject);
     procedure sbtnVideoStopMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -180,7 +184,7 @@ type
     procedure sbtnVideoPauseClick(Sender: TObject);
     procedure sbtnVideoStopClick(Sender: TObject);
     procedure sbtnAudioRepeatClick(Sender: TObject);
-    procedure sbtnAudioLinkPlayersClick(Sender: TObject);
+    procedure sbtnAudioLinkControlButtonsClick(Sender: TObject);
     procedure TabControlChange(Sender: TObject);
     procedure TabControlChanging(Sender: TObject; var AllowChange: Boolean);
     procedure TabControlDragDrop(Sender, Source: TObject; X, Y: Integer);
@@ -250,7 +254,8 @@ var
   MousePos_TabControl: TPoint;
   Popuped_TabControl: Boolean = False;
   NewTab_Count: Integer = 0;
-  Link_Players: Boolean = False;
+  LinkPlaybackControlButtons: Boolean = False;
+  LinkPlaybackControlTrackBar: Boolean = False;
   arrAudioExtensions: Array of string = ('.AAC', '.FLAC', '.MP3',
                                          '.OGG', '.OPUS', '.VOC',
                                          '.WAV', '.WFP');
@@ -417,9 +422,9 @@ begin
     IndexBond := glCurrentPlaylist.Bonds.IndexOfProvoking(AItemIndex);
     if IndexBond <> -1 then
       begin
-        Link_Players := True;
-        setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
-        setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+        LinkPlaybackControlButtons := True;
+        setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
+        setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
 
         OpenAndPlayVideo(glCurrentPlaylist.Bonds.GetInvokingWhereProvoking(AItemIndex));
       end;
@@ -1011,6 +1016,22 @@ begin
     end;
 end;
 
+procedure TfMain.sbtnAudioLinkControlTrackBarClick(Sender: TObject);
+begin
+  LinkPlaybackControlTrackBar := Not(LinkPlaybackControlTrackBar);
+
+  if LinkPlaybackControlTrackBar then
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
+    end
+  else
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
+    end;
+end;
+
 procedure TfMain.sbtnAudioPauseClick(Sender: TObject);
 begin
   if (glCurrentAudioItem = '') then Exit;
@@ -1028,11 +1049,11 @@ begin
   setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
   setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause_active.png');
 
-  if Link_Players then
+  if LinkPlaybackControlButtons then
     begin
-      Link_Players := False;
+      LinkPlaybackControlButtons := False;
       sbtnVideoPauseClick(Self);
-      Link_Players := True;
+      LinkPlaybackControlButtons := True;
     end;
 end;
 
@@ -1063,17 +1084,19 @@ begin
       // Время устанавливается в нулевое положение (Аудио)
       resetTime('AudioPlayer');
 
-      if Link_Players then
+      if LinkPlaybackControlButtons then
         begin
-          Link_Players := False;
+          LinkPlaybackControlButtons := False;
           if glVideoTrackRepeat then
             begin
               sbtnVideoRepeat.Click;
             end;
           sbtnVideoStopClick(Self);
-          Link_Players := True;
-          sbtnAudioLinkPlayersClick(Sender);
+          LinkPlaybackControlButtons := True;
+          sbtnAudioLinkControlButtonsClick(Sender);
         end;
+      if LinkPlaybackControlTrackBar then
+        sbtnAudioLinkControlTrackBarClick(Sender);
     end
   else
     begin
@@ -1122,19 +1145,35 @@ begin
   end;
 end;
 
-procedure TfMain.sbtnVideoLinkPlayersClick(Sender: TObject);
+procedure TfMain.sbtnVideoLinkControlButtonsClick(Sender: TObject);
 begin
-  Link_Players := Not(Link_Players);
+  LinkPlaybackControlButtons := Not(LinkPlaybackControlButtons);
 
-  if Link_Players then
+  if LinkPlaybackControlButtons then
     begin
-      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
-      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
     end
   else
     begin
-      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_off.png');
-      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
+    end;
+end;
+
+procedure TfMain.sbtnVideoLinkControlTrackBarClick(Sender: TObject);
+begin
+  LinkPlaybackControlTrackBar := Not(LinkPlaybackControlTrackBar);
+
+  if LinkPlaybackControlTrackBar then
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
+    end
+  else
+    begin
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
     end;
 end;
 
@@ -1495,11 +1534,11 @@ begin
     setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
     setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play_active.png');
 
-    if Link_Players then
+    if LinkPlaybackControlButtons then
     begin
-      Link_Players := False;
+      LinkPlaybackControlButtons := False;
       sbtnAudioPlayClick(Self);
-      Link_Players := True;
+      LinkPlaybackControlButtons := True;
     end;
   end;
 end;
@@ -1874,11 +1913,11 @@ begin
     setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
     setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play_active.png');
 
-    if Link_Players then
+    if LinkPlaybackControlButtons then
       begin
-        Link_Players := False;
+        LinkPlaybackControlButtons := False;
         sbtnVideoPlayClick(Self);
-        Link_Players := True;
+        LinkPlaybackControlButtons := True;
       end;
   end;
 end;
@@ -1901,11 +1940,11 @@ begin
   setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
   setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause_active.png');
 
-  if Link_Players then
+  if LinkPlaybackControlButtons then
     begin
-      Link_Players := False;
+      LinkPlaybackControlButtons := False;
       sbtnAudioPauseClick(Self);
-      Link_Players := True;
+      LinkPlaybackControlButtons := True;
     end;
 end;
 
@@ -1941,7 +1980,7 @@ begin
             resetTime('VideoPlayer');
           end;
 
-        if Link_Players then
+        if LinkPlaybackControlButtons then
         begin
           if glAudioTrackRepeat then
             begin
@@ -1950,12 +1989,16 @@ begin
             end
           else
             begin
-              Link_Players := False;
+              LinkPlaybackControlButtons := False;
+              LinkPlaybackControlTrackBar := False;
               sbtnAudioStopClick(Self);
-              Link_Players := True;
-              sbtnVideoLinkPlayersClick(Sender);
+              LinkPlaybackControlButtons := True;
+              LinkPlaybackControlTrackBar := True;
+              sbtnVideoLinkControlButtonsClick(Sender);
             end;
         end;
+        if LinkPlaybackControlTrackBar then
+          sbtnVideoLinkControlTrackBarClick(Sender);
       end
     else
       begin
@@ -1976,19 +2019,19 @@ begin
     setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_off.png');
 end;
 
-procedure TfMain.sbtnAudioLinkPlayersClick(Sender: TObject);
+procedure TfMain.sbtnAudioLinkControlButtonsClick(Sender: TObject);
 begin
-  Link_Players := Not(Link_Players);
+  LinkPlaybackControlButtons := Not(LinkPlaybackControlButtons);
 
-  if Link_Players then
+  if LinkPlaybackControlButtons then
     begin
-      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_on.png');
-      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
     end
   else
     begin
-      setGlyphSpeedButton(sbtnAudioLinkPlayers, 'icons' + PathDelim + 'link_off.png');
-      setGlyphSpeedButton(sbtnVideoLinkPlayers, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
     end;
 end;
 
@@ -2072,7 +2115,7 @@ begin
       Position := SelEnd;
   glAudioTrackRewinding := False;
 
-  if Link_Players then
+  if LinkPlaybackControlTrackBar then
     begin
       If IsImage(ExtractFileName(glCurrentVideoItem)) then
         Exit;
@@ -2088,7 +2131,7 @@ begin
   with trbarAudioTime do
       Position := Round((Max - Min) / Width * X) + Min;
 
-  if Link_Players then
+  if LinkPlaybackControlTrackBar then
     begin
       If IsImage(ExtractFileName(glCurrentVideoItem)) then
         Exit;
@@ -2112,7 +2155,7 @@ begin
   TimerAudio.Enabled := True; // Включаем таймер
   // Трек больше не перематывается
 
-  if Link_Players then
+  if LinkPlaybackControlTrackBar then
     begin
       If IsImage(ExtractFileName(glCurrentVideoItem)) then
         Exit;
@@ -2120,10 +2163,10 @@ begin
         then sbtnAudioStopClick(Self)
         else
           begin
-            Link_Players := False;
+            LinkPlaybackControlTrackBar := False;
             If Not(IsImage(glCurrentVideoItem)) then
               trbarVideoTimeMouseUp(Sender, Button, Shift, X, Y);
-            Link_Players := True;
+            LinkPlaybackControlTrackBar := True;
           end;
     end;
 end;
@@ -2236,7 +2279,7 @@ begin
   with trbarVideoTime do
     Position := SelEnd;
 
-  if Link_Players then
+  if LinkPlaybackControlTrackBar then
     begin
       If IsImage(ExtractFileName(glCurrentVideoItem)) then
         Exit;
@@ -2254,7 +2297,7 @@ begin
   with trbarVideoTime do
     Position := Round((Max - Min) / Width * X) + Min;
 
-  if Link_Players then
+  if LinkPlaybackControlTrackBar then
     begin
       If IsImage(ExtractFileName(glCurrentVideoItem)) then
         Exit;
@@ -2278,7 +2321,7 @@ begin
   glVideoTrackRewinding := False;
   TimerVideo.Enabled := True; // Включаем таймер
 
-  if Link_Players then
+  if LinkPlaybackControlTrackBar then
     begin
       If IsImage(ExtractFileName(glCurrentVideoItem)) then
         Exit;
@@ -2286,9 +2329,9 @@ begin
         then sbtnVideoStopClick(Self)
         else
           begin
-            Link_Players := False;
+            LinkPlaybackControlTrackBar := False;
             trbarAudioTimeMouseUp(Sender, Button, Shift, X, Y);
-            Link_Players := True;
+            LinkPlaybackControlTrackBar := True;
           end;
     end;
 end;
