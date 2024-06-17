@@ -1634,7 +1634,7 @@ begin
   OpenDialog.FileName := '';
   OpenDialog.Title := 'Открыть сценарий';
   OpenDialog.DefaultExt := '.json';
-  OpenDialog.Filter := 'JSON|*.json|Все файлы|*.*|';
+  OpenDialog.Filter := 'Scenarium File|*.scnr|Все файлы|*.*|';
   if OpenDialog.Execute then
   begin
     for i:= 0 to ScenarioList.Count-1 do
@@ -1732,7 +1732,7 @@ var jObject: TJSONObject;
 begin
   SaveDialog.Title := 'Сохранить сценарий как';
   SaveDialog.DefaultExt := '.json';
-  SaveDialog.Filter := 'JSON|*.json|Все файлы|*.*|';
+  SaveDialog.Filter := 'Scenarium File|*.scnr|Все файлы|*.*|';
   StateNotify.State := snNone;
   StateNotify.State := snProcess;
   if SaveDialog.Execute then
