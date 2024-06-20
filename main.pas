@@ -428,6 +428,12 @@ begin
     lblCurrentAudioItem.Caption := ExtractFileName(glCurrentAudioItem);
     audioPlayer.OpenFile(glCurrentAudioItem);
 
+    // Время устанавливается в нулевое положение
+    resetTime('AudioPlayer');
+    TimerAudio.Enabled := True;
+
+    clboxAudioPlaylist.Repaint;
+
     { Связи }
     IndexBond := glCurrentPlaylist.Bonds.IndexOfProvoking(AItemIndex);
     if IndexBond <> -1 then
@@ -437,14 +443,15 @@ begin
         setGlyphSpeedButton(sbtnVideoLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
 
         OpenAndPlayVideo(glCurrentPlaylist.Bonds.GetInvokingWhereProvoking(AItemIndex));
+      end
+    else
+      begin
+        if LinkPlaybackControlButtons = True then
+          sbtnAudioLinkControlButtonsClick(fMain);
+        if LinkPlaybackControlTrackBar = True then
+          sbtnAudioLinkControlTrackBarClick(fMain);
       end;
     { Связи }
-
-    // Время устанавливается в нулевое положение
-    resetTime('AudioPlayer');
-    TimerAudio.Enabled := True;
-
-    clboxAudioPlaylist.Repaint;
 
     // Изменение состояния элементов воспроизведения
     setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop.png');
@@ -666,6 +673,11 @@ begin
         ShowMessage('Файл по пути ' + ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex] + ' отсутствует.');
         Exit;
       end;
+
+    if LinkPlaybackControlButtons = True then
+      sbtnAudioLinkControlButtonsClick(fMain);
+    if LinkPlaybackControlTrackBar = True then
+      sbtnAudioLinkControlTrackBarClick(fMain);
 
     glCurrentPlaylist := ScenarioList.Items[TabControl.TabIndex];
     OpenAndPlayVideo(clboxVideoPlaylist.ItemIndex);
