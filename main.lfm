@@ -1589,4 +1589,10 @@ object fMain: TfMain
       OnClick = miCloseTabClick
     end
   end
+  object UniqueInstance: TUniqueInstance
+    Enabled = True
+    OnOtherInstance = UniqueInstanceOtherInstance
+    Left = 376
+    Top = 152
+  end
 end

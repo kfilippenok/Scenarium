@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Buttons,
   // Project Units
-  PLaybackVideo, Pocket;
+  PLaybackVideo, Pocket, UniqueInstance;
 
 type
 
@@ -97,14 +97,14 @@ begin
     SpeedButton.OnClick := @MonitorClick;
 
     if PlaybackMonitor = i then
-      setGlyphSpeedButton(SpeedButton, 'icons' + PathDelim +'monitor_active.png')
+      setGlyphSpeedButton(SpeedButton, Application.Location + 'icons' + PathDelim +'monitor_active.png')
     else if i = fMonitorConfigure.Monitor.MonitorNum then
       begin
         SpeedButton.Enabled := False;
-        setGlyphSpeedButton(SpeedButton, 'icons' + PathDelim +'monitor_disable.png')
+        setGlyphSpeedButton(SpeedButton, Application.Location + 'icons' + PathDelim +'monitor_disable.png')
       end
     else
-      setGlyphSpeedButton(SpeedButton, 'icons' + PathDelim +'monitor_inactive.png');
+      setGlyphSpeedButton(SpeedButton, Application.Location + 'icons' + PathDelim +'monitor_inactive.png');
   end;
 end;
 

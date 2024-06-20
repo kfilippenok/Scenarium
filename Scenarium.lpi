@@ -11,6 +11,8 @@
       <UseXPManifest Value="True"/>
       <XPManifest>
         <DpiAware Value="True"/>
+        <TextName Value="KirillFilippenok.Diplom.Scenarium"/>
+        <TextDesc Value="An application for multimedia support of concert events."/>
       </XPManifest>
       <Icon Value="0"/>
       <Resources Count="22">
@@ -49,6 +51,9 @@
       <FormatVersion Value="2"/>
     </RunParams>
     <RequiredPackages>
+      <Item>
+        <PackageName Value="uniqueinstance_package"/>
+      </Item>
       <Item>
         <PackageName Value="BGLControls"/>
       </Item>
@@ -166,8 +171,9 @@
     </SearchPaths>
     <Linking>
       <Debugging>
+        <GenerateDebugInfo Value="False"/>
         <DebugInfoType Value="dsDwarf3"/>
-        <UseHeaptrc Value="True"/>
+        <UseLineInfoUnit Value="False"/>
       </Debugging>
       <Options>
         <PassLinkerOptions Value="True"/>

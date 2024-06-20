@@ -14,7 +14,7 @@ uses
   FileUtil,
   // Project Units
   AboutProject, PlaybackVideo, PlaybackAudio, MonitorConfigure, Settings,
-  Pocket,
+  Pocket, UniqueInstance,
   // libMPVDelphi
   MPVBasePlayer;
 
@@ -113,6 +113,7 @@ type
     { Диалоги }
     OpenDialog: TOpenDialog;
     SaveDialog: TSaveDialog;
+    UniqueInstance: TUniqueInstance;
 
     procedure clboxAudioPlaylistClick(Sender: TObject);
     procedure clboxAudioPlaylistDblClick(Sender: TObject);
@@ -220,9 +221,12 @@ type
     procedure trbarVideoVolumeChange(Sender: TObject);
     procedure trbarVideoVolumeMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: integer);
+    procedure UniqueInstanceOtherInstance(Sender: TObject; ParamCount: Integer;
+      const Parameters: array of String);
   private
     procedure OpenAndPlayAudio(AItemIndex: Integer);
     procedure OpenAndPlayVideo(AItemIndex: Integer);
+    procedure openScenario(const ScenarioFilePath: String);
     procedure setFullyDisplay(ShowPlayback: Boolean);
     procedure resetTime(Player: string);
     procedure SetElementGlyphs;
@@ -361,6 +365,8 @@ procedure TfMain.FormCreate(Sender: TObject);
 begin
   SetElementGlyphs();
 
+  //ShowMessageFmt('%d', [ParamCount]);
+
   // Двойная буферизация
   fMain.DoubleBuffered := True;
   panAudio.DoubleBuffered:=True;
@@ -377,6 +383,10 @@ begin
   // Заполняем список треков
   clboxAudioPlaylist.Items := ScenarioList.Items[0].AudioFileNames; // Аудио
   clboxVideoPlaylist.Items := ScenarioList.Items[0].VideoFileNames; // Видео
+
+  if ParamCount > 0 then
+    if FileExists(ParamStr(1)) then
+      openScenario(ParamStr(1));
 
   { По умолчанию звук включен }
   glAudioMute := False; // Аудио
@@ -423,8 +433,8 @@ begin
     if IndexBond <> -1 then
       begin
         LinkPlaybackControlButtons := True;
-        setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
-        setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
+        setGlyphSpeedButton(sbtnAudioLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
+        setGlyphSpeedButton(sbtnVideoLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
 
         OpenAndPlayVideo(glCurrentPlaylist.Bonds.GetInvokingWhereProvoking(AItemIndex));
       end;
@@ -437,9 +447,9 @@ begin
     clboxAudioPlaylist.Repaint;
 
     // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
-    setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-    setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
+    setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+    setGlyphSpeedButton(sbtnAudioPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+    setGlyphSpeedButton(sbtnAudioPlay, Application.Location + 'icons' + PathDelim + 'play.png');
   end;
 end;
 
@@ -581,11 +591,65 @@ begin
     clboxVideoPlaylist.Repaint;
 
     // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
-    setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
-    setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
+    setGlyphSpeedButton(sbtnVideoStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+    setGlyphSpeedButton(sbtnVideoPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+    setGlyphSpeedButton(sbtnVideoPlay, Application.Location + 'icons' + PathDelim + 'play.png');
 
     setFullyDisplay(True);
+  end;
+end;
+
+procedure TfMain.openScenario(const ScenarioFilePath: String);
+var i: Integer;
+    bbtnBond: TBitBtn;
+begin
+  try
+    if ScenarioList.Items[TabControl.TabIndex].Bonds.Count <> 0 then
+      begin
+        for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
+          begin
+            if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
+              begin
+                bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+                FreeAndNil(bbtnBond);
+              end;
+          end;
+      end;
+    ScenarioList.Add(CScenario.Create);
+    ScenarioList.Items[TabControl.Tabs.Count].FilePath := ScenarioFilePath;
+    ScenarioList.Items[TabControl.Tabs.Count].Name := ExtractFileName(ScenarioFilePath);
+    TabControl.Tabs.Add(ScenarioList.Items[TabControl.Tabs.Count].Name);
+    TabControl.TabIndex := TabControl.Tabs.Count-1;
+    LoadScenarioFromJSON(ScenarioFilePath);
+    if fMain.CanFocus then
+      fMain.SetFocus;
+  except
+    on E: Exception do begin
+      if ScenarioList.Count > 1 then
+        begin
+          FreeAndNil(ScenarioList.Items[ScenarioList.Count-1].AudioFileNames);
+          FreeAndNil(ScenarioList.Items[ScenarioList.Count-1].AudioFilePaths);
+          FreeAndNil(ScenarioList.Items[ScenarioList.Count-1].VideoFileNames);
+          FreeAndNil(ScenarioList.Items[ScenarioList.Count-1].VideoFilePaths);
+          FreeAndNil(ScenarioList.Items[ScenarioList.Count-1].MissingFiles);
+          if ScenarioList.Items[ScenarioList.Count-1].Bonds.Count <> 0 then
+            begin
+              for i := 0 to ScenarioList.Items[ScenarioList.Count-1].Bonds.Count - 1 do
+                begin
+                  if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
+                    begin
+                      bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+                      FreeAndNil(bbtnBond);
+                    end;
+                end;
+            end;
+          FreeAndNil(ScenarioList.Items[TabControl.TabIndex].Bonds);
+
+         end;
+       ScenarioList.Remove(ScenarioList.Items[TabControl.TabIndex]);
+       TabControl.Tabs.Delete(TabControl.TabIndex);
+       ShowMessage(ScenarioFilePath + ' не является файлом сценария!');
+    end;
   end;
 end;
 
@@ -1022,13 +1086,13 @@ begin
 
   if LinkPlaybackControlTrackBar then
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_on.png');
     end
   else
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_off.png');
     end;
 end;
 
@@ -1045,9 +1109,9 @@ begin
   TimerAudio.Enabled := False;
 
   // Изменение состояния элементов воспроизведения
-  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
-  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause_active.png');
+  setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+  setGlyphSpeedButton(sbtnAudioPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnAudioPause, Application.Location + 'icons' + PathDelim + 'pause_active.png');
 
   if LinkPlaybackControlButtons then
     begin
@@ -1067,9 +1131,9 @@ begin
       fPlaybackAudio.audioPlayer.Stop;
 
       // Изменение состояния элементов воспроизведения
-      setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-      setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-      setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
+      setGlyphSpeedButton(sbtnAudioPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+      setGlyphSpeedButton(sbtnAudioPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+      setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop.png');
 
       // "Проигриваемый элемент" очищается (Аудио)
       glCurrentPlaylist := NIL;
@@ -1112,9 +1176,9 @@ begin
   if (glCurrentAudioItem = '') then Exit;
 
   // Изменение состояния элементов воспроизведения
-  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop_active.png');
+  setGlyphSpeedButton(sbtnAudioPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnAudioPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop_active.png');
 end;
 
 procedure TfMain.sbtnVideoAddClick(Sender: TObject);
@@ -1151,13 +1215,13 @@ begin
 
   if LinkPlaybackControlButtons then
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
     end
   else
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_off.png');
     end;
 end;
 
@@ -1167,13 +1231,13 @@ begin
 
   if LinkPlaybackControlTrackBar then
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_on.png');
     end
   else
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlTrackBar, Application.Location + 'icons' + PathDelim + 'link_off.png');
     end;
 end;
 
@@ -1208,17 +1272,17 @@ begin
   glVideoTrackRepeat := Not(glVideoTrackRepeat);
 
   if glVideoTrackRepeat = True then
-    setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_on.png')
+    setGlyphSpeedButton(sbtnVideoRepeat, Application.Location + 'icons' + PathDelim + 'repeat_on.png')
   else
-    setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_off.png');
+    setGlyphSpeedButton(sbtnVideoRepeat, Application.Location + 'icons' + PathDelim + 'repeat_off.png');
 end;
 
 procedure TfMain.sbtnVideoStopMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
-  setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop_active.png');
+  setGlyphSpeedButton(sbtnVideoPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnVideoPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnVideoStop, Application.Location + 'icons' + PathDelim + 'stop_active.png');
 end;
 
 procedure TfMain.clboxVideoPlaylistDrawItem(Control: TWinControl;
@@ -1326,13 +1390,13 @@ begin
   else
   begin
     if trbarVideoVolume.Position < 33 then
-      setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_0.png')
+      setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_0.png')
     else if trbarVideoVolume.Position < 66 then
-      setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_1.png')
+      setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_1.png')
     else
-      setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_2.png');
+      setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
 
-    setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_2.png');
+    setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
     fPlaybackVideo.videoPlayer.SetMute(False);
     // На тот случай, если ползунок был изменен пока не было звука
     fPlaybackVideo.videoPlayer.SetVolume(double(trbarVideoVolume.Position));
@@ -1431,8 +1495,8 @@ begin
           bbtnVideoBond := TBitBtn.Create(fMain);
           InvokingIndex := ScenarioList.Items[TabControl.TabIndex].Bonds.GetInvokingWhereProvoking(Index);
           if IsVideo(ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Strings[InvokingIndex])
-            then setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'video.png')
-            else setGlyphSpeedButton(bbtnVideoBond, 'icons'+PathDelim+'image.png');
+            then setGlyphSpeedButton(bbtnVideoBond, Application.Location + 'icons'+PathDelim+'video.png')
+            else setGlyphSpeedButton(bbtnVideoBond, Application.Location + 'icons'+PathDelim+'image.png');
           bbtnVideoBond.Parent := clboxAudioPlaylist;
           bbtnVideoBond.Name := 'bbtnBondVideo' + IntToStr(Index);
           bbtnVideoBond.Height := 30;
@@ -1530,9 +1594,9 @@ begin
     clboxVideoPlaylist.Repaint;
 
     // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
-    setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
-    setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play_active.png');
+    setGlyphSpeedButton(sbtnVideoStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+    setGlyphSpeedButton(sbtnVideoPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+    setGlyphSpeedButton(sbtnVideoPlay, Application.Location + 'icons' + PathDelim + 'play_active.png');
 
     if LinkPlaybackControlButtons then
     begin
@@ -1909,9 +1973,9 @@ begin
     clboxAudioPlaylist.Repaint;
 
     // Изменение состояния элементов воспроизведения
-    setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
-    setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-    setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play_active.png');
+    setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+    setGlyphSpeedButton(sbtnAudioPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+    setGlyphSpeedButton(sbtnAudioPlay, Application.Location + 'icons' + PathDelim + 'play_active.png');
 
     if LinkPlaybackControlButtons then
       begin
@@ -1936,9 +2000,9 @@ begin
   TimerVideo.Enabled := False;
 
   // Изменение состояния элементов воспроизведения
-  setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
-  setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause_active.png');
+  setGlyphSpeedButton(sbtnVideoStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+  setGlyphSpeedButton(sbtnVideoPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnVideoPause, Application.Location + 'icons' + PathDelim + 'pause_active.png');
 
   if LinkPlaybackControlButtons then
     begin
@@ -1963,9 +2027,9 @@ begin
         fPlaybackVideo.videoPlayer.Stop;
 
         // Изменение состояния элементов воспроизведения
-        setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
-        setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-        setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
+        setGlyphSpeedButton(sbtnVideoPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+        setGlyphSpeedButton(sbtnVideoPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+        setGlyphSpeedButton(sbtnVideoStop, Application.Location + 'icons' + PathDelim + 'stop.png');
         if not(glAudioTrackRepeat) then
           begin
             // "Проигриваемый элемент" очищается (Видео)
@@ -2014,9 +2078,9 @@ begin
   glAudioTrackRepeat := Not(glAudioTrackRepeat);
 
   if glAudioTrackRepeat = True then
-    setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_on.png')
+    setGlyphSpeedButton(sbtnAudioRepeat, Application.Location + 'icons' + PathDelim + 'repeat_on.png')
   else
-    setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_off.png');
+    setGlyphSpeedButton(sbtnAudioRepeat, Application.Location + 'icons' + PathDelim + 'repeat_off.png');
 end;
 
 procedure TfMain.sbtnAudioLinkControlButtonsClick(Sender: TObject);
@@ -2025,13 +2089,13 @@ begin
 
   if LinkPlaybackControlButtons then
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_on.png');
     end
   else
     begin
-      setGlyphSpeedButton(sbtnAudioLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
-      setGlyphSpeedButton(sbtnVideoLinkControlButtons, 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnAudioLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_off.png');
+      setGlyphSpeedButton(sbtnVideoLinkControlButtons, Application.Location + 'icons' + PathDelim + 'link_off.png');
     end;
 end;
 
@@ -2190,17 +2254,17 @@ begin
 
   if glAudioMute then
   begin
-    setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_off.png');
+    setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_off.png');
     fPlaybackAudio.audioPlayer.SetMute(True);
   end
   else
   begin
     if trbarAudioVolume.Position < 33 then
-      setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_0.png')
+      setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_0.png')
     else if trbarAudioVolume.Position < 66 then
-      setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_1.png')
+      setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_1.png')
     else
-      setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_2.png');
+      setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
 
     fPlaybackAudio.audioPlayer.SetMute(False);
     // На тот случай, если ползунок был изменен пока не было звука
@@ -2217,11 +2281,11 @@ begin
   if not (glAudioMute) then
   begin
     if trbarAudioVolume.Position < 33 then
-      setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_0.png')
+      setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_0.png')
     else if trbarAudioVolume.Position < 66 then
-      setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_1.png')
+      setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_1.png')
     else
-      setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_2.png');
+      setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
 
     fPlaybackAudio.audioPlayer.SetVolume(double(trbarAudioVolume.Position));
   end;
@@ -2343,11 +2407,11 @@ begin
   if not (glVideoMute) then
   begin
     if trbarVideoVolume.Position < 33 then
-      setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_0.png')
+      setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_0.png')
     else if trbarVideoVolume.Position < 66 then
-      setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_1.png')
+      setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_1.png')
     else
-      setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_2.png');
+      setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
 
     fPlaybackVideo.videoPlayer.SetVolume(double(trbarVideoVolume.Position));
   end;
@@ -2360,6 +2424,14 @@ begin
     fPlaybackVideo.videoPlayer.SetVolume(double(trbarVideoVolume.Position));
 end;
 
+procedure TfMain.UniqueInstanceOtherInstance(Sender: TObject;
+  ParamCount: Integer; const Parameters: array of String);
+begin
+  if ParamCount > 0 then
+    if FileExists(Parameters[0]) then
+      openScenario(Parameters[0]);
+end;
+
 procedure TfMain.setFullyDisplay(ShowPlayback: Boolean);
 begin
   // Проверка на выбранный монитор
@@ -2368,12 +2440,12 @@ begin
   if ShowPlayback then
   begin
     fPLaybackVideo.Visible := True;
-    setGlyphSpeedButton(sbtnFullyDisplay, 'icons' + PathDelim + 'share_screen_off.png');
+    setGlyphSpeedButton(sbtnFullyDisplay, Application.Location + 'icons' + PathDelim + 'share_screen_off.png');
   end
   else
   begin
     fPLaybackVideo.Visible := False;
-    setGlyphSpeedButton(sbtnFullyDisplay, 'icons' + PathDelim + 'share_screen_on.png')
+    setGlyphSpeedButton(sbtnFullyDisplay, Application.Location + 'icons' + PathDelim + 'share_screen_on.png')
   end;
 end;
 
@@ -2407,26 +2479,26 @@ end;
 procedure TfMain.SetElementGlyphs;
 begin
   // Аудио панель
-  setGlyphSpeedButton(sbtnAudioAdd, 'icons' + PathDelim + 'add.png');
-  setGlyphSpeedButton(sbtnAudioSubtract, 'icons' + PathDelim + 'subtract.png');
-  setGlyphSpeedButton(sbtnAudioPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnAudioPause, 'icons' + PathDelim + 'pause.png');
-  setGlyphSpeedButton(sbtnAudioStop, 'icons' + PathDelim + 'stop.png');
-  setGlyphSpeedButton(sbtnAudioClear, 'icons' + PathDelim + 'clear.png');
-  setGlyphSpeedButton(sbtnAudioVolume, 'icons' + PathDelim + 'speaker_2.png');
-  setGlyphSpeedButton(sbtnAudioRepeat, 'icons' + PathDelim + 'repeat_off.png');
+  setGlyphSpeedButton(sbtnAudioAdd, Application.Location + 'icons' + PathDelim + 'add.png');
+  setGlyphSpeedButton(sbtnAudioSubtract, Application.Location + 'icons' + PathDelim + 'subtract.png');
+  setGlyphSpeedButton(sbtnAudioPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnAudioPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnAudioStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+  setGlyphSpeedButton(sbtnAudioClear, Application.Location + 'icons' + PathDelim + 'clear.png');
+  setGlyphSpeedButton(sbtnAudioVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
+  setGlyphSpeedButton(sbtnAudioRepeat, Application.Location + 'icons' + PathDelim + 'repeat_off.png');
   // Видео панель
-  setGlyphSpeedButton(sbtnVideoAdd, 'icons' + PathDelim + 'add.png');
-  setGlyphSpeedButton(sbtnVideoSubtract, 'icons' + PathDelim + 'subtract.png');
-  setGlyphSpeedButton(sbtnVideoPlay, 'icons' + PathDelim + 'play.png');
-  setGlyphSpeedButton(sbtnVideoPause, 'icons' + PathDelim + 'pause.png');
-  setGlyphSpeedButton(sbtnVideoStop, 'icons' + PathDelim + 'stop.png');
-  setGlyphSpeedButton(sbtnVideoClear, 'icons' + PathDelim + 'clear.png');
-  setGlyphSpeedButton(sbtnVideoVolume, 'icons' + PathDelim + 'speaker_2.png');
-  setGlyphSpeedButton(sbtnFullyDisplay, 'icons' + PathDelim + 'share_screen_on.png');
-  setGlyphSpeedButton(sbtnMonitorConfigure, 'icons' + PathDelim +
+  setGlyphSpeedButton(sbtnVideoAdd, Application.Location + 'icons' + PathDelim + 'add.png');
+  setGlyphSpeedButton(sbtnVideoSubtract, Application.Location + 'icons' + PathDelim + 'subtract.png');
+  setGlyphSpeedButton(sbtnVideoPlay, Application.Location + 'icons' + PathDelim + 'play.png');
+  setGlyphSpeedButton(sbtnVideoPause, Application.Location + 'icons' + PathDelim + 'pause.png');
+  setGlyphSpeedButton(sbtnVideoStop, Application.Location + 'icons' + PathDelim + 'stop.png');
+  setGlyphSpeedButton(sbtnVideoClear, Application.Location + 'icons' + PathDelim + 'clear.png');
+  setGlyphSpeedButton(sbtnVideoVolume, Application.Location + 'icons' + PathDelim + 'speaker_2.png');
+  setGlyphSpeedButton(sbtnFullyDisplay, Application.Location + 'icons' + PathDelim + 'share_screen_on.png');
+  setGlyphSpeedButton(sbtnMonitorConfigure, Application.Location + 'icons' + PathDelim +
     'share_screen_settings.png');
-  setGlyphSpeedButton(sbtnVideoRepeat, 'icons' + PathDelim + 'repeat_off.png');
+  setGlyphSpeedButton(sbtnVideoRepeat, Application.Location + 'icons' + PathDelim + 'repeat_off.png');
 end;
 
 end.
