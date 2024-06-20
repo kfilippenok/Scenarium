@@ -1722,21 +1722,7 @@ begin
           Exit;
         end;
 
-    for i:= 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
-    begin
-      if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
-        begin
-          LBitBtn := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
-          FreeAndNil(LBitBtn);
-        end;
-    end;
-
-    ScenarioList.Add(CScenario.Create);
-    ScenarioList.Items[TabControl.Tabs.Count].FilePath := OpenDialog.FileName;
-    ScenarioList.Items[TabControl.Tabs.Count].Name := ExtractFileName(OpenDialog.FileName);
-    TabControl.Tabs.Add(ScenarioList.Items[TabControl.Tabs.Count].Name);
-    TabControl.TabIndex := TabControl.Tabs.Count-1;
-    LoadScenarioFromJSON(OpenDialog.FileName);
+    openScenario(OpenDialog.FileName);
   end;
 end;
 
