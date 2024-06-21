@@ -85,6 +85,7 @@ object fMain: TfMain
       ParentBackground = False
       ParentColor = False
       TabOrder = 0
+      OnMouseMove = panAudioControlsTopMouseMove
       object sbtnAudioPlay: TSpeedButton
         Left = 245
         Height = 30
@@ -707,6 +708,7 @@ object fMain: TfMain
       OnDragDrop = clboxVideoPlaylistDragDrop
       OnDragOver = clboxVideoPlaylistDragOver
       OnMouseDown = clboxVideoPlaylistMouseDown
+      OnMouseMove = clboxVideoPlaylistMouseMove
       ParentFont = False
       PopupMenu = ppmnVideoPlaylist
       Style = lbOwnerDrawFixed

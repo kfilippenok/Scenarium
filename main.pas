@@ -134,6 +134,8 @@ type
       Shift: TShiftState);
     procedure clboxVideoPlaylistMouseDown(Sender: TObject;
       Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure clboxVideoPlaylistMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure AddBond(Sender: TObject);
@@ -147,6 +149,8 @@ type
     procedure miVideoDeleteBondsClick(Sender: TObject);
     procedure miVideoDeleteClick(Sender: TObject);
     procedure miVideoSettingsClick(Sender: TObject);
+    procedure panAudioControlsTopMouseMove(Sender: TObject; Shift: TShiftState;
+      X, Y: Integer);
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
@@ -712,6 +716,13 @@ begin
   clboxVideoPlaylist.Invalidate;
 end;
 
+procedure TfMain.clboxVideoPlaylistMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if glVideoTrackRewinding = True then
+    trbarVideoTimeMouseLeave(Sender);
+end;
+
 procedure TfMain.FormDestroy(Sender: TObject);
 var i, iscn: Integer;
     bbtnBond: TBitBtn;
@@ -1244,6 +1255,13 @@ begin
   FileSettings.fFileSettings.OpenDialog.Filter := 'Video and Images|' + VideoExtensions + ImageExtensions + '|' + 'Video|' + VideoExtensions + '|' + 'Image|' + ImageExtensions + '|' + 'All files|*.*';
 
   FileSettings.fFileSettings.ShowModal;
+end;
+
+procedure TfMain.panAudioControlsTopMouseMove(Sender: TObject;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  if glAudioTrackRewinding = True then
+    trbarAudioTimeMouseLeave(Sender);
 end;
 
 procedure TfMain.ppmnAudioPlaylistPopup(Sender: TObject);
