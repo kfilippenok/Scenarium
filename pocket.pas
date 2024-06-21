@@ -9,6 +9,8 @@ uses
 
 type
 
+  TFileType = (ftAudio, ftVideo, ftImage, ftUnknown);
+
   { CStateNotify }
 
   TStateNotifyKind = (snNone, snProcess, snFailed, snSuccess, snReload, snCancel);
@@ -50,11 +52,9 @@ type
       function GetProvokingWhereInvoking(Invoking: Integer): Integer;
       function IndexOfProvoking(Provoking: Integer): Integer;
       function IndexOfInvoking(Invoking: Integer): Integer;
-      procedure SwapWhereProvoking(ProvokingFirst, ProvokingTwo: Integer);
+      function IndexOfBond(Provoking, Invoking: Integer): Integer;
       procedure UpdateWhereProvoking(oldProvoking, newProvoking: Integer);
       procedure UpdateWhereInvoking(oldInvoking, newInvoking: Integer);
-      procedure TwiceUpdateWhereProvoking(oldProvokingFirst, newProvokingFirst,
-                                    oldProvokingTwo, newProvokingTwo: Integer);
       function InProvoking(Number: Integer): Boolean;
       function InInvoking(Number: Integer): Boolean;
       function InBonds(Number: Integer): Boolean; overload;
@@ -84,6 +84,26 @@ type
   procedure setGlyphSpeedButton(SpeedButton: TSpeedButton; Path: String); overload;
   procedure setGlyphSpeedButton(BitBtn: TBitBtn; Path: String); overload;
 
+  function isAudio(const FileName: String): Boolean;
+  function isVideo(const FileName: String): Boolean;
+  function isImage(const FileName: String): Boolean;
+  function identifyFileType(const FileName: String): TFileType;
+
+var arrAudioExtensions: Array of string = ('.AAC', '.FLAC', '.MP3',
+                                         '.OGG', '.OPUS', '.VOC',
+                                         '.WAV', '.WFP');
+    arrVideoExtensions: Array of string = ('.AVI', '.AVC', '.BDMV',
+                                         '.H264', '.M2V', '.M4S',
+                                         '.MJPEG', '.MKV', '.MOV',
+                                         '.MP4', '.MP5', '.MPEG',
+                                         '.MPV', '.SRT', '.STR',
+                                         '.VID', '.WEBM', '.WLMP',
+                                         '.WMV', '.XVID');
+   arrImageExtensions: Array of string = ('.BMP', '.GIF', '.HDR',
+                                         '.HEIC', '.HEIF', '.ICO',
+                                         '.JPG', '.JPEG', '.PNG',
+                                         '.RAW', '.RPF', '.WEBP');
+
 implementation
 
 procedure setGlyphSpeedButton(SpeedButton: TSpeedButton; Path: String); overload;
@@ -109,6 +129,59 @@ begin
     Picture.Destroy;
   end;
 end;
+
+function isAudio(const FileName: String): Boolean;
+var i: Integer;
+begin
+  Result := False;
+
+  for i := Low(arrAudioExtensions) to High(arrAudioExtensions) do
+    begin
+      if UpperCase(ExtractFileExt(FileName)) = arrAudioExtensions[i] then
+        begin
+          Exit(True);
+        end;
+    end;
+end;
+
+function isVideo(const FileName: String): Boolean;
+var i: Integer;
+begin
+  Result := False;
+
+  for i := Low(arrVideoExtensions) to High(arrVideoExtensions) do
+    begin
+      if UpperCase(ExtractFileExt(FileName)) = arrVideoExtensions[i] then
+        begin
+          Exit(True);
+        end;
+    end;
+end;
+
+function isImage(const FileName: String): Boolean;
+var i: Integer;
+begin
+  Result := False;
+
+  for i := Low(arrImageExtensions) to High(arrImageExtensions) do
+    begin
+      if UpperCase(ExtractFileExt(FileName)) = arrImageExtensions[i] then
+        begin
+          Exit(True);
+        end;
+    end;
+end;
+
+function identifyFileType(const FileName: String): TFileType;
+begin
+  Result := ftUnknown;
+
+  if isAudio(FileName) then Exit(ftAudio);
+  if isVideo(FileName) then Exit(ftVideo);
+  if isImage(FileName) then Exit(ftImage);
+end;
+
+
 
 { CScenario }
 
@@ -286,9 +359,9 @@ begin
             begin
               arProvoking[t] := arProvoking[t+1];
               arInvoking[t] := arInvoking[t+1];
-              SetLength(arProvoking, Count-1);
-              SetLength(arInvoking, Count);
             end;
+          SetLength(arProvoking, Count-1);
+          SetLength(arInvoking, Count);
         end;
     end;
 end;
@@ -335,19 +408,14 @@ begin
       Exit(i);
 end;
 
-procedure CBonds.SwapWhereProvoking(ProvokingFirst, ProvokingTwo: Integer);
+function CBonds.IndexOfBond(Provoking, Invoking: Integer): Integer;
 var i: Integer;
 begin
-  if Count = 0 then
-    Exit;
+  Result := -1;
 
   for i := 0 to Count-1 do
-    begin
-      if arProvoking[i] = ProvokingFirst then
-         arProvoking[i] := ProvokingTwo
-      else if arProvoking[i] = ProvokingTwo then
-         arProvoking[i] := ProvokingFirst;
-    end;
+    if (arProvoking[i] = Provoking) and (arInvoking[i] = Invoking) then
+      Exit(i);
 end;
 
 procedure CBonds.UpdateWhereProvoking(oldProvoking, newProvoking: Integer);
@@ -358,7 +426,7 @@ begin
 
   for i := 0 to Count-1 do
     if arProvoking[i] = oldProvoking then
-         arProvoking[i] := newProvoking;
+      arProvoking[i] := newProvoking;
 end;
 
 procedure CBonds.UpdateWhereInvoking(oldInvoking, newInvoking: Integer);
@@ -370,21 +438,6 @@ begin
   for i := 0 to Count-1 do
     if arInvoking[i] = oldInvoking then
          arInvoking[i] := newInvoking;
-end;
-
-procedure CBonds.TwiceUpdateWhereProvoking(oldProvokingFirst, newProvokingFirst,
-  oldProvokingTwo, newProvokingTwo: Integer);
-var i: Integer;
-begin
-  if Count = 0 then
-    Exit;
-
-  for i := 0 to Count-1 do
-    if arProvoking[i] = oldProvokingFirst then
-      arProvoking[i] := newProvokingFirst
-    else if arProvoking[i] = oldProvokingTwo then
-      arProvoking[i] := newProvokingTwo;
-
 end;
 
 function CBonds.InProvoking(Number: Integer): Boolean;
@@ -409,12 +462,12 @@ begin
     end;
 end;
 
-function CBonds.InBonds(Number: Integer): Boolean;
+function CBonds.InBonds(Number: Integer): Boolean; overload;
 begin
   Result := InProvoking(Number) or InInvoking(Number);
 end;
 
-function CBonds.InBonds(Provoking, Invoking: Integer): Boolean;
+function CBonds.InBonds(Provoking, Invoking: Integer): Boolean; overload;
 begin
   Result := InProvoking(Provoking) and InInvoking(Invoking);
 end;

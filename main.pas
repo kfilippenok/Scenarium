@@ -14,7 +14,7 @@ uses
   FileUtil,
   // Project Units
   AboutProject, PlaybackVideo, PlaybackAudio, MonitorConfigure, Settings,
-  Pocket, UniqueInstance,
+  Pocket, UniqueInstance, FileSettings,
   // libMPVDelphi
   MPVBasePlayer;
 
@@ -28,6 +28,8 @@ type
     lblVideoTimeTotal: TLabel;
     lblVideoTimeCurrent: TLabel;
     lblCurrentAudioItem: TLabel;
+    miVideoSettings: TMenuItem;
+    miAudioSettings: TMenuItem;
     miVideoReloadPlaylist: TMenuItem;
     miAudioReloadPlaylist: TMenuItem;
     miScenarioReload: TMenuItem;
@@ -139,10 +141,12 @@ type
     procedure FormResize(Sender: TObject);
     procedure miAudioDeleteBondClick(Sender: TObject);
     procedure miAudioDeleteClick(Sender: TObject);
+    procedure miAudioSettingsClick(Sender: TObject);
     procedure miCloseTabClick(Sender: TObject);
     procedure miScenarioReloadClick(Sender: TObject);
     procedure miVideoDeleteBondsClick(Sender: TObject);
     procedure miVideoDeleteClick(Sender: TObject);
+    procedure miVideoSettingsClick(Sender: TObject);
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
@@ -232,9 +236,6 @@ type
     procedure SetElementGlyphs;
     procedure LoadScenarioFromJSON(FilePath: String);
     procedure BondButtonClick(Sender: TObject);
-    function isAudio(const FileName: String): Boolean;
-    function isVideo(const FileName: String): Boolean;
-    function isImage(const FileName: String): Boolean;
   public
 
   end;
@@ -260,20 +261,6 @@ var
   NewTab_Count: Integer = 0;
   LinkPlaybackControlButtons: Boolean = False;
   LinkPlaybackControlTrackBar: Boolean = False;
-  arrAudioExtensions: Array of string = ('.AAC', '.FLAC', '.MP3',
-                                         '.OGG', '.OPUS', '.VOC',
-                                         '.WAV', '.WFP');
-  arrVideoExtensions: Array of string = ('.AVI', '.AVC', '.BDMV',
-                                         '.H264', '.M2V', '.M4S',
-                                         '.MJPEG', '.MKV', '.MOV',
-                                         '.MP4', '.MP5', '.MPEG',
-                                         '.MPV', '.SRT', '.STR',
-                                         '.VID', '.WEBM', '.WLMP',
-                                         '.WMV', '.XVID');
-  arrImageExtensions: Array of string = ('.BMP', '.GIF', '.HDR',
-                                         '.HEIC', '.HEIF', '.ICO',
-                                         '.JPG', '.JPEG', '.PNG',
-                                         '.RAW', '.RPF', '.WEBP');
 
 implementation
 
@@ -315,48 +302,6 @@ begin
       )
     ]
   );
-end;
-
-function TfMain.isAudio(const FileName: String): Boolean;
-var i: Integer;
-begin
-  Result := False;
-
-  for i := Low(arrAudioExtensions) to High(arrAudioExtensions) do
-    begin
-      if UpperCase(ExtractFileExt(FileName)) = arrAudioExtensions[i] then
-        begin
-          Exit(True);
-        end;
-    end;
-end;
-
-function TfMain.isVideo(const FileName: String): Boolean;
-var i: Integer;
-begin
-  Result := False;
-
-  for i := Low(arrVideoExtensions) to High(arrVideoExtensions) do
-    begin
-      if UpperCase(ExtractFileExt(FileName)) = arrVideoExtensions[i] then
-        begin
-          Exit(True);
-        end;
-    end;
-end;
-
-function TfMain.isImage(const FileName: String): Boolean;
-var i: Integer;
-begin
-  Result := False;
-
-  for i := Low(arrImageExtensions) to High(arrImageExtensions) do
-    begin
-      if UpperCase(ExtractFileExt(FileName)) = arrImageExtensions[i] then
-        begin
-          Exit(True);
-        end;
-    end;
 end;
 
 { TfMain }
@@ -835,34 +780,36 @@ var i: Word;
 begin
   for i := 0 to Length(FileNames)-1 do
     begin
-      if isAudio(FileNames[i]) then
-        begin
-          ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
-          ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
-        end
-      else if isVideo(FileNames[i]) or isImage(FileNames[i]) then
-        begin
-          ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
-          ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
-        end
-      else
-        begin
-          if Not(SkeepAll) then
-            case QuestionDlg('Неизвестный тип файла', 'Тип ' + ExtractFileExt(FileNames[i]) + ' файла ' + ExtractFileName(FileNames[i]) + ' неизвестен. Как воспринимать файл?', mtCustom, [mrAudio, 'Аудио', mrVideo, 'Видео', mrSkeep, 'Пропустить', mrSkeepAll, 'Пропустить все'], '') of
-              mrAudio:
-                begin
-                  ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
-                  ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
-                end;
-              mrVideo:
-                begin
-                  ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
-                  ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
-                end;
-              mrSkeepAll:
-                SkeepAll := True;
+      case identifyFileType(FileNames[i]) of
+        ftAudio:
+          begin
+            ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
+            ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
+          end;
+        ftVideo, ftImage:
+          begin
+            ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
+            ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
+          end;
+        ftUnknown:
+          begin
+            if Not(SkeepAll) then
+              case QuestionDlg('Неизвестный тип файла', 'Тип ' + ExtractFileExt(FileNames[i]) + ' файла ' + ExtractFileName(FileNames[i]) + ' неизвестен. Как воспринимать файл?', mtCustom, [mrAudio, 'Аудио', mrVideo, 'Видео', mrSkeep, 'Пропустить', mrSkeepAll, 'Пропустить все'], '') of
+                mrAudio:
+                  begin
+                    ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Add(FileNames[i]);
+                    ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Add(ExtractFileName(FileNames[i]));
+                  end;
+                mrVideo:
+                  begin
+                    ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(FileNames[i]);
+                    ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(FileNames[i]));
+                  end;
+                mrSkeepAll:
+                  SkeepAll := True;
+              end;
             end;
-        end;
+      end;
     end;
 
   clboxAudioPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].AudioFileNames;
@@ -957,6 +904,17 @@ procedure TfMain.miAudioDeleteClick(Sender: TObject);
 begin
   miAudioDeleteBondClick(Self);
   sbtnAudioSubtract.Click;
+end;
+
+procedure TfMain.miAudioSettingsClick(Sender: TObject);
+var AudioExtensions: String = '';
+    i: Integer;
+begin
+  FileSettings.fFileSettings.edtOldFilePath.Text := ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Strings[clboxAudioPlaylist.ItemIndex];
+  for i := Low(Pocket.arrAudioExtensions) to High(Pocket.arrAudioExtensions) do
+    AudioExtensions := AudioExtensions + '*' + arrAudioExtensions[i] + ';';
+  FileSettings.fFileSettings.OpenDialog.Filter := 'Audio|' + AudioExtensions + '|All files|*.*';
+  FileSettings.fFileSettings.ShowModal;
 end;
 
 procedure TfMain.miCloseTabClick(Sender: TObject);
@@ -1077,9 +1035,20 @@ begin
   if clboxVideoPlaylist.Count <> 0 then
     begin
       miVideoDelete.Enabled := True;
-      if clboxAudioPlaylist.ItemIndex <> -1
-        then miVideoAddBond.Enabled := True
-        else miVideoAddBond.Enabled := False;
+      if clboxVideoPlaylist.ItemIndex <> -1
+        then
+          begin
+            miVideoAddBond.Enabled := True;
+            if clboxVideoPlaylist.ItemIndex <> glCurrentVideoItemIndex then
+              miVideoSettings.Enabled := True
+            else
+              miVideoSettings.Enabled := False;
+          end
+        else
+          begin
+            miVideoAddBond.Enabled := False;
+            miVideoSettings.Enabled := False;
+          end;
       if ScenarioList.Items[TabControl.TabIndex].Bonds.InInvoking(clboxVideoPlaylist.ItemIndex)
         then miVideoDeleteBonds.Enabled := True
         else miVideoDeleteBonds.Enabled := False;
@@ -1089,6 +1058,7 @@ begin
       miVideoDelete.Enabled := False;
       miVideoAddBond.Enabled := False;
       miVideoDeleteBonds.Enabled := False;
+      miVideoSettings.Enabled := False;
     end;
 end;
 
@@ -1203,10 +1173,10 @@ begin
   OpenDialog.DefaultExt := '';
 
   ImageExtensions := ''; VideoExtensions := '';
-  for i := Low(arrVideoExtensions) to High(arrVideoExtensions) do
+  for i := Low(Pocket.arrVideoExtensions) to High(Pocket.arrVideoExtensions) do
     VideoExtensions := VideoExtensions + '*' + arrVideoExtensions[i] + ';';
-  for i := Low(arrImageExtensions) to High(arrImageExtensions) do
-    ImageExtensions := ImageExtensions + '*' + arrImageExtensions[i] + ';';
+  for i := Low(Pocket.arrImageExtensions) to High(Pocket.arrImageExtensions) do
+    ImageExtensions := ImageExtensions + '*' + Pocket.arrImageExtensions[i] + ';';
 
   OpenDialog.Filter := 'Video and Images|' + VideoExtensions + ImageExtensions + '|' + 'Video|' + VideoExtensions + '|' + 'Image|' + ImageExtensions + '|' + 'All files|*.*';
   if OpenDialog.Execute then
@@ -1259,14 +1229,43 @@ begin
   sbtnVideoSubtract.Click;
 end;
 
+procedure TfMain.miVideoSettingsClick(Sender: TObject);
+var i: Integer;
+    ImageExtensions, VideoExtensions: String;
+begin
+  FileSettings.fFileSettings.edtOldFilePath.Text := ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Strings[clboxVideoPlaylist.ItemIndex];
+
+  ImageExtensions := ''; VideoExtensions := '';
+  for i := Low(Pocket.arrVideoExtensions) to High(Pocket.arrVideoExtensions) do
+    VideoExtensions := VideoExtensions + '*' + Pocket.arrVideoExtensions[i] + ';';
+  for i := Low(Pocket.arrImageExtensions) to High(Pocket.arrImageExtensions) do
+    ImageExtensions := ImageExtensions + '*' + Pocket.arrImageExtensions[i] + ';';
+
+  FileSettings.fFileSettings.OpenDialog.Filter := 'Video and Images|' + VideoExtensions + ImageExtensions + '|' + 'Video|' + VideoExtensions + '|' + 'Image|' + ImageExtensions + '|' + 'All files|*.*';
+
+  FileSettings.fFileSettings.ShowModal;
+end;
+
 procedure TfMain.ppmnAudioPlaylistPopup(Sender: TObject);
 begin
   if clboxAudioPlaylist.Count <> 0 then
     begin
       miAudioDelete.Enabled := True;
       if clboxVideoPlaylist.ItemIndex <> -1
-        then miAudioAddBond.Enabled := True
-        else miAudioAddBond.Enabled := False;
+        then
+          begin
+            miAudioAddBond.Enabled := True;
+            if clboxAudioPlaylist.ItemIndex <> glCurrentAudioItemIndex then
+              miAudioSettings.Enabled := True
+            else
+              miAudioSettings.Enabled := False;
+
+          end
+        else
+          begin
+            miAudioAddBond.Enabled := False;
+            miAudioSettings.Enabled := False;
+          end;
       if ScenarioList.Items[TabControl.TabIndex].Bonds.InProvoking(clboxAudioPlaylist.ItemIndex)
         then miAudioDeleteBond.Enabled := True
         else miAudioDeleteBond.Enabled := False;
@@ -1276,6 +1275,7 @@ begin
       miAudioDelete.Enabled := False;
       miAudioAddBond.Enabled := False;
       miAudioDeleteBond.Enabled := False;
+      miAudioSettings.Enabled := False;
     end;
 end;
 

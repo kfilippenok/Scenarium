@@ -156,6 +156,14 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Pocket"/>
       </Unit>
+      <Unit>
+        <Filename Value="filesettings.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="fFileSettings"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="FileSettings"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

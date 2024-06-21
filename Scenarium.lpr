@@ -22,7 +22,7 @@ uses
   MPVRender,
   MPVRenderGL,
   MPVStreamCB,
-  MPVTrack;
+  MPVTrack, FileSettings;
 
 {$R *.res}
 
@@ -36,5 +36,6 @@ begin
   Application.CreateForm(TfSettings, fSettings);
   Application.CreateForm(TfPlaybackAudio, fPlaybackAudio);
   Application.CreateForm(TfMonitorConfigure, fMonitorConfigure);
+  Application.CreateForm(TfFileSettings, fFileSettings);
   Application.Run;
 end.
