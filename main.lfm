@@ -1,8 +1,8 @@
 object fMain: TfMain
   AnchorSideRight.Side = asrBottom
-  Left = 439
+  Left = 440
   Height = 462
-  Top = 299
+  Top = 300
   Width = 1097
   VertScrollBar.Increment = 2
   VertScrollBar.Page = 20

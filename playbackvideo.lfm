@@ -1,7 +1,7 @@
 object fPlaybackVideo: TfPlaybackVideo
-  Left = 871
+  Left = 872
   Height = 279
-  Top = 343
+  Top = 344
   Width = 336
   BorderStyle = bsNone
   Caption = 'Воспроизведение видео'

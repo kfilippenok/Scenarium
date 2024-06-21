@@ -1,7 +1,7 @@
 object fSettings: TfSettings
-  Left = 883
+  Left = 885
   Height = 240
-  Top = 319
+  Top = 320
   Width = 320
   BorderStyle = bsDialog
   Caption = 'Настройки'

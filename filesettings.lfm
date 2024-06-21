@@ -1,7 +1,7 @@
 object fFileSettings: TfFileSettings
-  Left = 789
+  Left = 790
   Height = 142
-  Top = 289
+  Top = 290
   Width = 430
   BorderStyle = bsDialog
   Caption = 'Настройки трека'

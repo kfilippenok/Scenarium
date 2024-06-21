@@ -1259,7 +1259,6 @@ begin
               miAudioSettings.Enabled := True
             else
               miAudioSettings.Enabled := False;
-
           end
         else
           begin

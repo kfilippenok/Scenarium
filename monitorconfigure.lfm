@@ -1,7 +1,7 @@
 object fMonitorConfigure: TfMonitorConfigure
-  Left = 705
+  Left = 706
   Height = 240
-  Top = 324
+  Top = 325
   Width = 425
   BorderStyle = bsDialog
   Caption = 'Настройка вывода изображения'

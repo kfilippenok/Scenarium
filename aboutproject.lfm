@@ -1,7 +1,7 @@
 object fAboutProject: TfAboutProject
-  Left = 790
+  Left = 791
   Height = 255
-  Top = 299
+  Top = 300
   Width = 311
   BorderStyle = bsDialog
   Caption = 'О проекте'
@@ -15,9 +15,9 @@ object fAboutProject: TfAboutProject
   Position = poMainFormCenter
   LCLVersion = '2.2.6.0'
   object Image1: TImage
-    Left = 88
+    Left = 83
     Height = 120
-    Top = 4
+    Top = 5
     Width = 128
     Picture.Data = {
       1754506F727461626C654E6574776F726B477261706869630621000089504E47
@@ -288,6 +288,7 @@ object fAboutProject: TfAboutProject
       6082
     }
     Stretch = True
+    StretchInEnabled = False
   end
   object lblName: TLabel
     Left = 72
