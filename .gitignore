@@ -1,5 +1,13 @@
 arts/
 backup/
 lib/
-Scenarium.exe
-Scenarium.lps
+*.exe
+*.lps
+*.lrs
+*.compiled
+*.ppu
+*.o
+*.or
+*.lrt
+*.rst
+libmpv-2.dll
