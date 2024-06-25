@@ -91,11 +91,6 @@
         <UnitName Value="PlaybackVideo"/>
       </Unit>
       <Unit>
-        <Filename Value="playlist.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="Playlist"/>
-      </Unit>
-      <Unit>
         <Filename Value="LibMPVDelphi\MPVBasePlayer.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
