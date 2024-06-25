@@ -1,3 +1,11 @@
+{*******************************************************}
+{                                                       }
+{       Scenarium                                       }
+{       Copyright (c) 2024 Kirill Filippenok            }
+{       Apache License 2.0                              }
+{                                                       }
+{*******************************************************}
+
 unit Main;
 
 {$mode ObjFPC}{$LONGSTRINGS ON}{$RANGECHECKS ON}{$WRITEABLECONST OFF}
