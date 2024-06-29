@@ -25,6 +25,7 @@ object fMain: TfMain
   OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
   OnResize = FormResize
+  Position = poDesktopCenter
   ShowHint = True
   LCLVersion = '2.2.6.0'
   object panAudio: TPanel

@@ -8,6 +8,7 @@ object fFileSettings: TfFileSettings
   ClientHeight = 142
   ClientWidth = 430
   OnShow = FormShow
+  Position = poMainFormCenter
   LCLVersion = '2.2.6.0'
   object edtNewFilePath: TEdit
     Left = 17
