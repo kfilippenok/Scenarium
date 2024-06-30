@@ -15,7 +15,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ExtCtrls, Buttons,
   // Project Units
-  PLaybackVideo, Pocket, UniqueInstance;
+  PLaybackVideo, Pocket;
 
 type
 
@@ -67,11 +67,19 @@ procedure TfMonitorConfigure.MonitorClick(Sender: TObject);
 var LMonitor: TSpeedButton;
     LMonitorIndex: Integer;
 begin
-  LMonitor := TSpeedButton.Create(scrboxMonitors);
   LMonitor := (Sender as TSpeedButton);
   LMonitorIndex := StrToInt(LMonitor.Name[Length(LMonitor.Name)]);
-  PlaybackMonitor := LMonitorIndex;
-  fPLaybackVideo.BoundsRect := Screen.Monitors[PlaybackMonitor].BoundsRect;
+  if PlaybackMonitor = LMonitorIndex then
+    begin
+      PlaybackMonitor := -1;
+      fPLaybackVideo.Visible := False;
+    end
+  else
+    begin
+      PlaybackMonitor := LMonitorIndex;
+      fPLaybackVideo.BoundsRect := Screen.Monitors[PlaybackMonitor].BoundsRect;
+    end;
+
   UpdateMonitorsList(Sender);
 end;
 
@@ -118,6 +126,10 @@ end;
 
 procedure TfMonitorConfigure.DetectAndAutoChoosePlaybackMonitor;
 begin
+  if PlaybackMonitor <> -1 then Exit;
+
+  PlaybackMonitor := -1;
+
   if Screen.MonitorCount > 1 then
     begin
       if Screen.Monitors[0].MonitorNum <> fMonitorConfigure.Monitor.MonitorNum then

@@ -2458,7 +2458,12 @@ end;
 procedure TfMain.setFullyDisplay(ShowPlayback: Boolean);
 begin
   // Проверка на выбранный монитор
-  if MonitorConfigure.PlaybackMonitor = -1 then Exit;
+  if MonitorConfigure.PlaybackMonitor = -1 then
+    begin
+      if fPLaybackVideo.Visible then
+        fPLaybackVideo.Visible := False;
+      Exit;
+    end;
 
   if ShowPlayback then
   begin
