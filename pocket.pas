@@ -85,6 +85,7 @@ type
       MissingFiles: TStringList;
       Bonds: CBonds;
       constructor Create;
+      destructor Destroy; override;
   end;
 
   CScenarioList = specialize TFPGObjectList<CScenario>;
@@ -204,6 +205,18 @@ begin
   VideoFilePaths := TStringList.Create;
   MissingFiles := TStringList.Create;
   Bonds := CBonds.Create;
+end;
+
+destructor CScenario.Destroy;
+begin
+  FreeAndNil(AudioFileNames);
+  FreeAndNil(AudioFilePaths);
+  FreeAndNil(VideoFileNames);
+  FreeAndNil(VideoFilePaths);
+  FreeAndNil(MissingFiles);
+  FreeAndNil(Bonds);
+
+  inherited Destroy;
 end;
 
 { CStateNotify }

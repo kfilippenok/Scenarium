@@ -734,26 +734,18 @@ end;
 procedure TfMain.FormDestroy(Sender: TObject);
 var i, iscn: Integer;
     bbtnBond: TBitBtn;
+    Scenario: CScenario;
 begin
-  for iscn := 0 to ScenarioList.Count-1 do
+  if ScenarioList.Items[TabControl.TabIndex].Bonds.Count <> 0 then
     begin
-      FreeAndNil(ScenarioList.Items[iscn].AudioFileNames);
-      FreeAndNil(ScenarioList.Items[iscn].AudioFilePaths);
-      FreeAndNil(ScenarioList.Items[iscn].VideoFileNames);
-      FreeAndNil(ScenarioList.Items[iscn].VideoFilePaths);
-      FreeAndNil(ScenarioList.Items[iscn].MissingFiles);
-      if ScenarioList.Items[iscn].Bonds.Count <> 0 then
+      for i := 0 to ScenarioList.Items[TabControl.TabIndex].Bonds.Count - 1 do
         begin
-          for i := 0 to ScenarioList.Items[iscn].Bonds.Count - 1 do
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) <> NIL then
             begin
-              if fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[iscn].Bonds.arProvoking[i])) <> NIL then
-                begin
-                  bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[iscn].Bonds.arProvoking[i])) as TBitBtn);
-                  FreeAndNil(bbtnBond);
-                end;
+              bbtnBond := (fMain.FindComponent('bbtnBondVideo' + IntToStr(ScenarioList.Items[TabControl.TabIndex].Bonds.arProvoking[i])) as TBitBtn);
+              FreeAndNil(bbtnBond);
             end;
         end;
-      FreeAndNil(ScenarioList.Items[iscn].Bonds);
     end;
   FreeAndNil(ScenarioList);
 end;
