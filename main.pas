@@ -887,6 +887,9 @@ begin
   if not(glAdaptivePanels) then
     Exit;
 
+  if fSettings.radgrVisibleVariants.ItemIndex <> 2 then
+    exit;
+
   if (fMain.Height / fMain.Width) >= 1 then
     begin
       setColumnView;

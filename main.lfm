@@ -233,14 +233,16 @@ object fMain: TfMain
         OnMouseDown = sbtnAudioStopMouseDown
       end
       object trbarAudioTime: TTrackBar
+        AnchorSideRight.Control = sbtnAudioLinkControlTrackBar
         Left = 24
         Height = 25
         Top = 64
-        Width = 480
+        Width = 479
         Max = 0
         OnChange = trbarAudioTimeChange
         Position = 0
         Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Right = 10
         OnMouseLeave = trbarAudioTimeMouseLeave
         OnMouseMove = trbarAudioTimeMouseMove
         OnMouseUp = trbarAudioTimeMouseUp
@@ -375,12 +377,17 @@ object fMain: TfMain
         OnClick = sbtnAudioLinkControlButtonsClick
       end
       object sbtnAudioLinkControlTrackBar: TSpeedButton
-        Left = 516
+        AnchorSideLeft.Control = trbarAudioTime
+        AnchorSideLeft.Side = asrBottom
+        AnchorSideRight.Control = panAudioControlsTop
+        AnchorSideRight.Side = asrBottom
+        Left = 513
         Height = 21
         Hint = 'Связное управление воспроизведением'
-        Top = 62
+        Top = 60
         Width = 27
-        Anchors = [akTop]
+        Anchors = [akTop, akRight]
+        BorderSpacing.Right = 15
         Flat = True
         Glyph.Data = {
           46050000424D4605000000000000360000002800000012000000120000000100
@@ -874,14 +881,16 @@ object fMain: TfMain
         OnMouseDown = sbtnVideoStopMouseDown
       end
       object trbarVideoTime: TTrackBar
+        AnchorSideRight.Control = sbtnVideoLinkControlTrackBar
         Left = 24
         Height = 25
         Top = 62
-        Width = 461
+        Width = 464
         Max = 0
         OnChange = trbarVideoTimeChange
         Position = 0
         Anchors = [akTop, akLeft, akRight]
+        BorderSpacing.Right = 10
         OnMouseLeave = trbarVideoTimeMouseLeave
         OnMouseMove = trbarVideoTimeMouseMove
         OnMouseUp = trbarVideoTimeMouseUp
@@ -1016,12 +1025,15 @@ object fMain: TfMain
         OnClick = sbtnVideoLinkControlButtonsClick
       end
       object sbtnVideoLinkControlTrackBar: TSpeedButton
-        Left = 499
+        AnchorSideRight.Control = panVideoControlsTop
+        AnchorSideRight.Side = asrBottom
+        Left = 498
         Height = 22
         Hint = 'Связное управление воспроизведением'
         Top = 59
         Width = 24
-        Anchors = [akTop]
+        Anchors = [akTop, akRight]
+        BorderSpacing.Right = 15
         Flat = True
         Glyph.Data = {
           46050000424D4605000000000000360000002800000012000000120000000100

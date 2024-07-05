@@ -52,9 +52,12 @@ begin
     if radgrVisibleVariants.ItemIndex = 0 then
     begin
       fMain.panVideo.Visible := False;
+      fMain.panVideo.Anchors := [];
       fMain.Splitter.Visible := False;
+      fMain.Splitter.Anchors := [];
 
-      fMain.panAudio.Align := (alClient);
+      fMain.panAudio.Anchors := [];
+      fMain.panAudio.Align := alClient;
       fMain.panAudio.Visible := True;
     end
     else if radgrVisibleVariants.ItemIndex = 1 then
@@ -62,24 +65,20 @@ begin
       fMain.panAudio.Visible := False;
       fMain.Splitter.Visible := False;
 
-      fMain.panVideo.Align := (alClient);
+      fMain.panVideo.Align := alClient;
       fMain.panVideo.Visible := True;
     end
     else if radgrVisibleVariants.ItemIndex = 2 then
     begin
-      with fMain.panAudio do
+      with fMain do
       begin
-        Align := (alLeft);
-        AnchorToNeighbour(akRight, 0, fMain.Splitter);
+        panAudio.Align := (alNone);
+        panVideo.Align := (alNone);
+        panAudio.Visible := True;
+        Splitter.Visible := True;
+        panVideo.Visible := True;
+        FormResize(Sender);
       end;
-      with fMain.panVideo do
-      begin
-        Align := (alRight);
-        AnchorToNeighbour(akLeft, 0, fMain.Splitter);
-      end;
-      fMain.panAudio.Visible := True;
-      fMain.Splitter.Visible := True;
-      fMain.panVideo.Visible := True;
     end;
 end;
 
