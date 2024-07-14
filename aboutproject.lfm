@@ -13,7 +13,7 @@ object fAboutProject: TfAboutProject
   Font.Pitch = fpVariable
   Font.Quality = fqDraft
   Position = poMainFormCenter
-  LCLVersion = '2.2.6.0'
+  LCLVersion = '3.4.0.0'
   object Image1: TImage
     Left = 83
     Height = 120
@@ -383,7 +383,7 @@ object fAboutProject: TfAboutProject
     Height = 19
     Top = 132
     Width = 114
-    Caption = 'Сборка: 25.06.2024'
+    Caption = 'Сборка: 14.07.2024'
     ParentColor = False
   end
 end
