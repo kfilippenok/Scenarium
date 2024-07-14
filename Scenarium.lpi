@@ -55,9 +55,6 @@
         <PackageName Value="uniqueinstance_package"/>
       </Item>
       <Item>
-        <PackageName Value="BGLControls"/>
-      </Item>
-      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
