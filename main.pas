@@ -57,6 +57,8 @@ type
     sbtnVideoRepeat: TSpeedButton;
     sbtnAudioLinkControlButtons: TSpeedButton;
     sbtnVideoLinkControlButtons: TSpeedButton;
+    sboxAudioBottomExtControls: TScrollBox;
+    sboxVideoBottomExtControls: TScrollBox;
     { Вкладки }
     TabControl: TTabControl;
 
@@ -162,6 +164,8 @@ type
     procedure ppmnAudioPlaylistPopup(Sender: TObject);
     procedure ppmnTabControlPopup(Sender: TObject);
     procedure ppmnVideoPlaylistPopup(Sender: TObject);
+    procedure sboxAudioBottomExtControlsResize(Sender: TObject);
+    procedure sboxVideoBottomExtControlsResize(Sender: TObject);
     procedure sbtnAudioLinkControlTrackBarClick(Sender: TObject);
     procedure sbtnAudioPauseClick(Sender: TObject);
     procedure sbtnAudioStopClick(Sender: TObject);
@@ -1073,6 +1077,34 @@ begin
       miVideoAddBond.Enabled := False;
       miVideoDeleteBonds.Enabled := False;
       miVideoSettings.Enabled := False;
+    end;
+end;
+
+procedure TfMain.sboxAudioBottomExtControlsResize(Sender: TObject);
+begin
+  if sbtnFullyDisplay.Left <= 0 then
+    begin
+      if panAudioControlsBottom.Height <> 54 then
+        panAudioControlsBottom.Height := 54;
+    end
+  else
+    begin
+      if panAudioControlsBottom.Height <> 42 then
+        panAudioControlsBottom.Height := 42;
+    end;
+end;
+
+procedure TfMain.sboxVideoBottomExtControlsResize(Sender: TObject);
+begin
+  if sbtnFullyDisplay.Left <= 0 then
+    begin
+      if panVideoControlsBottom.Height <> 54 then
+        panVideoControlsBottom.Height := 54;
+    end
+  else
+    begin
+      if panVideoControlsBottom.Height <> 42 then
+        panVideoControlsBottom.Height := 42;
     end;
 end;
 
