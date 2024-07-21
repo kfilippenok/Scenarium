@@ -14,8 +14,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ExtCtrls,
-  CheckLst, Buttons, StdCtrls, ComCtrls, Types, LCLType, lazUTF8, Themes,
-  Math,
+  CheckLst, Buttons, StdCtrls, ComCtrls, Types, LCLType, lazUTF8, Themes, Math,
   // JSON
   fpjson, jsonparser,
   // Files
@@ -1739,15 +1738,13 @@ begin
   if jaVideoFilePaths.Count > 0 then
     for i := 0 to jaVideoFilePaths.Count-1 do
     begin
-      if FileExists(jaVideoFilePaths.Strings[i]) then
-      begin
-        ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(jaVideoFilePaths.Strings[i]);
-        ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(jaVideoFilePaths.Strings[i]));
-        if Not(FileExists(jaVideoFilePaths.Strings[i])) then
+      ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Add(jaVideoFilePaths.Strings[i]);
+      ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Add(ExtractFileName(jaVideoFilePaths.Strings[i]));
+
+      if Not(FileExists(jaVideoFilePaths.Strings[i])) then
         begin
           ScenarioList.Items[TabControl.TabIndex].MissingFiles.Add(jaVideoFilePaths.Strings[i]);
         end;
-      end;
     end;
   clboxVideoPlaylist.Items := ScenarioList.Items[TabControl.TabIndex].VideoFileNames;
 
