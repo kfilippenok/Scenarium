@@ -671,8 +671,6 @@ begin
 
       if oldIndex > newIndex then
         begin
-          if i = glCurrentAudioItemIndex then
-                glCurrentAudioItemIndex := i-1;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
           for i := oldIndex-1 downto newIndex do
             begin
@@ -684,8 +682,6 @@ begin
         end
       else
         begin
-          if i = glCurrentAudioItemIndex then
-                glCurrentAudioItemIndex := i-1;
           ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
           for i := oldIndex+1 to newIndex do
             begin
