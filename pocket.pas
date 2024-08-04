@@ -68,7 +68,6 @@ type
       function InBonds(Number: Integer): Boolean; overload;
       function InBonds(Provoking, Invoking: Integer): Boolean; overload;
       procedure Clear;
-    published
       property Count: Integer read GetCount;
   end;
 
