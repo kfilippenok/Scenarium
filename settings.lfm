@@ -13,7 +13,6 @@ object fSettings: TfSettings
   Font.Pitch = fpVariable
   Font.Quality = fqDraft
   Position = poMainFormCenter
-  LCLVersion = '2.2.6.0'
   object pgcntrlSettings: TPageControl
     Left = 0
     Height = 240
@@ -28,7 +27,9 @@ object fSettings: TfSettings
       ClientHeight = 208
       ClientWidth = 312
       object radgrVisibleVariants: TRadioGroup
-        Left = 10
+        AnchorSideLeft.Control = tabDisplay
+        AnchorSideLeft.Side = asrCenter
+        Left = 11
         Height = 97
         Top = 8
         Width = 290
@@ -53,15 +54,16 @@ object fSettings: TfSettings
         TabOrder = 0
       end
       object chkboxAdaptivePanels: TCheckBox
-        Left = 18
+        AnchorSideLeft.Control = radgrVisibleVariants
+        Left = 11
         Height = 23
         Top = 125
-        Width = 144
+        Width = 142
         Caption = 'Адаптивные панели'
         Checked = True
-        OnChange = chkboxAdaptivePanelsChange
         State = cbChecked
         TabOrder = 1
+        OnChange = chkboxAdaptivePanelsChange
       end
     end
     object tabAdditional: TTabSheet
@@ -76,9 +78,9 @@ object fSettings: TfSettings
         AutoSize = False
         Caption = 'Подсказки'
         Checked = True
-        OnChange = chkboxTipsChange
         State = cbChecked
         TabOrder = 0
+        OnChange = chkboxTipsChange
       end
     end
   end

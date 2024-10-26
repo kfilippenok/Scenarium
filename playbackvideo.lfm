@@ -1,22 +1,21 @@
 object fPlaybackVideo: TfPlaybackVideo
-  Left = 872
-  Height = 279
-  Top = 344
-  Width = 336
+  Left = -8
+  Height = 318
+  Top = -8
+  Width = 352
   BorderStyle = bsNone
   Caption = 'Воспроизведение видео'
-  ClientHeight = 279
-  ClientWidth = 336
+  ClientHeight = 631
+  ClientWidth = 1216
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   ParentFont = True
-  LCLVersion = '2.2.6.0'
   WindowState = wsFullScreen
   object panMPVHandle: TPanel
     Left = 0
-    Height = 279
+    Height = 631
     Top = 0
-    Width = 336
+    Width = 1216
     Align = alClient
     TabOrder = 0
   end

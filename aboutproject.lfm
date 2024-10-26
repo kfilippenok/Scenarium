@@ -13,9 +13,10 @@ object fAboutProject: TfAboutProject
   Font.Pitch = fpVariable
   Font.Quality = fqDraft
   Position = poMainFormCenter
-  LCLVersion = '3.4.0.0'
   object Image1: TImage
-    Left = 83
+    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Side = asrCenter
+    Left = 91
     Height = 120
     Top = 5
     Width = 128
@@ -307,7 +308,9 @@ object fAboutProject: TfAboutProject
     ParentFont = False
   end
   object lblVersion: TLabel
-    Left = 89
+    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Side = asrCenter
+    Left = 94
     Height = 19
     Top = 156
     Width = 122
@@ -315,7 +318,9 @@ object fAboutProject: TfAboutProject
     ParentColor = False
   end
   object lblAutor: TLabel
-    Left = 69
+    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Side = asrCenter
+    Left = 70
     Height = 19
     Top = 181
     Width = 171
@@ -323,7 +328,9 @@ object fAboutProject: TfAboutProject
     ParentColor = False
   end
   object bClose: TBitBtn
-    Left = 102
+    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Side = asrCenter
+    Left = 104
     Height = 29
     Top = 213
     Width = 102
@@ -379,7 +386,9 @@ object fAboutProject: TfAboutProject
     TabOrder = 0
   end
   object lblBuild: TLabel
-    Left = 93
+    AnchorSideLeft.Control = Owner
+    AnchorSideLeft.Side = asrCenter
+    Left = 98
     Height = 19
     Top = 132
     Width = 114

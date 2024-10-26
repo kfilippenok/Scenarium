@@ -9,13 +9,16 @@ object fFileSettings: TfFileSettings
   ClientWidth = 430
   OnShow = FormShow
   Position = poMainFormCenter
-  LCLVersion = '2.2.6.0'
   object edtNewFilePath: TEdit
+    AnchorSideLeft.Control = edtOldFilePath
+    AnchorSideRight.Control = sbtnOpenFile
     Left = 17
     Height = 28
     Top = 53
-    Width = 353
+    Width = 344
+    Anchors = [akTop, akLeft, akRight]
     AutoSize = False
+    BorderSpacing.Right = 15
     Font.CharSet = ANSI_CHARSET
     Font.Height = -16
     Font.Pitch = fpVariable
@@ -24,10 +27,13 @@ object fFileSettings: TfFileSettings
     TabOrder = 0
   end
   object sbtnOpenFile: TSpeedButton
-    Left = 384
+    AnchorSideRight.Control = edtOldFilePath
+    AnchorSideRight.Side = asrBottom
+    Left = 376
     Height = 28
     Top = 53
-    Width = 28
+    Width = 32
+    Anchors = [akTop, akLeft, akRight]
     Glyph.Data = {
       76060000424D7606000000000000360000002800000014000000140000000100
       2000000000004006000064000000640000000000000000000000FFFFFF00FFFF
@@ -85,10 +91,13 @@ object fFileSettings: TfFileSettings
     OnClick = sbtnOpenFileClick
   end
   object bbtnSave: TBitBtn
+    AnchorSideRight.Control = edtOldFilePath
+    AnchorSideRight.Side = asrBottom
     Left = 314
     Height = 30
     Top = 97
-    Width = 98
+    Width = 94
+    Anchors = [akTop, akLeft, akRight]
     Caption = 'Сохранить'
     Enabled = False
     Glyph.Data = {
@@ -124,10 +133,13 @@ object fFileSettings: TfFileSettings
     TabOrder = 1
   end
   object bbtnClose: TBitBtn
+    AnchorSideRight.Control = bbtnSave
     Left = 216
     Height = 30
     Top = 97
     Width = 83
+    Anchors = [akTop, akLeft, akRight]
+    BorderSpacing.Right = 15
     Caption = 'Отмена'
     Font.Height = -12
     Glyph.Data = {

@@ -27,7 +27,6 @@ object fMain: TfMain
   OnResize = FormResize
   Position = poDesktopCenter
   ShowHint = True
-  LCLVersion = '3.4.0.0'
   object panAudio: TPanel
     AnchorSideLeft.Control = Owner
     AnchorSideTop.Control = TabControl
@@ -88,6 +87,8 @@ object fMain: TfMain
       TabOrder = 0
       OnMouseMove = panAudioControlsTopMouseMove
       object sbtnAudioPlay: TSpeedButton
+        AnchorSideTop.Control = sbtnAudioLinkControlButtons
+        AnchorSideTop.Side = asrCenter
         Left = 245
         Height = 30
         Hint = 'Воспроизвести'
@@ -136,6 +137,8 @@ object fMain: TfMain
         OnClick = sbtnAudioPlayClick
       end
       object sbtnAudioPause: TSpeedButton
+        AnchorSideTop.Control = sbtnAudioLinkControlButtons
+        AnchorSideTop.Side = asrCenter
         Left = 205
         Height = 30
         Hint = 'Приостановить'
@@ -184,6 +187,8 @@ object fMain: TfMain
         OnClick = sbtnAudioPauseClick
       end
       object sbtnAudioStop: TSpeedButton
+        AnchorSideTop.Control = sbtnAudioLinkControlButtons
+        AnchorSideTop.Side = asrCenter
         Left = 285
         Height = 30
         Hint = 'Остановить'
@@ -260,6 +265,8 @@ object fMain: TfMain
         ParentColor = False
       end
       object lblAudioTimeTotal: TLabel
+        AnchorSideTop.Control = lblAudioTimeCurrent
+        AnchorSideTop.Side = asrCenter
         Left = 464
         Height = 19
         Hint = 'Длительность трека'
@@ -283,6 +290,8 @@ object fMain: TfMain
         ParentColor = False
       end
       object sbtnAudioRepeat: TSpeedButton
+        AnchorSideTop.Control = sbtnAudioLinkControlButtons
+        AnchorSideTop.Side = asrCenter
         Left = 331
         Height = 30
         Hint = 'Повтор трека'
@@ -379,12 +388,14 @@ object fMain: TfMain
       object sbtnAudioLinkControlTrackBar: TSpeedButton
         AnchorSideLeft.Control = trbarAudioTime
         AnchorSideLeft.Side = asrBottom
+        AnchorSideTop.Control = trbarAudioTime
+        AnchorSideTop.Side = asrCenter
         AnchorSideRight.Control = panAudioControlsTop
         AnchorSideRight.Side = asrBottom
         Left = 513
         Height = 21
         Hint = 'Связное управление воспроизведением'
-        Top = 60
+        Top = 66
         Width = 27
         Anchors = [akTop, akRight]
         BorderSpacing.Right = 15
@@ -451,6 +462,8 @@ object fMain: TfMain
       ParentColor = False
       TabOrder = 2
       object sbtnAudioClear: TSpeedButton
+        AnchorSideTop.Control = panAudioControlsBottom
+        AnchorSideTop.Side = asrCenter
         Left = 516
         Height = 30
         Hint = 'Очистить список'
@@ -499,6 +512,8 @@ object fMain: TfMain
         OnClick = sbtnAudioClearClick
       end
       object sbtnAudioAdd: TSpeedButton
+        AnchorSideTop.Control = panAudioControlsBottom
+        AnchorSideTop.Side = asrCenter
         Left = 8
         Height = 30
         Hint = 'Добавить аудио в список'
@@ -547,6 +562,8 @@ object fMain: TfMain
         OnClick = sbtnAudioAddClick
       end
       object sbtnAudioSubtract: TSpeedButton
+        AnchorSideTop.Control = panAudioControlsBottom
+        AnchorSideTop.Side = asrCenter
         Left = 48
         Height = 30
         Hint = 'Удалить выбранный элемент из списка'
@@ -620,11 +637,13 @@ object fMain: TfMain
         TabOrder = 0
         OnResize = sboxAudioBottomExtControlsResize
         object sbtnAudioVolume: TSpeedButton
+          AnchorSideTop.Control = sboxAudioBottomExtControls
+          AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = trbarAudioVolume
           Left = 252
           Height = 28
           Hint = 'Вкл./выкл. звук'
-          Top = 4
+          Top = 7
           Width = 34
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 10
@@ -670,12 +689,15 @@ object fMain: TfMain
           OnClick = sbtnAudioVolumeClick
         end
         object trbarAudioVolume: TTrackBar
+          AnchorSideTop.Control = sboxAudioBottomExtControls
+          AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = sboxAudioBottomExtControls
           AnchorSideRight.Side = asrBottom
           Left = 296
-          Height = 28
+          Height = 25
           Top = 9
           Width = 110
+          AutoSize = True
           Max = 100
           OnChange = trbarAudioVolumeChange
           Position = 100
@@ -942,10 +964,12 @@ object fMain: TfMain
         ParentColor = False
       end
       object lblVideoTimeTotal: TLabel
+        AnchorSideTop.Control = lblVideoTimeCurrent
+        AnchorSideTop.Side = asrCenter
         Left = 445
         Height = 19
         Hint = 'Длительность трека'
-        Top = 39
+        Top = 38
         Width = 56
         Alignment = taCenter
         Anchors = [akTop, akRight]
@@ -1059,12 +1083,14 @@ object fMain: TfMain
         OnClick = sbtnVideoLinkControlButtonsClick
       end
       object sbtnVideoLinkControlTrackBar: TSpeedButton
+        AnchorSideTop.Control = trbarVideoTime
+        AnchorSideTop.Side = asrCenter
         AnchorSideRight.Control = panVideoControlsTop
         AnchorSideRight.Side = asrBottom
         Left = 498
         Height = 22
         Hint = 'Связное управление воспроизведением'
-        Top = 59
+        Top = 63
         Width = 24
         Anchors = [akTop, akRight]
         BorderSpacing.Right = 15
@@ -1131,6 +1157,8 @@ object fMain: TfMain
       ParentColor = False
       TabOrder = 2
       object sbtnVideoClear: TSpeedButton
+        AnchorSideTop.Control = panVideoControlsBottom
+        AnchorSideTop.Side = asrCenter
         Left = 498
         Height = 30
         Hint = 'Очистить список'
@@ -1177,6 +1205,8 @@ object fMain: TfMain
         OnClick = sbtnVideoClearClick
       end
       object sbtnVideoAdd: TSpeedButton
+        AnchorSideTop.Control = panVideoControlsBottom
+        AnchorSideTop.Side = asrCenter
         Left = 8
         Height = 30
         Hint = 'Добавить видео/изображение в список'
@@ -1186,6 +1216,8 @@ object fMain: TfMain
         OnClick = sbtnVideoAddClick
       end
       object sbtnVideoSubtract: TSpeedButton
+        AnchorSideTop.Control = panVideoControlsBottom
+        AnchorSideTop.Side = asrCenter
         Left = 48
         Height = 30
         Hint = 'Удалить выбранный элемент из списка'
@@ -1243,8 +1275,8 @@ object fMain: TfMain
         Height = 42
         Top = 0
         Width = 398
-        HorzScrollBar.Increment = 26
-        HorzScrollBar.Page = 260
+        HorzScrollBar.Increment = 25
+        HorzScrollBar.Page = 250
         HorzScrollBar.Smooth = True
         HorzScrollBar.Tracking = True
         VertScrollBar.Increment = 1
@@ -1261,11 +1293,13 @@ object fMain: TfMain
         TabOrder = 0
         OnResize = sboxVideoBottomExtControlsResize
         object sbtnVideoVolume: TSpeedButton
+          AnchorSideTop.Control = sboxVideoBottomExtControls
+          AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = trbarVideoVolume
           Left = 224
           Height = 27
           Hint = 'Вкл./выкл. звук'
-          Top = 4
+          Top = 8
           Width = 34
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 10
@@ -1311,27 +1345,31 @@ object fMain: TfMain
           OnClick = sbtnVideoVolumeClick
         end
         object trbarVideoVolume: TTrackBar
+          AnchorSideTop.Control = sboxVideoBottomExtControls
+          AnchorSideTop.Side = asrCenter
           AnchorSideRight.Side = asrBottom
           Left = 268
           Height = 27
-          Top = 9
+          Top = 8
           Width = 118
+          AutoSize = True
           Max = 100
           OnChange = trbarVideoVolumeChange
           Position = 100
           SelEnd = 100
           TickStyle = tsNone
           Anchors = [akTop, akRight]
-          BorderSpacing.Right = 10
           OnMouseUp = trbarVideoVolumeMouseUp
           TabOrder = 0
         end
         object sbtnMonitorConfigure: TSpeedButton
+          AnchorSideTop.Control = sboxVideoBottomExtControls
+          AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = sbtnVideoVolume
           Left = 180
           Height = 27
           Hint = 'Настройки отображения'
-          Top = 7
+          Top = 8
           Width = 34
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 10
@@ -1377,11 +1415,13 @@ object fMain: TfMain
           OnClick = sbtnMonitorConfigureClick
         end
         object sbtnFullyDisplay: TSpeedButton
+          AnchorSideTop.Control = sboxVideoBottomExtControls
+          AnchorSideTop.Side = asrCenter
           AnchorSideRight.Control = sbtnMonitorConfigure
           Left = 136
           Height = 26
           Hint = 'Включить окно воспроизведения'
-          Top = 7
+          Top = 8
           Width = 34
           Anchors = [akTop, akRight]
           BorderSpacing.Right = 10
