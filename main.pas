@@ -689,6 +689,8 @@ begin
         glCurrentAudioItemIndex := newIndex;
     end;
 
+  clboxAudioPlaylist.Items.EndUpdate;
+
   clboxAudioPlaylist.Repaint;
   clboxVideoPlaylist.ItemIndex := newIndex;
   clboxVideoPlaylist.ClearSelection;
