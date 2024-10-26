@@ -421,9 +421,6 @@ begin
 end;
 
 procedure TfMain.clboxAudioPlaylistDblClick(Sender: TObject);
-var
-  i: word;
-  IndexBond: Integer;
 begin
   if (fPlaybackAudio.audioPlayer = nil) then Exit;
   if (clboxAudioPlaylist.Count = 0) then Exit;
@@ -453,66 +450,68 @@ begin
   if newIndex = -1 then                        // Если перенесли на пустое место
     newIndex := clboxAudioPlaylist.Count-1;
 
-  if newIndex = oldIndex then // Проверка на смену позиции
-    Exit;
+  if newIndex = oldIndex then Exit; // Проверка на смену позиции
 
-  if (Sender = Source) then
+  if (Sender <> Source) then Exit;
+
+  clboxAudioPlaylist.Items.BeginUpdate;
+
+  clboxAudioPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем элемент
+  ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Move(oldIndex, newIndex);
+  ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Move(oldIndex, newIndex);
+
+  if oldIndex > newIndex then
     begin
-      clboxAudioPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем элемент
-      ScenarioList.Items[TabControl.TabIndex].AudioFileNames.Move(oldIndex, newIndex);
-      ScenarioList.Items[TabControl.TabIndex].AudioFilePaths.Move(oldIndex, newIndex);
-
-      if oldIndex > newIndex then
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(oldIndex, -1);
+      if fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex)) <> NIL then
         begin
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(oldIndex, -1);
-          if fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex)) <> NIL then
-            begin
-              LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex))) as TBitBtn);
-              FreeAndNil(LBitBtn);
-            end;
-          for i := oldIndex-1 downto newIndex do
-            begin
-              if i = glCurrentAudioItemIndex then
-                glCurrentAudioItemIndex := i+1;
-              if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
-              begin
-                LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
-                FreeAndNil(LBitBtn);
-              end;
-              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i+1);
-            end;
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
-          if oldIndex = glCurrentAudioItemIndex then
-            glCurrentAudioItemIndex := newIndex;
-        end
-      else
-        begin
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(oldIndex, -1);
-          if fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex)) <> NIL then
-            begin
-              LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex))) as TBitBtn);
-              FreeAndNil(LBitBtn);
-            end;
-          for i := oldIndex+1 to newIndex do
-            begin
-              if i = glCurrentAudioItemIndex then
-                glCurrentAudioItemIndex := i-1;
-              if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
-              begin
-                LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
-                FreeAndNil(LBitBtn);
-              end;
-              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i-1);
-            end;
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
-          if oldIndex = glCurrentAudioItemIndex then
-            glCurrentAudioItemIndex := newIndex;
+          LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex))) as TBitBtn);
+          FreeAndNil(LBitBtn);
         end;
-
-      clboxAudioPlaylist.ItemIndex := newIndex;
-      clboxAudioPlaylist.ClearSelection;
-      clboxAudioPlaylist.Selected[newIndex] := True;
+      for i := oldIndex-1 downto newIndex do
+        begin
+          if i = glCurrentAudioItemIndex then
+            glCurrentAudioItemIndex := i+1;
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
+          begin
+            LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
+            FreeAndNil(LBitBtn);
+          end;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i+1);
+        end;
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
+      if oldIndex = glCurrentAudioItemIndex then
+        glCurrentAudioItemIndex := newIndex;
+    end
+  else
+    begin
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(oldIndex, -1);
+      if fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex)) <> NIL then
+        begin
+          LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(oldIndex))) as TBitBtn);
+          FreeAndNil(LBitBtn);
+        end;
+      for i := oldIndex+1 to newIndex do
+        begin
+          if i = glCurrentAudioItemIndex then
+            glCurrentAudioItemIndex := i-1;
+          if fMain.FindComponent('bbtnBondVideo' + IntToStr(i)) <> NIL then
+          begin
+            LBitBtn := ((fMain.FindComponent('bbtnBondVideo' + IntToStr(i))) as TBitBtn);
+            FreeAndNil(LBitBtn);
+          end;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(i, i-1);
+        end;
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereProvoking(-1, newIndex);
+      if oldIndex = glCurrentAudioItemIndex then
+        glCurrentAudioItemIndex := newIndex;
     end;
+
+  clboxAudioPlaylist.Items.EndUpdate;
+
+  clboxAudioPlaylist.ItemIndex := newIndex;
+  clboxAudioPlaylist.ClearSelection;
+  clboxAudioPlaylist.Selected[newIndex] := True;
 end;
 
 procedure TfMain.clboxAudioPlaylistDragOver(Sender, Source: TObject; X,
@@ -621,8 +620,6 @@ begin
 end;
 
 procedure TfMain.clboxVideoPlaylistDblClick(Sender: TObject);
-var
-  i: word;
 begin
   with fPlaybackVideo do
   begin
@@ -648,7 +645,6 @@ procedure TfMain.clboxVideoPlaylistDragDrop(Sender, Source: TObject; X,
   Y: Integer);
 var clbox : TCheckListBox;
     oldIndex, newIndex, i: Integer;
-    LBitBtn: TBitBtn;
 begin
   if clboxVideoPlaylist.Count = 0 then
     Exit;
@@ -660,43 +656,43 @@ begin
   if newIndex = -1 then                      // Если перенесли на пустое место
     newIndex := clboxVideoPlaylist.Count-1;
 
-  if newIndex = oldIndex then // Проверка на смену позиции
-    Exit;
+  if newIndex = oldIndex then Exit; // Проверка на смену позиции
 
-  if (Sender = Source) then // Если перемещение происходит внутри компонента
+  if (Sender <> Source) then Exit;
+
+  clboxAudioPlaylist.Items.BeginUpdate;
+
+  clboxVideoPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем крайние
+  ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Move(oldIndex, newIndex);
+  ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Move(oldIndex, newIndex);
+
+  if oldIndex > newIndex then
     begin
-      clboxVideoPlaylist.Items.Move(oldIndex, newIndex); // Передвигаем крайние
-      ScenarioList.Items[TabControl.TabIndex].VideoFileNames.Move(oldIndex, newIndex);
-      ScenarioList.Items[TabControl.TabIndex].VideoFilePaths.Move(oldIndex, newIndex);
-
-      if oldIndex > newIndex then
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
+      for i := oldIndex-1 downto newIndex do
         begin
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
-          for i := oldIndex-1 downto newIndex do
-            begin
-              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i+1);
-            end;
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
-          if oldIndex = glCurrentAudioItemIndex then
-            glCurrentAudioItemIndex := newIndex;
-        end
-      else
-        begin
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
-          for i := oldIndex+1 to newIndex do
-            begin
-              ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i-1);
-            end;
-          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
-          if oldIndex = glCurrentAudioItemIndex then
-            glCurrentAudioItemIndex := newIndex;
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i+1);
         end;
-
-      clboxAudioPlaylist.Repaint;
-      clboxVideoPlaylist.ItemIndex := newIndex;
-      clboxVideoPlaylist.ClearSelection;
-      clboxVideoPlaylist.Selected[newIndex] := True;
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
+      if oldIndex = glCurrentAudioItemIndex then
+        glCurrentAudioItemIndex := newIndex;
+    end
+  else
+    begin
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(oldIndex, -1);
+      for i := oldIndex+1 to newIndex do
+        begin
+          ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(i, i-1);
+        end;
+      ScenarioList.Items[TabControl.TabIndex].Bonds.UpdateWhereInvoking(-1, newIndex);
+      if oldIndex = glCurrentAudioItemIndex then
+        glCurrentAudioItemIndex := newIndex;
     end;
+
+  clboxAudioPlaylist.Repaint;
+  clboxVideoPlaylist.ItemIndex := newIndex;
+  clboxVideoPlaylist.ClearSelection;
+  clboxVideoPlaylist.Selected[newIndex] := True;
 end;
 
 procedure TfMain.clboxVideoPlaylistDragOver(Sender, Source: TObject; X,
@@ -731,9 +727,8 @@ begin
 end;
 
 procedure TfMain.FormDestroy(Sender: TObject);
-var i, iscn: Integer;
+var i: Integer;
     bbtnBond: TBitBtn;
-    Scenario: CScenario;
 begin
   if ScenarioList.Items[TabControl.TabIndex].Bonds.Count <> 0 then
     begin
